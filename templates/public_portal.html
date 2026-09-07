@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Public Portal - SMART ROADS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.65),
+                    rgba(0, 0, 0, 0.65)
+                ),
+                url("/static/images/background.jpg");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        header {
+            background: rgba(10, 20, 30, 0.92);
+
+            padding: 20px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+        }
+
+        .home-btn {
+            color: white;
+            text-decoration: none;
+
+            background: rgba(255,255,255,0.15);
+
+            padding: 10px 18px;
+
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 1000px;
+
+            margin: 50px auto;
+
+            padding: 20px;
+
+            text-align: center;
+        }
+
+        .container h2 {
+            font-size: 32px;
+
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #dddddd;
+
+            margin-bottom: 40px;
+        }
+
+        .services {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(240px, 1fr));
+
+            gap: 25px;
+        }
+
+        .service-card {
+            background:
+                rgba(20, 35, 45, 0.92);
+
+            padding: 35px 25px;
+
+            border-radius: 18px;
+
+            text-decoration: none;
+
+            color: white;
+
+            transition: 0.3s;
+
+            box-shadow:
+                0 10px 25px rgba(0,0,0,0.4);
+        }
+
+        .service-card:hover {
+            transform: translateY(-7px);
+
+            background:
+                rgba(35, 55, 68, 0.95);
+        }
+
+        .service-icon {
+            font-size: 45px;
+
+            margin-bottom: 15px;
+        }
+
+        .service-card h3 {
+            margin: 10px 0;
+
+            font-size: 20px;
+        }
+
+        .service-card p {
+            color: #cccccc;
+
+            line-height: 1.5;
+
+            font-size: 14px;
+        }
+
+        @media (max-width: 700px) {
+
+            header h1 {
+                font-size: 20px;
+            }
+
+            .container h2 {
+                font-size: 26px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h1>
+            👥 SMART ROADS - Public Portal
+        </h1>
+
+        <a
+            href="/"
+            class="home-btn"
+        >
+            ← Home
+        </a>
+
+    </header>
+
+
+    <!-- MAIN -->
+
+    <div class="container">
+
+        <h2>
+            Public Services
+        </h2>
+
+        <p class="description">
+            Access SMART ROADS services for vehicles,
+            emergencies and road-related issues.
+        </p>
+
+
+        <div class="services">
+
+
+            <!-- VEHICLE / CHALLAN -->
+
+            <a
+                href="/challan"
+                class="service-card"
+            >
+
+                <div class="service-icon">
+                    🧾
+                </div>
+
+                <h3>
+                    Vehicle / Challan Details
+                </h3>
+
+                <p>
+                    Enter your vehicle registration number
+                    to view available violation and challan
+                    information.
+                </p>
+
+            </a>
+
+
+            <!-- EMERGENCY -->
+
+            <a
+                href="/public-emergency"
+                class="service-card"
+            >
+
+                <div class="service-icon">
+                    🚑
+                </div>
+
+                <h3>
+                    Emergency Assistance
+                </h3>
+
+                <p>
+                    Report an emergency situation and request
+                    assistance when required.
+                </p>
+
+            </a>
+
+
+            <!-- REPORT ISSUE -->
+
+            <a
+                href="/report-issue"
+                class="service-card"
+            >
+
+                <div class="service-icon">
+                    📢
+                </div>
+
+                <h3>
+                    Report an Issue
+                </h3>
+
+                <p>
+                    Report potholes, broken signals,
+                    road obstructions and other road issues.
+                </p>
+
+            </a>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>

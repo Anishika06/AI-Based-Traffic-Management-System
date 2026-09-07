@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Smart Signal Management - ROADVISION AI</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101820;
+            color: white;
+        }
+
+        header {
+            padding: 20px 40px;
+            background: #182630;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            background: #333;
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .signal-box {
+            background: #1d2d38;
+            padding: 35px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .signals {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .signal {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-weight: bold;
+        }
+
+        .red {
+            background: #e63946;
+        }
+
+        .yellow {
+            background: #f4c430;
+            color: black;
+        }
+
+        .green {
+            background: #28a745;
+        }
+
+        .route {
+            margin: 25px 0;
+        }
+
+        select {
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 25px;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            background: #e63946;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #ff4d5a;
+        }
+
+        .status {
+            margin-top: 30px;
+            padding: 20px;
+            background: #15232c;
+            border-radius: 10px;
+        }
+
+        .timer {
+            font-size: 40px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<header>
+
+    <h2>🚦 Smart Signal Management</h2>
+
+    <a href="/authority-dashboard" class="back-btn">
+        ← Dashboard
+    </a>
+
+</header>
+
+
+<div class="container">
+
+    <h1>Smart Traffic Signal Control</h1>
+
+    <p>
+        Authority control panel for emergency vehicle traffic priority.
+    </p>
+
+
+    <div class="signal-box">
+
+        <h2>🚦 Current Signal Status</h2>
+
+        <div class="signals">
+
+            <div class="signal red">
+                RED
+            </div>
+
+            <div class="signal yellow">
+                YELLOW
+            </div>
+
+            <div class="signal green">
+                GREEN
+            </div>
+
+        </div>
+
+
+        <div class="route">
+
+            <h3>📍 Select Emergency Route</h3>
+
+            <select id="route">
+
+                <option>Route A - Main Road</option>
+                <option>Route B - Hospital Road</option>
+                <option>Route C - Highway</option>
+                <option>Route D - City Centre</option>
+
+            </select>
+
+        </div>
+
+
+        <button onclick="activatePriority()">
+            🚑 Activate Emergency Priority
+        </button>
+
+
+        <div class="status" id="status">
+
+            System ready. Emergency priority is currently inactive.
+
+        </div>
+
+
+        <div class="timer" id="timer">
+            --
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+function activatePriority() {
+
+    const route =
+        document.getElementById("route").value;
+
+    const status =
+        document.getElementById("status");
+
+    const timer =
+        document.getElementById("timer");
+
+
+    status.innerHTML =
+        "🚑 <strong>Emergency Priority Activated</strong><br><br>" +
+        "Selected Route: " + route +
+        "<br>🚦 Green signal priority enabled.";
+
+    let seconds = 30;
+
+    timer.innerHTML = seconds + " seconds";
+
+
+    const countdown =
+        setInterval(function() {
+
+            seconds--;
+
+            timer.innerHTML =
+                seconds + " seconds";
+
+            if (seconds <= 0) {
+
+                clearInterval(countdown);
+
+                timer.innerHTML = "Completed";
+
+                status.innerHTML =
+                    "✅ Emergency priority completed.<br>" +
+                    "Normal traffic signal operation resumed.";
+
+            }
+
+        }, 1000);
+
+}
+
+</script>
+
+</body>
+
+</html>

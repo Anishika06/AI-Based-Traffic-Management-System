@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Traffic Status - SMART ROADS</title>
+
+    <style>
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101820;
+            color: white;
+        }
+
+        header {
+            background: #182630;
+            padding: 20px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back {
+            color: white;
+            text-decoration: none;
+            background: #333;
+            padding: 10px 18px;
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #ccc;
+            margin-bottom: 35px;
+        }
+
+        .traffic-grid {
+            display: grid;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(220px, 1fr)
+            );
+
+            gap: 20px;
+        }
+
+        .card {
+            background: #1d2d38;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-top: 0;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .green {
+            background: #1b5e20;
+        }
+
+        .yellow {
+            background: #e65100;
+        }
+
+        .red {
+            background: #b71c1c;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <header>
+
+        <h2>🚦 SMART ROADS - Traffic Status</h2>
+
+        <a href="/" class="back">
+            ← Home
+        </a>
+
+    </header>
+
+
+    <div class="container">
+
+        <h1>🚦 Current Traffic Status</h1>
+
+        <p class="subtitle">
+            Traffic conditions monitored by the SMART ROADS system.
+        </p>
+
+
+        <div class="traffic-grid">
+
+
+            <div class="card">
+
+                <h2>🛣️ Main Road</h2>
+
+                <p>
+                    Traffic Level
+                </p>
+
+                <span class="status red">
+                    🔴 Heavy
+                </span>
+
+                <p>
+                    Average speed: 18 km/h
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>🏙️ City Centre</h2>
+
+                <p>
+                    Traffic Level
+                </p>
+
+                <span class="status yellow">
+                    🟠 Moderate
+                </span>
+
+                <p>
+                    Average speed: 32 km/h
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>🌳 Airport Road</h2>
+
+                <p>
+                    Traffic Level
+                </p>
+
+                <span class="status green">
+                    🟢 Low
+                </span>
+
+                <p>
+                    Average speed: 52 km/h
+                </p>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>🏢 Ring Road</h2>
+
+                <p>
+                    Traffic Level
+                </p>
+
+                <span class="status yellow">
+                    🟠 Moderate
+                </span>
+
+                <p>
+                    Average speed: 35 km/h
+                </p>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

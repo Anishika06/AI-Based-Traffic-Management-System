@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Authority Dashboard - SMART ROADS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101820;
+            color: white;
+        }
+
+        header {
+            padding: 20px 40px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            background: #182630;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .logout {
+            color: white;
+            text-decoration: none;
+
+            padding: 10px 18px;
+
+            background: #333;
+
+            border-radius: 8px;
+        }
+
+        .dashboard {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .dashboard p {
+            color: #cccccc;
+        }
+
+        .menu-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+
+            gap: 20px;
+
+            max-width: 1000px;
+
+            margin: 40px auto;
+        }
+
+        .card {
+            background: #1d2d38;
+
+            padding: 35px 20px;
+
+            border-radius: 15px;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 18px;
+
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+
+            background: #263c4a;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h2>
+            🚦 SMART ROADS - Authority Portal
+        </h2>
+
+        <a
+            href="/logout"
+            class="logout"
+        >
+            Logout
+        </a>
+
+    </header>
+
+
+
+    <!-- DASHBOARD -->
+
+    <div class="dashboard">
+
+        <h1>
+            Authority Dashboard
+        </h1>
+
+        <p>
+            Traffic monitoring, AI analysis, emergency response
+            and traffic management controls.
+        </p>
+
+
+
+        <div class="menu-grid">
+
+            <!-- LIVE TRAFFIC -->
+
+            <a
+                href="/live-traffic"
+                class="card"
+            >
+
+                🚗 Live Traffic
+
+            </a>
+
+
+
+            <!-- TRAFFIC ANALYSIS -->
+
+            <a
+                href="/traffic-analysis"
+                class="card"
+            >
+
+                📹 Traffic Analysis
+
+            </a>
+
+
+
+            <!-- AMBULANCE -->
+
+            <a
+                href="/ambulance-detection"
+                class="card"
+            >
+
+                🚑 Emergency Ambulance Detection
+
+            </a>
+
+
+
+            <!-- SMART SIGNAL -->
+
+            <a
+                href="/smart-signal"
+                class="card"
+            >
+
+                🚦 Smart Signal Management
+
+            </a>
+
+
+
+            <!-- REPORTS -->
+
+            <a
+                href="/reports"
+                class="card"
+            >
+
+                📄 Reports
+
+            </a>
+
+
+        </div>
+
+    </div>
+
+
+</body>
+
+</html>

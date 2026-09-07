@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SMART ROADS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.55),
+                    rgba(0, 0, 0, 0.55)
+                ),
+                url("/static/images/background.jpg");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+
+            min-height: 100vh;
+        }
+
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        header {
+            padding: 18px 20px;
+            text-align: center;
+
+            background: rgba(10, 20, 30, 0.90);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+
+        header p {
+            margin: 7px 0 0;
+            font-size: 15px;
+            color: #dddddd;
+        }
+
+
+        /* =========================
+           MAIN CONTENT
+        ========================= */
+
+        .main-container {
+            min-height: calc(100vh - 100px);
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 25px 20px;
+        }
+
+        .center-section {
+            width: 100%;
+            max-width: 950px;
+
+            text-align: center;
+        }
+
+        .center-section h2 {
+            margin: 5px 0 12px;
+
+            font-size: 28px;
+        }
+
+        .home-description {
+            max-width: 750px;
+
+            margin: 0 auto 25px;
+
+            font-size: 16px;
+            line-height: 1.6;
+
+            text-shadow: 1px 1px 4px black;
+        }
+
+
+        /* =========================
+           IMAGE SLIDER
+        ========================= */
+
+        .slider {
+            width: 80%;
+            height: 350px;
+
+            margin: 0 auto;
+
+            position: relative;
+
+            overflow: hidden;
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .slide {
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            opacity: 0;
+
+            transition:
+                opacity 1s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+
+        /* =========================
+           SIDE MENUS
+        ========================= */
+
+        .side-menu {
+            position: fixed;
+
+            top: 140px;
+
+            width: 45px;
+            height: 45px;
+
+            overflow: hidden;
+
+            background:
+                rgba(10, 20, 30, 0.96);
+
+            border-radius: 50%;
+
+            z-index: 1000;
+
+            transition:
+                width 0.4s,
+                height 0.4s,
+                border-radius 0.4s;
+        }
+
+
+        /* =========================
+           AUTHORITY MENU
+        ========================= */
+
+        .authority-menu {
+            left: 20px;
+        }
+
+        .authority-menu:hover {
+            width: 175px;
+            height: 55px;
+
+            border-radius: 15px;
+        }
+
+
+        /* =========================
+           PUBLIC MENU
+        ========================= */
+
+        .public-menu {
+            right: 20px;
+        }
+
+        .public-menu:hover {
+            width: 170px;
+            height: 55px;
+
+            border-radius: 15px;
+        }
+
+
+        /* =========================
+           MENU ICON
+        ========================= */
+
+        .menu-icon {
+            width: 45px;
+            height: 45px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+
+            gap: 4px;
+
+            flex-shrink: 0;
+        }
+
+        .menu-icon span {
+            display: block;
+
+            height: 2px;
+
+            background: white;
+
+            border-radius: 5px;
+        }
+
+        .menu-icon span:nth-child(1) {
+            width: 12px;
+        }
+
+        .menu-icon span:nth-child(2) {
+            width: 20px;
+        }
+
+        .menu-icon span:nth-child(3) {
+            width: 14px;
+        }
+
+
+        /* =========================
+           AUTHORITY LINK
+        ========================= */
+
+        .authority-link {
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            align-items: center;
+
+            color: white;
+
+            text-decoration: none;
+        }
+
+        .authority-text {
+            opacity: 0;
+
+            white-space: nowrap;
+
+            font-size: 17px;
+
+            margin-left: 5px;
+
+            transition:
+                opacity 0.3s ease;
+        }
+
+        .authority-menu:hover .authority-text {
+            opacity: 1;
+        }
+
+
+        /* =========================
+           PUBLIC LINK
+        ========================= */
+
+        .public-link {
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            align-items: center;
+
+            color: white;
+
+            text-decoration: none;
+        }
+
+        .public-text {
+            opacity: 0;
+
+            white-space: nowrap;
+
+            font-size: 17px;
+
+            margin-left: 5px;
+
+            transition:
+                opacity 0.3s ease;
+        }
+
+        .public-menu:hover .public-text {
+            opacity: 1;
+        }
+
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 768px) {
+
+            header h1 {
+                font-size: 24px;
+            }
+
+            .slider {
+                width: 90%;
+                height: 250px;
+            }
+
+            .center-section h2 {
+                font-size: 23px;
+            }
+
+            .home-description {
+                font-size: 14px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HEADER
+    ========================= -->
+
+    <header>
+
+        <h1>
+            🚦 SMART ROADS
+        </h1>
+
+        <p>
+            Smart Traffic Monitoring & Intelligent Traffic Control
+        </p>
+
+    </header>
+
+
+
+    <!-- =========================
+         AUTHORITY MENU
+    ========================= -->
+
+    <div class="side-menu authority-menu">
+
+        <a
+            href="/authority-login"
+            class="authority-link"
+        >
+
+            <div class="menu-icon">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+            <span class="authority-text">
+                👮 Authority
+            </span>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- =========================
+         PUBLIC MENU
+    ========================= -->
+
+    <div class="side-menu public-menu">
+
+        <a
+            href="/public-portal"
+            class="public-link"
+        >
+
+            <div class="menu-icon">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+            <span class="public-text">
+                👥 Public
+            </span>
+
+        </a>
+
+    </div>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+    ========================= -->
+
+    <div class="main-container">
+
+        <div class="center-section">
+
+
+            <h2>
+                Welcome to SMART ROADS
+            </h2>
+
+
+            <p class="home-description">
+
+                SMART ROADS is an intelligent traffic management
+                platform designed to monitor traffic, improve
+                road safety, detect traffic violations, support
+                emergency vehicle movement and provide useful
+                traffic services to the public.
+
+            </p>
+
+
+            <!-- =========================
+                 IMAGE SLIDER
+            ========================= -->
+
+            <div class="slider">
+
+
+                <img
+                    src="/static/images/image1.jpg"
+                    class="slide active"
+                    alt="Traffic Image 1"
+                >
+
+
+                <img
+                    src="/static/images/image2.jpg"
+                    class="slide"
+                    alt="Traffic Image 2"
+                >
+
+
+                <img
+                    src="/static/images/image3.jpg"
+                    class="slide"
+                    alt="Traffic Image 3"
+                >
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         SLIDER JAVASCRIPT
+    ========================= -->
+
+    <script>
+
+        const slides =
+            document.querySelectorAll(".slide");
+
+        let currentSlide = 0;
+
+        setInterval(function () {
+
+            slides[currentSlide]
+                .classList
+                .remove("active");
+
+            currentSlide =
+                (currentSlide + 1)
+                % slides.length;
+
+            slides[currentSlide]
+                .classList
+                .add("active");
+
+        }, 3000);
+
+    </script>
+
+
+</body>
+
+</html>

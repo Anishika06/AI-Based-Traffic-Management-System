@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>AI Traffic Analysis - SMART ROADS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101820;
+            color: white;
+        }
+
+        header {
+            padding: 20px 40px;
+            background: #182630;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            background: #333;
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+
+        .title {
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #cccccc;
+            margin-bottom: 30px;
+        }
+
+        .box {
+            background: #1d2d38;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin: 20px;
+        }
+
+        .analyze-btn {
+            padding: 13px 25px;
+            border: none;
+            border-radius: 8px;
+            background: #1976d2;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .analyze-btn:hover {
+            background: #2196f3;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #642020;
+            border-radius: 8px;
+        }
+
+        .result {
+            margin-top: 30px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(200px, 1fr));
+
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #263c4a;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .card h2 {
+            margin: 10px 0;
+        }
+
+        .vehicle-list {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .vehicle-item {
+            background: #263c4a;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+        }
+
+        .result-image {
+            max-width: 100%;
+            max-height: 500px;
+            margin-top: 30px;
+            border-radius: 12px;
+        }
+
+        /* ==============================
+           AI LOADING SCREEN
+        ============================== */
+
+        #analysisLoading {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .loading-box {
+            background: #263c4a;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .robot {
+            font-size: 55px;
+
+            animation:
+                robotPulse 1s infinite;
+        }
+
+        @keyframes robotPulse {
+
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.12);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+
+        }
+
+        .loading-title {
+            margin-top: 15px;
+        }
+
+        .loading-text {
+            color: #cccccc;
+            font-size: 17px;
+            min-height: 25px;
+        }
+
+        .progress-container {
+
+            width: 100%;
+
+            height: 10px;
+
+            background: #455a64;
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            margin-top: 25px;
+
+        }
+
+        #progressBar {
+
+            width: 0%;
+
+            height: 100%;
+
+            background: #1976d2;
+
+            transition:
+                width 0.5s ease;
+
+        }
+
+        .dots {
+
+            display: inline-block;
+
+            width: 25px;
+
+            text-align: left;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h2>
+        🚦 ROADVISION AI - Traffic Analysis
+    </h2>
+
+    <a
+        href="/authority-dashboard"
+        class="back-btn">
+
+        ← Dashboard
+
+    </a>
+
+</header>
+
+
+<div class="container">
+
+
+    <h1 class="title">
+        AI Traffic Analysis
+    </h1>
+
+
+    <p class="subtitle">
+
+        Upload a traffic image and let YOLO
+        detect vehicles automatically.
+
+    </p>
+
+
+    <div class="box">
+
+
+        <!-- ==========================
+             UPLOAD FORM
+        =========================== -->
+
+        <form
+            id="trafficForm"
+            method="POST"
+            enctype="multipart/form-data"
+            onsubmit="startAnalysis(event)"
+        >
+
+            <h2>
+                📁 Upload Traffic Image
+            </h2>
+
+
+            <input
+                type="file"
+                id="trafficImage"
+                name="traffic_image"
+                accept="image/*"
+                required
+            >
+
+
+            <br>
+
+
+            <button
+                type="submit"
+                class="analyze-btn">
+
+                🤖 Analyze Traffic
+
+            </button>
+
+        </form>
+
+
+        <!-- ==========================
+             AI LOADING
+        =========================== -->
+
+        <div id="analysisLoading">
+
+            <div class="loading-box">
+
+                <div class="robot">
+                    🤖
+                </div>
+
+
+                <h2 class="loading-title">
+
+                    AI is analyzing the image...
+
+                </h2>
+
+
+                <p
+                    id="analysisText"
+                    class="loading-text">
+
+                    🔍 Preparing image for analysis...
+
+                </p>
+
+
+                <div class="progress-container">
+
+                    <div
+                        id="progressBar">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================
+             ERROR
+        =========================== -->
+
+        {% if error %}
+
+        <div class="error">
+
+            ⚠️ {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==========================
+             RESULT
+        =========================== -->
+
+        {% if result %}
+
+        <div class="result">
+
+
+            <h2>
+                📊 AI Analysis Result
+            </h2>
+
+
+            <div class="cards">
+
+
+                <div class="card">
+
+                    <div>
+                        🚗
+                    </div>
+
+                    <h2>
+                        {{ result.total }}
+                    </h2>
+
+                    <p>
+                        Vehicles Detected
+                    </p>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div>
+                        🚦
+                    </div>
+
+                    <h2>
+                        {{ result.traffic_level }}
+                    </h2>
+
+                    <p>
+                        Traffic Level
+                    </p>
+
+                </div>
+
+
+                <div class="card">
+
+                    <div>
+                        ⚠️
+                    </div>
+
+                    <h2>
+                        {{ result.congestion }}
+                    </h2>
+
+                    <p>
+                        Congestion
+                    </p>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="vehicle-list">
+
+
+                <h3>
+                    🚘 Detected Vehicle Types
+                </h3>
+
+
+                {% for vehicle, count in result.vehicles.items() %}
+
+                <div class="vehicle-item">
+
+                    {{ vehicle|capitalize }}
+                    : {{ count }}
+
+                </div>
+
+                {% endfor %}
+
+
+            </div>
+
+
+            <div
+                class="card"
+                style="margin-top:25px;">
+
+                🤖
+                <strong>
+                    AI Recommendation
+                </strong>
+
+
+                <p>
+                    {{ result.recommendation }}
+                </p>
+
+            </div>
+
+
+            {% if image_url %}
+
+            <h3>
+                🔍 YOLO Detection Image
+            </h3>
+
+
+            <img
+                src="{{ image_url }}"
+                class="result-image"
+            >
+
+            {% endif %}
+
+
+        </div>
+
+        {% endif %}
+
+
+    </div>
+
+</div>
+
+
+<!-- ==========================
+     JAVASCRIPT
+=========================== -->
+
+<script>
+
+function startAnalysis(event) {
+
+    /*
+       Prevent the browser from doing
+       the normal form submission immediately.
+    */
+
+    event.preventDefault();
+
+
+    const fileInput =
+        document.getElementById(
+            "trafficImage"
+        );
+
+
+    if (!fileInput.files.length) {
+
+        alert(
+            "Please select a traffic image."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Show loading screen
+    */
+
+    document.getElementById(
+        "analysisLoading"
+    ).style.display = "block";
+
+
+    /*
+       Hide old result/error
+    */
+
+    const result =
+        document.querySelector(
+            ".result"
+        );
+
+    if (result) {
+
+        result.style.display = "none";
+
+    }
+
+
+    const error =
+        document.querySelector(
+            ".error"
+        );
+
+    if (error) {
+
+        error.style.display = "none";
+
+    }
+
+
+    const text =
+        document.getElementById(
+            "analysisText"
+        );
+
+
+    const progress =
+        document.getElementById(
+            "progressBar"
+        );
+
+
+    /*
+       Step 1
+    */
+
+    text.innerHTML =
+        "🔍 Preparing image for analysis...";
+
+    progress.style.width =
+        "20%";
+
+
+    /*
+       Step 2
+    */
+
+    setTimeout(function() {
+
+        text.innerHTML =
+            "🚗 Detecting vehicles in the image...";
+
+        progress.style.width =
+            "45%";
+
+    }, 800);
+
+
+    /*
+       Step 3
+    */
+
+    setTimeout(function() {
+
+        text.innerHTML =
+            "🚌 Identifying cars, buses, trucks and motorcycles...";
+
+        progress.style.width =
+            "70%";
+
+    }, 1600);
+
+
+    /*
+       Step 4
+    */
+
+    setTimeout(function() {
+
+        text.innerHTML =
+            "📊 Calculating traffic density...";
+
+        progress.style.width =
+            "90%";
+
+    }, 2400);
+
+
+    /*
+       Submit the actual form after
+       the loading animation begins.
+    */
+
+    setTimeout(function() {
+
+        progress.style.width =
+            "100%";
+
+        text.innerHTML =
+            "✅ Analysis completed. Preparing results...";
+
+
+        setTimeout(function() {
+
+            document.getElementById(
+                "trafficForm"
+            ).submit();
+
+        }, 400);
+
+    }, 3000);
+
+}
+
+</script>
+
+
+</body>
+
+</html>

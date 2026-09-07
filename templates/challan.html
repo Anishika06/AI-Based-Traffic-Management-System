@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Vehicle / Challan Details - SMART ROADS</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.68),
+                    rgba(0, 0, 0, 0.68)
+                ),
+                url("/static/images/background.jpg");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        header {
+            background: rgba(10, 20, 30, 0.94);
+
+            padding: 20px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+
+            background: rgba(255, 255, 255, 0.15);
+
+            padding: 10px 18px;
+
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 800px;
+
+            margin: 45px auto;
+
+            padding: 30px;
+        }
+
+        .search-box {
+            background: rgba(20, 35, 45, 0.95);
+
+            padding: 30px;
+
+            border-radius: 18px;
+
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+            text-align: center;
+        }
+
+        .search-box h2 {
+            margin-top: 0;
+        }
+
+        .search-box p {
+            color: #cccccc;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 14px;
+
+            margin-top: 15px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 17px;
+
+            text-transform: uppercase;
+        }
+
+        button {
+            width: 100%;
+
+            margin-top: 15px;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #1976d2;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2196f3;
+        }
+
+        .notice {
+            margin-top: 30px;
+
+            background: rgba(255, 255, 255, 0.96);
+
+            color: #222;
+
+            border-radius: 15px;
+
+            padding: 30px;
+        }
+
+        .notice h2 {
+            text-align: center;
+
+            color: #b71c1c;
+        }
+
+        .notice-header {
+            text-align: center;
+
+            font-weight: bold;
+
+            border-bottom: 2px solid #ddd;
+
+            padding-bottom: 15px;
+
+            margin-bottom: 20px;
+        }
+
+        .detail {
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding: 12px 0;
+
+            border-bottom: 1px solid #ddd;
+        }
+
+        .detail strong {
+            color: #444;
+        }
+
+        .message {
+            margin-top: 20px;
+
+            padding: 18px;
+
+            background: #fff3cd;
+
+            border-radius: 10px;
+
+            line-height: 1.6;
+        }
+
+        .status {
+            display: inline-block;
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            background: #ffcc80;
+
+            font-weight: bold;
+        }
+
+        .actions {
+            display: flex;
+
+            gap: 12px;
+
+            margin-top: 25px;
+        }
+
+        .actions button {
+            margin-top: 0;
+        }
+
+        .print-btn {
+            background: #455a64;
+        }
+
+        .print-btn:hover {
+            background: #607d8b;
+        }
+
+        .download-btn {
+            background: #2e7d32;
+        }
+
+        .download-btn:hover {
+            background: #388e3c;
+        }
+
+        .error {
+            margin-top: 20px;
+
+            padding: 15px;
+
+            background: #b71c1c;
+
+            border-radius: 8px;
+
+            text-align: center;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            header,
+            .search-box,
+            .actions {
+                display: none;
+            }
+
+            .container {
+                margin: 0;
+            }
+
+            .notice {
+                box-shadow: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 19px;
+            }
+
+            .container {
+                margin: 20px 10px;
+                padding: 10px;
+            }
+
+            .detail {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>
+        🧾 SMART ROADS - Vehicle / Challan Details
+    </h1>
+
+    <a href="/public-portal" class="back-btn">
+        ← Public Portal
+    </a>
+
+</header>
+
+
+<div class="container">
+
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+        <h2>
+            🔍 Search Vehicle Details
+        </h2>
+
+        <p>
+            Enter your vehicle registration number to view
+            available traffic violation information.
+        </p>
+
+        <form method="POST" action="/challan">
+
+            <input
+                type="text"
+                name="vehicle_number"
+                placeholder="Example: TN01AB1234"
+                required
+            >
+
+            <button type="submit">
+                🔍 Search Vehicle
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- ERROR -->
+
+    {% if error %}
+
+    <div class="error">
+        ❌ {{ error }}
+    </div>
+
+    {% endif %}
+
+
+    <!-- VIOLATION NOTICE -->
+
+    {% if challan %}
+
+    <div class="notice" id="notice">
+
+        <h2>
+            TRAFFIC VIOLATION NOTICE
+        </h2>
+
+        <div class="notice-header">
+
+            SMART ROADS<br>
+            Digital Traffic Violation Notice
+
+        </div>
+
+
+        <div class="detail">
+            <strong>Vehicle Number</strong>
+            <span>{{ challan.vehicle_number }}</span>
+        </div>
+
+
+        <div class="detail">
+            <strong>Violation</strong>
+            <span>{{ challan.violation }}</span>
+        </div>
+
+
+        <div class="detail">
+            <strong>Date</strong>
+            <span>{{ challan.date }}</span>
+        </div>
+
+
+        <div class="detail">
+            <strong>Location</strong>
+            <span>{{ challan.location }}</span>
+        </div>
+
+
+        <div class="detail">
+            <strong>Fine Amount</strong>
+            <span>₹{{ challan.fine }}</span>
+        </div>
+
+
+        <div class="detail">
+            <strong>Status</strong>
+
+            <span class="status">
+                {{ challan.status }}
+            </span>
+
+        </div>
+
+
+        <div class="message">
+
+            <strong>Message to Vehicle Owner</strong><br><br>
+
+            A traffic violation has been recorded for the
+            above vehicle. This digital notice has been issued
+            by SMART ROADS. Please review the violation details
+            and complete the required action within the
+            specified period.
+
+        </div>
+
+
+        <div class="actions">
+
+            <button
+                class="print-btn"
+                onclick="window.print()"
+            >
+                🖨️ Print Notice
+            </button>
+
+            <button
+                class="download-btn"
+                onclick="downloadNotice()"
+            >
+                📥 Download Receipt
+            </button>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+
+</div>
+
+
+<script>
+
+function downloadNotice() {
+
+    const notice =
+        document.getElementById("notice");
+
+    if (!notice) {
+        return;
+    }
+
+    const text =
+        notice.innerText;
+
+    const blob =
+        new Blob(
+            [text],
+            { type: "text/plain" }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+        "SMART_ROADS_Violation_Notice.txt";
+
+    link.click();
+
+    URL.revokeObjectURL(url);
+
+}
+
+</script>
+
+</body>
+
+</html>

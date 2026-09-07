@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Emergency Assistance - SMART ROADS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: white;
+
+            min-height: 100vh;
+
+            background:
+                linear-gradient(
+                    rgba(0, 0, 0, 0.65),
+                    rgba(0, 0, 0, 0.65)
+                ),
+                url("/static/images/background.jpg");
+
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* HEADER */
+
+        header {
+            background: rgba(10, 20, 30, 0.92);
+
+            padding: 20px 30px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 25px;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+
+            background: rgba(255, 255, 255, 0.15);
+
+            padding: 10px 18px;
+
+            border-radius: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* CONTAINER */
+
+        .container {
+            max-width: 700px;
+
+            margin: 45px auto;
+
+            padding: 30px;
+
+            background: rgba(20, 35, 45, 0.95);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.55);
+        }
+
+        h2 {
+            text-align: center;
+
+            margin-top: 0;
+
+            font-size: 30px;
+        }
+
+        .description {
+            text-align: center;
+
+            color: #dddddd;
+
+            line-height: 1.6;
+
+            margin-bottom: 30px;
+        }
+
+        /* FORM */
+
+        label {
+            display: block;
+
+            margin-top: 18px;
+            margin-bottom: 7px;
+
+            font-weight: bold;
+        }
+
+        input,
+        select,
+        textarea {
+
+            width: 100%;
+
+            padding: 12px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            font-family: Arial, sans-serif;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+
+            outline: 2px solid #64b5f6;
+
+        }
+
+        textarea {
+
+            height: 120px;
+
+            resize: vertical;
+
+        }
+
+        /* SUBMIT BUTTON */
+
+        button {
+
+            width: 100%;
+
+            margin-top: 25px;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            background: #c62828;
+
+            color: white;
+
+            font-size: 16px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+        }
+
+        button:hover {
+
+            background: #e53935;
+
+        }
+
+        /* SUCCESS MESSAGE */
+
+        .success {
+
+            margin-top: 25px;
+
+            padding: 18px;
+
+            background: #1b5e20;
+
+            border-radius: 10px;
+
+            text-align: center;
+
+            line-height: 1.6;
+
+        }
+
+        .success-title {
+
+            font-size: 20px;
+
+            font-weight: bold;
+
+            margin-bottom: 8px;
+
+        }
+
+        /* INFO */
+
+        .info {
+
+            margin-top: 20px;
+
+            padding: 12px;
+
+            background: rgba(255, 255, 255, 0.08);
+
+            border-radius: 8px;
+
+            font-size: 13px;
+
+            color: #cccccc;
+
+            text-align: center;
+
+        }
+
+        @media (max-width: 700px) {
+
+            header {
+
+                padding: 15px;
+
+            }
+
+            header h1 {
+
+                font-size: 19px;
+
+            }
+
+            .container {
+
+                margin: 25px 15px;
+
+                padding: 22px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- HEADER -->
+
+    <header>
+
+        <h1>
+            🚑 SMART ROADS
+        </h1>
+
+        <a
+            href="/public-portal"
+            class="back-btn"
+        >
+            ← Public Portal
+        </a>
+
+    </header>
+
+
+    <!-- MAIN CONTAINER -->
+
+    <div class="container">
+
+
+        <h2>
+            🚨 Emergency Assistance
+        </h2>
+
+
+        <p class="description">
+
+            Use this service to report an emergency
+            situation that requires traffic or road
+            assistance.
+
+        </p>
+
+
+        <!-- SUCCESS MESSAGE -->
+
+        {% if success %}
+
+        <div class="success">
+
+            <div class="success-title">
+                ✅ Emergency Request Submitted
+            </div>
+
+            {{ success }}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- EMERGENCY FORM -->
+
+        <form
+            method="POST"
+            action="/public-emergency"
+        >
+
+
+            <!-- NAME -->
+
+            <label for="name">
+                Your Name
+            </label>
+
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="Enter your name"
+                required
+            >
+
+
+            <!-- VEHICLE NUMBER -->
+
+            <label for="vehicle_number">
+                Vehicle Number
+            </label>
+
+            <input
+                type="text"
+                id="vehicle_number"
+                name="vehicle_number"
+                placeholder="Example: TN01AB1234"
+            >
+
+
+            <!-- EMERGENCY TYPE -->
+
+            <label for="emergency_type">
+                Emergency Type
+            </label>
+
+            <select
+                id="emergency_type"
+                name="emergency_type"
+                required
+            >
+
+                <option value="">
+                    Select Emergency
+                </option>
+
+                <option value="Ambulance">
+                    🚑 Ambulance Emergency
+                </option>
+
+                <option value="Accident">
+                    🚗 Road Accident
+                </option>
+
+                <option value="Road Block">
+                    🛣️ Road Blockage
+                </option>
+
+                <option value="Fire">
+                    🔥 Fire Emergency
+                </option>
+
+                <option value="Other">
+                    🚨 Other Emergency
+                </option>
+
+            </select>
+
+
+            <!-- LOCATION -->
+
+            <label for="location">
+                Location
+            </label>
+
+            <input
+                type="text"
+                id="location"
+                name="location"
+                placeholder="Enter emergency location"
+                required
+            >
+
+
+            <!-- DESCRIPTION -->
+
+            <label for="description">
+                Emergency Description
+            </label>
+
+            <textarea
+                id="description"
+                name="description"
+                placeholder="Describe the emergency..."
+                required
+            ></textarea>
+
+
+            <!-- SUBMIT -->
+
+            <button type="submit">
+
+                🚨 Submit Emergency Request
+
+            </button>
+
+
+        </form>
+
+
+        
+
+
+    </div>
+
+
+</body>
+
+</html>

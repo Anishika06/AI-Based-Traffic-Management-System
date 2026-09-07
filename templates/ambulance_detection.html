@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Emergency Ambulance Detection - SMART ROADS</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #101820;
+            color: white;
+        }
+
+        header {
+            padding: 20px 40px;
+            background: #182630;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h2 {
+            margin: 0;
+        }
+
+        .back-btn {
+            color: white;
+            text-decoration: none;
+            padding: 10px 18px;
+            background: #333;
+            border-radius: 8px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 45px 20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #cccccc;
+            margin-bottom: 35px;
+        }
+
+        .detection-box {
+            background: #1d2d38;
+            padding: 35px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .upload-area {
+            border: 2px dashed #777;
+            padding: 35px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+        }
+
+        input[type="file"] {
+            margin-top: 20px;
+            font-size: 15px;
+        }
+
+        .detect-btn {
+            margin-top: 10px;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #e63946;
+            color: white;
+        }
+
+        .detect-btn:hover {
+            background: #ff4d5a;
+        }
+
+        .error {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 10px;
+            background: #4a2020;
+            border: 1px solid #ff5555;
+        }
+
+        .detected {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            background: #173d25;
+            border: 2px solid #32cd32;
+        }
+
+        .not-detected {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            background: #3a3218;
+            border: 2px solid #e0b000;
+        }
+
+        .confidence {
+            font-size: 19px;
+            margin-top: 15px;
+        }
+
+        .result-image {
+            max-width: 100%;
+            max-height: 500px;
+            margin-top: 25px;
+            border-radius: 12px;
+        }
+
+        .voice-message {
+            margin-top: 20px;
+            padding: 18px;
+            border-radius: 10px;
+            background: #263c4a;
+        }
+
+        .workflow {
+            margin-top: 40px;
+
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+
+            gap: 15px;
+        }
+
+        .step {
+            background: #263c4a;
+            padding: 18px;
+            border-radius: 10px;
+            min-width: 150px;
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <h2>🚑 SMART ROADS - Ambulance Detection</h2>
+
+    <a href="/authority-dashboard"
+       class="back-btn">
+
+        ← Dashboard
+
+    </a>
+
+</header>
+
+
+<div class="container">
+
+
+    <h1>
+        Emergency Vehicle Priority System
+    </h1>
+
+
+    <p class="subtitle">
+
+        Upload a traffic image and let AI detect
+        an ambulance automatically.
+
+    </p>
+
+
+    <div class="detection-box">
+
+
+        <!-- ================================================= -->
+        <!-- UPLOAD FORM -->
+        <!-- ================================================= -->
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+
+            <div class="upload-area">
+
+                <h2>
+                    📁 Upload Traffic Image
+                </h2>
+
+                <p>
+                    Select an image containing traffic
+                    or an ambulance.
+                </p>
+
+
+                <input
+                    type="file"
+                    name="ambulance_image"
+                    accept="image/*"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="detect-btn">
+
+                🚑 Detect Emergency Vehicle
+
+            </button>
+
+
+        </form>
+
+
+        <!-- ================================================= -->
+        <!-- ERROR -->
+        <!-- ================================================= -->
+
+        {% if error %}
+
+        <div class="error">
+
+            ⚠️ {{ error }}
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ================================================= -->
+        <!-- AMBULANCE DETECTED -->
+        <!-- ================================================= -->
+
+        {% if result and result.detected %}
+
+        <div class="detected">
+
+            <h2>
+                🚑 Ambulance Detected!
+            </h2>
+
+            <p>
+                The AI system has detected an
+                emergency ambulance in the image.
+            </p>
+
+
+            <div class="confidence">
+
+                AI Detection Confidence:
+
+                <strong>
+                    {{ result.confidence }}%
+                </strong>
+
+            </div>
+
+
+            <div class="voice-message">
+
+                🔊 <strong>Emergency Voice Alert</strong>
+
+                <p>
+
+                    "Attention! An ambulance has been
+                    detected. Please make way for the
+                    emergency vehicle."
+
+                </p>
+
+            </div>
+
+
+            {% if image_url %}
+
+            <h3>
+                🔍 AI Detection Result
+            </h3>
+
+            <img
+                src="{{ image_url }}"
+                class="result-image"
+            >
+
+            {% endif %}
+
+
+        </div>
+
+
+        <!-- ================================================= -->
+        <!-- VOICE ALERT -->
+        <!-- ================================================= -->
+
+        <script>
+
+            window.onload = function() {
+
+                const message =
+                    "Attention! An ambulance has been detected. Please make way for the emergency vehicle.";
+
+                if (
+                    "speechSynthesis"
+                    in window
+                ) {
+
+                    const speech =
+                        new SpeechSynthesisUtterance(
+                            message
+                        );
+
+                    speech.rate = 0.9;
+
+                    speech.pitch = 1;
+
+                    window.speechSynthesis.speak(
+                        speech
+                    );
+
+                }
+
+            };
+
+        </script>
+
+
+        {% elif result %}
+
+
+        <!-- ================================================= -->
+        <!-- NO AMBULANCE -->
+        <!-- ================================================= -->
+
+        <div class="not-detected">
+
+            <h2>
+                🔍 No Ambulance Detected
+            </h2>
+
+            <p>
+
+                No emergency ambulance was
+                identified in the uploaded image.
+
+            </p>
+
+            <p>
+
+                Try uploading a clearer image
+                containing an ambulance.
+
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- WORKFLOW -->
+    <!-- ================================================= -->
+
+    <div class="workflow">
+
+
+        <div class="step">
+
+            📷<br>
+
+            Traffic Image
+
+        </div>
+
+
+        <div class="step">
+
+            🤖<br>
+
+            AI Analysis
+
+        </div>
+
+
+        <div class="step">
+
+            🚑<br>
+
+            Ambulance Detection
+
+        </div>
+
+
+        <div class="step">
+
+            🚦<br>
+
+            Signal Priority
+
+        </div>
+
+
+        <div class="step">
+
+            🔊<br>
+
+            Voice Alert
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+</body>
+
+</html>
