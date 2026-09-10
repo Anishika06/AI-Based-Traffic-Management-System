@@ -5,6 +5,27 @@ import sqlite3
 import os
 import cv2
 from datetime import datetime
+from flask import Flask, Response, url_for
+
+app = Flask(__name__)
+
+@app.route('/sitemap.xml', methods=['GET'])
+def sitemap():
+    pages = []
+    # Add static routes
+    pages.append(url_for('index', _external=True))
+    pages.append(url_for('about', _external=True))
+    pages.append(url_for('contact', _external=True))
+
+    # Build XML
+    sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>'
+    sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    for page in pages:
+        sitemap_xml += f'<url><loc>{page}</loc></url>'
+    sitemap_xml += '</urlset>'
+
+    return Response(sitemap_xml, mimetype='application/xml')
+
 
 
 # =========================================================
