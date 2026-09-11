@@ -88,43 +88,32 @@
 
     <div class="container">
 
-        <h1>⚠️ Current Traffic Alerts</h1>
+        <h1>⚠️ Current Traffic Alerts & Advisory Notices</h1>
 
-
-        <div class="alert warning">
-
-            <h2>🚧 Heavy Traffic</h2>
-
-            <p>
-                Heavy traffic is currently reported on the
-                main road. Please consider an alternate route.
-            </p>
-
-        </div>
-
-
-        <div class="alert danger">
-
-            <h2>🚨 Accident Alert</h2>
-
-            <p>
-                An accident has been reported in the monitored
-                traffic area. Emergency services have been notified.
-            </p>
-
-        </div>
-
-
-        <div class="alert normal">
-
-            <h2>🚦 Traffic Signal Update</h2>
-
-            <p>
-                Traffic signals are operating normally in the
-                monitored areas.
-            </p>
-
-        </div>
+        {% if alerts and alerts.length > 0 %}
+            {% for alt in alerts %}
+            <div class="alert {{ 'danger' if alt.severity == 'critical' else ('warning' if alt.severity == 'warning' else 'normal') }}">
+                <h2>{{ '🚨' if alt.severity == 'critical' else ('🚧' if alt.severity == 'warning' else 'ℹ️') }} {{ alt.title }}</h2>
+                <p>{{ alt.message }}</p>
+                <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">
+                    📍 {{ alt.location }} &bull; 🕒 {{ alt.timestamp }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert warning">
+                <h2>🚧 Heavy Traffic</h2>
+                <p>Heavy traffic is currently reported on the main road. Please consider an alternate route.</p>
+            </div>
+            <div class="alert danger">
+                <h2>🚨 Accident Alert</h2>
+                <p>An accident has been reported in the monitored traffic area. Emergency services have been notified.</p>
+            </div>
+            <div class="alert normal">
+                <h2>🚦 Traffic Signal Update</h2>
+                <p>Traffic signals are operating normally in the monitored areas.</p>
+            </div>
+        {% endif %}
 
     </div>
 

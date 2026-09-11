@@ -1,0 +1,8 @@
+{
+  "name": "Smart Roads AI Traffic System",
+  "description": "Intelligent traffic monitoring and control system with traffic analysis, ambulance emergency detection, smart signals, public emergency reporting, and challan lookup.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

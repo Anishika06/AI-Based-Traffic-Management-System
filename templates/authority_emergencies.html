@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Assistance Dispatch - SMART ROADS Authority</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: #1e293b;
+            padding: 18px 30px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 20px;
+            color: #f43f5e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            color: #cbd5e1;
+            text-decoration: none;
+            background: #334155;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #475569;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #0f172a;
+            padding: 12px;
+            text-align: left;
+            color: #94a3b8;
+            font-weight: 600;
+            border-bottom: 1px solid #334155;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #334155;
+            vertical-align: top;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-critical {
+            background: rgba(244, 63, 94, 0.2);
+            color: #fb7185;
+            border: 1px solid #f43f5e;
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid #22c55e;
+        }
+
+        .badge-alert {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid #f59e0b;
+        }
+
+        .plate {
+            background: #facc15;
+            color: #000;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .action-select {
+            padding: 6px 8px;
+            background: #0f172a;
+            color: #fff;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .action-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 6px;
+        }
+
+        .action-btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🚨 SMART ROADS - Emergency Assistance Dispatch Center</h1>
+        <a href="/authority-dashboard" class="nav-btn">← Authority Dashboard</a>
+    </header>
+
+    <div class="container">
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Incident Reports</h3>
+                <p style="color: #38bdf8;">{{ emergencies.length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Corridor Alerts</h3>
+                <p style="color: #f43f5e;">
+                    {% set activeCount = 0 %}
+                    {% for e in emergencies %}
+                        {% if e.status != 'Resolved' %}
+                            {% set activeCount = activeCount + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ activeCount }}
+                </p>
+            </div>
+            <div class="stat-card">
+                <h3>Resolved Cases</h3>
+                <p style="color: #4ade80;">
+                    {% set resCount = 0 %}
+                    {% for e in emergencies %}
+                        {% if e.status == 'Resolved' %}
+                            {% set resCount = resCount + 1 %}
+                        {% endif %}
+                    {% endfor %}
+                    {{ resCount }}
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size: 18px; margin-bottom: 16px;">
+                🚑 Citizen Emergency Requests & Rapid Dispatches
+            </h2>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Incident ID</th>
+                            <th>Caller & Vehicle</th>
+                            <th>Emergency Type</th>
+                            <th>Location</th>
+                            <th>Description</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Dispatch Control</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for em in emergencies %}
+                        <tr>
+                            <td><strong>{{ em.id }}</strong></td>
+                            <td>
+                                <div>{{ em.name }}</div>
+                                {% if em.vehicle_number %}
+                                <span class="plate">{{ em.vehicle_number }}</span>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ em.emergency_type }}</strong></td>
+                            <td>{{ em.location }}</td>
+                            <td style="max-width: 250px; font-size: 13px; color: #cbd5e1;">{{ em.description }}</td>
+                            <td style="font-size: 12px; color: #94a3b8;">{{ em.reported_at }}</td>
+                            <td>
+                                {% if em.status == 'Green Corridor Active' %}
+                                    <span class="badge badge-active">🟢 Green Corridor</span>
+                                {% elif em.status == 'Ambulance Dispatched' %}
+                                    <span class="badge badge-critical">🚑 Dispatched</span>
+                                {% elif em.status == 'Resolved' %}
+                                    <span class="badge badge-active">✅ Resolved</span>
+                                {% else %}
+                                    <span class="badge badge-alert">⚠️ Alert Received</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="POST" action="/update-emergency-status/{{ em.id }}" style="display: flex; align-items: center;">
+                                    <select name="status" class="action-select">
+                                        <option value="Ambulance Dispatched" {% if em.status == 'Ambulance Dispatched' %}selected{% endif %}>Ambulance Dispatched</option>
+                                        <option value="Green Corridor Active" {% if em.status == 'Green Corridor Active' %}selected{% endif %}>Green Corridor Active</option>
+                                        <option value="Resolved" {% if em.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                                    </select>
+                                    <button type="submit" class="action-btn">Update</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

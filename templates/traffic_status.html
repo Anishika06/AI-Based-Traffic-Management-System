@@ -118,82 +118,56 @@
 
         <div class="traffic-grid">
 
+            {% if signals and signals.length > 0 %}
+                {% for sig in signals %}
+                <div class="card">
+                    <h2>🚦 {{ sig.junction_name }}</h2>
+                    <p>Corridor / Road</p>
+                    <div style="font-weight: bold; margin-bottom: 8px;">{{ sig.road }}</div>
+                    
+                    <p>Current Phase</p>
+                    <span class="status {{ 'green' if sig.current_phase == 'GREEN' else ('red' if sig.current_phase == 'RED' else 'yellow') }}">
+                        {{ sig.current_phase }} ({{ sig.timer_seconds }}s)
+                    </span>
 
-            <div class="card">
+                    <p style="margin-top: 12px;">Congestion Level</p>
+                    <span style="font-weight: 600; color: {{ '#f85149' if sig.congestion_level == 'Heavy' else ('#d29922' if sig.congestion_level == 'Moderate' else '#3fb950') }};">
+                        {{ sig.congestion_level }} ({{ sig.vehicle_count }} vehicles)
+                    </span>
 
-                <h2>🛣️ Main Road</h2>
-
-                <p>
-                    Traffic Level
-                </p>
-
-                <span class="status red">
-                    🔴 Heavy
-                </span>
-
-                <p>
-                    Average speed: 18 km/h
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>🏙️ City Centre</h2>
-
-                <p>
-                    Traffic Level
-                </p>
-
-                <span class="status yellow">
-                    🟠 Moderate
-                </span>
-
-                <p>
-                    Average speed: 32 km/h
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>🌳 Airport Road</h2>
-
-                <p>
-                    Traffic Level
-                </p>
-
-                <span class="status green">
-                    🟢 Low
-                </span>
-
-                <p>
-                    Average speed: 52 km/h
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>🏢 Ring Road</h2>
-
-                <p>
-                    Traffic Level
-                </p>
-
-                <span class="status yellow">
-                    🟠 Moderate
-                </span>
-
-                <p>
-                    Average speed: 35 km/h
-                </p>
-
-            </div>
-
+                    {% if sig.ambulance_priority %}
+                    <div style="margin-top: 10px; background: rgba(248, 81, 73, 0.2); border: 1px solid #f85149; padding: 4px 8px; border-radius: 6px; font-size: 12px; color: #f85149; font-weight: bold;">
+                        🚑 Emergency Ambulance Green Wave Active!
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="card">
+                    <h2>🛣️ Main Road</h2>
+                    <p>Traffic Level</p>
+                    <span class="status red">🔴 Heavy</span>
+                    <p>Average speed: 18 km/h</p>
+                </div>
+                <div class="card">
+                    <h2>🏙️ City Centre</h2>
+                    <p>Traffic Level</p>
+                    <span class="status yellow">🟠 Moderate</span>
+                    <p>Average speed: 32 km/h</p>
+                </div>
+                <div class="card">
+                    <h2>🌳 Airport Road</h2>
+                    <p>Traffic Level</p>
+                    <span class="status green">🟢 Low</span>
+                    <p>Average speed: 52 km/h</p>
+                </div>
+                <div class="card">
+                    <h2>🏢 Ring Road</h2>
+                    <p>Traffic Level</p>
+                    <span class="status yellow">🟠 Moderate</span>
+                    <p>Average speed: 35 km/h</p>
+                </div>
+            {% endif %}
 
         </div>
 

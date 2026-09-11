@@ -4,277 +4,493 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Vehicle / Challan Details - SMART ROADS</title>
+    <title>Vehicle RC & Challan Registry - SMART ROADS</title>
 
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: white;
-
+            background: #0b1118;
+            color: #e6edf3;
             min-height: 100vh;
-
-            background:
-                linear-gradient(
-                    rgba(0, 0, 0, 0.68),
-                    rgba(0, 0, 0, 0.68)
-                ),
-                url("/static/images/background.jpg");
-
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            padding-bottom: 60px;
         }
 
         header {
-            background: rgba(10, 20, 30, 0.94);
-
-            padding: 20px 30px;
-
+            background: rgba(13, 22, 33, 0.98);
+            padding: 18px 30px;
+            border-bottom: 1px solid #202d3d;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         header h1 {
-            margin: 0;
-            font-size: 25px;
+            font-size: 20px;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .back-btn {
-            color: white;
+            color: #c9d1d9;
             text-decoration: none;
+            background: #21262d;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            border: 1px solid #30363d;
+            transition: all 0.2s ease;
+        }
 
-            background: rgba(255, 255, 255, 0.15);
-
-            padding: 10px 18px;
-
-            border-radius: 8px;
+        .back-btn:hover {
+            background: #30363d;
+            color: #fff;
         }
 
         .container {
-            max-width: 800px;
-
-            margin: 45px auto;
-
-            padding: 30px;
+            max-width: 960px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
-        .search-box {
-            background: rgba(20, 35, 45, 0.95);
-
-            padding: 30px;
-
-            border-radius: 18px;
-
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-
-            text-align: center;
+        /* Search Box */
+        .search-card {
+            background: #141e2b;
+            border: 1px solid #26384d;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            margin-bottom: 30px;
         }
 
-        .search-box h2 {
-            margin-top: 0;
+        .search-card h2 {
+            font-size: 22px;
+            color: #f0f6fc;
+            margin-bottom: 8px;
         }
 
-        .search-box p {
-            color: #cccccc;
-        }
-
-        input {
-            width: 100%;
-
-            padding: 14px;
-
-            margin-top: 15px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            font-size: 17px;
-
-            text-transform: uppercase;
-        }
-
-        button {
-            width: 100%;
-
-            margin-top: 15px;
-
-            padding: 14px;
-
-            border: none;
-
-            border-radius: 8px;
-
-            background: #1976d2;
-
-            color: white;
-
-            font-size: 16px;
-
-            font-weight: bold;
-
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2196f3;
-        }
-
-        .notice {
-            margin-top: 30px;
-
-            background: rgba(255, 255, 255, 0.96);
-
-            color: #222;
-
-            border-radius: 15px;
-
-            padding: 30px;
-        }
-
-        .notice h2 {
-            text-align: center;
-
-            color: #b71c1c;
-        }
-
-        .notice-header {
-            text-align: center;
-
-            font-weight: bold;
-
-            border-bottom: 2px solid #ddd;
-
-            padding-bottom: 15px;
-
+        .search-card p {
+            color: #8b949e;
+            font-size: 14px;
             margin-bottom: 20px;
         }
 
-        .detail {
+        .search-form {
             display: flex;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            padding: 12px 0;
-
-            border-bottom: 1px solid #ddd;
+            gap: 12px;
         }
 
-        .detail strong {
-            color: #444;
+        .input-group {
+            position: relative;
+            flex: 1;
         }
 
-        .message {
-            margin-top: 20px;
-
-            padding: 18px;
-
-            background: #fff3cd;
-
-            border-radius: 10px;
-
-            line-height: 1.6;
+        .search-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: #0d1520;
+            border: 1px solid #30445c;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            outline: none;
+            transition: border-color 0.2s;
         }
 
-        .status {
-            display: inline-block;
+        .search-input:focus {
+            border-color: #388bfd;
+            box-shadow: 0 0 0 3px rgba(56, 139, 253, 0.2);
+        }
 
-            padding: 6px 12px;
+        .search-btn {
+            background: #238636;
+            color: #fff;
+            border: none;
+            padding: 0 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
 
+        .search-btn:hover {
+            background: #2ea043;
+        }
+
+        .sample-chips {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #8b949e;
+        }
+
+        .sample-chips a {
+            color: #58a6ff;
+            background: rgba(56, 139, 253, 0.1);
+            border: 1px solid rgba(56, 139, 253, 0.3);
+            padding: 3px 10px;
             border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+        }
 
-            background: #ffcc80;
+        .sample-chips a:hover {
+            background: rgba(56, 139, 253, 0.2);
+        }
 
+        .alert-box {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+            color: #f85149;
+        }
+
+        .alert-success {
+            background: rgba(46, 160, 67, 0.1);
+            border: 1px solid rgba(46, 160, 67, 0.4);
+            color: #3fb950;
+        }
+
+        /* Vehicle Profile Card */
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .vehicle-hero {
+            background: linear-gradient(135deg, #162436 0%, #1a2f47 100%);
+            border: 1px solid #314a68;
+            border-radius: 12px;
+            padding: 24px;
+            position: relative;
+        }
+
+        .hero-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .reg-plate {
+            display: inline-flex;
+            align-items: center;
+            background: #ffeb3b;
+            color: #111;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 20px;
+            letter-spacing: 2px;
+            border: 2px solid #000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .reg-plate .ind-flag {
+            background: #0d47a1;
+            color: #fff;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            margin-right: 8px;
             font-weight: bold;
         }
 
-        .actions {
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: rgba(46, 160, 67, 0.2);
+            color: #3fb950;
+            border: 1px solid #238636;
+        }
+
+        .badge-danger {
+            background: rgba(248, 81, 73, 0.2);
+            color: #f85149;
+            border: 1px solid #da3633;
+        }
+
+        .badge-warning {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+            border: 1px solid #9e6a03;
+        }
+
+        .hero-title h3 {
+            font-size: 22px;
+            color: #f0f6fc;
+            margin-bottom: 4px;
+        }
+
+        .hero-title p {
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        /* Detail Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .info-card {
+            background: #141e2b;
+            border: 1px solid #26384d;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .info-card h4 {
+            font-size: 14px;
+            color: #58a6ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 14px;
             display: flex;
-
-            gap: 12px;
-
-            margin-top: 25px;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #202d3d;
+            padding-bottom: 8px;
         }
 
-        .actions button {
-            margin-top: 0;
+        .row-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
         }
 
-        .print-btn {
-            background: #455a64;
+        .row-item:last-child {
+            border-bottom: none;
         }
 
-        .print-btn:hover {
-            background: #607d8b;
+        .row-item .label {
+            color: #8b949e;
         }
 
-        .download-btn {
-            background: #2e7d32;
+        .row-item .value {
+            color: #f0f6fc;
+            font-weight: 500;
+            text-align: right;
         }
 
-        .download-btn:hover {
-            background: #388e3c;
+        /* Challan Section */
+        .challans-section {
+            background: #141e2b;
+            border: 1px solid #26384d;
+            border-radius: 12px;
+            padding: 24px;
         }
 
-        .error {
-            margin-top: 20px;
+        .challans-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
 
-            padding: 15px;
+        .challan-item {
+            background: #0d1520;
+            border: 1px solid #27394e;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
 
-            background: #b71c1c;
+        .challan-item.unpaid {
+            border-left: 5px solid #f85149;
+        }
 
-            border-radius: 8px;
+        .challan-item.paid {
+            border-left: 5px solid #2ea043;
+        }
 
+        .challan-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .challan-id {
+            font-weight: 700;
+            color: #f0f6fc;
+            font-size: 15px;
+        }
+
+        .challan-fine {
+            font-size: 18px;
+            font-weight: 800;
+            color: #f85149;
+        }
+
+        .challan-item.paid .challan-fine {
+            color: #3fb950;
+        }
+
+        .challan-violation {
+            font-size: 15px;
+            color: #e6edf3;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .challan-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            color: #8b949e;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .challan-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #1f2c3d;
+        }
+
+        .pay-btn {
+            background: #1f6feb;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .pay-btn:hover {
+            background: #388bfd;
+        }
+
+        .receipt-pill {
+            color: #3fb950;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Clean State */
+        .clean-state {
             text-align: center;
+            padding: 35px 20px;
+            background: rgba(46, 160, 67, 0.05);
+            border: 1px dashed rgba(46, 160, 67, 0.3);
+            border-radius: 10px;
+        }
+
+        .clean-state .icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .clean-state h3 {
+            color: #3fb950;
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .clean-state p {
+            color: #8b949e;
+            font-size: 14px;
+        }
+
+        /* Page Actions */
+        .page-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #30445c;
+            color: #c9d1d9;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #1c2736;
+            color: #fff;
         }
 
         @media print {
             body {
-                background: white;
-                color: black;
+                background: #fff;
+                color: #000;
             }
 
-            header,
-            .search-box,
-            .actions {
-                display: none;
+            header, .search-card, .page-actions, .pay-btn, .back-btn {
+                display: none !important;
             }
 
-            .container {
-                margin: 0;
-            }
-
-            .notice {
+            .info-card, .challan-item, .vehicle-hero, .challans-section {
+                border: 1px solid #ccc;
+                background: #fff;
+                color: #000;
                 box-shadow: none;
             }
-        }
 
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 19px;
+            .row-item .value, .hero-title h3, .challan-id, .challan-violation {
+                color: #000;
             }
 
-            .container {
-                margin: 20px 10px;
-                padding: 10px;
-            }
-
-            .detail {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .actions {
-                flex-direction: column;
+            .row-item .label, .challan-meta, .hero-title p {
+                color: #444;
             }
         }
     </style>
@@ -282,200 +498,295 @@
 
 <body>
 
-<header>
+    <header>
+        <h1>🚦 SMART ROADS - Official Vehicle & Challan Database</h1>
+        <a href="/public-portal" class="back-btn">← Public Portal</a>
+    </header>
 
-    <h1>
-        🧾 SMART ROADS - Vehicle / Challan Details
-    </h1>
+    <div class="container">
 
-    <a href="/public-portal" class="back-btn">
-        ← Public Portal
-    </a>
+        <!-- SEARCH CARD -->
+        <div class="search-card">
+            <h2>🔍 Search National Vehicle Database</h2>
+            <p>Enter any vehicle registration number to retrieve official RTO registration details, ownership, compliance status, and e-challan violation records.</p>
 
-</header>
+            <form method="POST" action="/challan" class="search-form">
+                <div class="input-group">
+                    <input
+                        type="text"
+                        name="vehicle_number"
+                        class="search-input"
+                        placeholder="e.g. TN01AB1234, DL01XY9999, MH12DE4567"
+                        value="{{ queried_number or '' }}"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                <button type="submit" class="search-btn">
+                    🔎 Lookup Vehicle
+                </button>
+            </form>
 
+            <div class="sample-chips">
+                <span>Quick Test Registrations:</span>
+                <a href="/challan?v=TN01AB1234">TN 01 AB 1234 (Chennai)</a>
+                <a href="/challan?v=DL01XY9999">DL 01 XY 9999 (Delhi EV)</a>
+                <a href="/challan?v=MH12DE4567">MH 12 DE 4567 (Pune)</a>
+                <a href="/challan?v=KA03MG8899">KA 03 MG 8899 (Bengaluru)</a>
+                <a href="/challan?v=UP16Z9901">UP 16 Z 9901 (Noida)</a>
+            </div>
+        </div>
 
-<div class="container">
+        <!-- PAYMENT SUCCESS NOTIFICATION -->
+        {% if payment_success %}
+        <div class="alert-box alert-success">
+            ✅ <strong>Fine Payment Successful!</strong> Challan <strong>{{ payment_challan_id }}</strong> has been marked as Paid. Transaction ID: <code>{{ payment_txn_id }}</code>. Receipt has been issued.
+        </div>
+        {% endif %}
 
+        <!-- ERROR MESSAGE -->
+        {% if error %}
+        <div class="alert-box alert-error">
+            ❌ {{ error }}
+        </div>
+        {% endif %}
 
-    <!-- SEARCH -->
+        <!-- VEHICLE & CHALLAN PROFILE -->
+        {% if vehicle %}
+        <div class="profile-container" id="printable-profile">
 
-    <div class="search-box">
+            <!-- HERO HEADER -->
+            <div class="vehicle-hero">
+                <div class="hero-top">
+                    <div class="reg-plate">
+                        <span class="ind-flag">IND</span>
+                        {{ vehicle.formatted_number }}
+                    </div>
+                    <div>
+                        <span class="badge badge-active">RC STATUS: {{ vehicle.rc_status }}</span>
+                    </div>
+                </div>
 
-        <h2>
-            🔍 Search Vehicle Details
-        </h2>
+                <div class="hero-title">
+                    <h3>{{ vehicle.maker }} - {{ vehicle.model }}</h3>
+                    <p>Registered at {{ vehicle.rto_office }}</p>
+                </div>
+            </div>
 
-        <p>
-            Enter your vehicle registration number to view
-            available traffic violation information.
-        </p>
+            <!-- REGISTRATION & VEHICLE DETAILS GRID -->
+            <div class="info-grid">
 
-        <form method="POST" action="/challan">
+                <!-- CARD 1: OWNERSHIP & REGISTRATION -->
+                <div class="info-card">
+                    <h4>👤 Ownership & Registration</h4>
+                    <div class="row-item">
+                        <span class="label">Owner Name</span>
+                        <span class="value">{{ vehicle.owner_name }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Father / Guardian</span>
+                        <span class="value">{{ vehicle.father_name }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Registration Date</span>
+                        <span class="value">{{ vehicle.registration_date }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Vehicle Age</span>
+                        <span class="value">{{ vehicle.vehicle_age }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">RTO Authority</span>
+                        <span class="value">{{ vehicle.rto_code }} ({{ vehicle.state }})</span>
+                    </div>
+                </div>
 
-            <input
-                type="text"
-                name="vehicle_number"
-                placeholder="Example: TN01AB1234"
-                required
-            >
+                <!-- CARD 2: SPECIFICATIONS & VEHICLE CLASS -->
+                <div class="info-card">
+                    <h4>🚗 Vehicle Class & Specs</h4>
+                    <div class="row-item">
+                        <span class="label">Vehicle Class</span>
+                        <span class="value">{{ vehicle.vehicle_class }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Body Type</span>
+                        <span class="value">{{ vehicle.body_type }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Fuel Type</span>
+                        <span class="value">{{ vehicle.fuel_type }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Emission Norms</span>
+                        <span class="value">{{ vehicle.emission_norms }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Color</span>
+                        <span class="value">{{ vehicle.color }}</span>
+                    </div>
+                </div>
 
-            <button type="submit">
-                🔍 Search Vehicle
-            </button>
+                <!-- CARD 3: LEGAL & COMPLIANCE -->
+                <div class="info-card">
+                    <h4>🛡️ Compliance & Validity</h4>
+                    <div class="row-item">
+                        <span class="label">Fitness / RC Valid Upto</span>
+                        <span class="value" style="color: #3fb950;">{{ vehicle.fitness_upto }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Insurance Policy</span>
+                        <span class="value">{{ vehicle.insurance_company }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Insurance Validity</span>
+                        <span class="value">{{ vehicle.insurance_expiry }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">PUC Certificate</span>
+                        <span class="value">{{ vehicle.puc_number }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">PUC Valid Till</span>
+                        <span class="value">{{ vehicle.puc_expiry }}</span>
+                    </div>
+                </div>
 
-        </form>
+                <!-- CARD 4: TAX & FINANCIAL -->
+                <div class="info-card">
+                    <h4>🏦 Tax & Identification</h4>
+                    <div class="row-item">
+                        <span class="label">Road Tax</span>
+                        <span class="value">{{ vehicle.tax_status }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Hypothecation</span>
+                        <span class="value">{{ vehicle.hypothecation }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Engine Number</span>
+                        <span class="value">{{ vehicle.engine_number }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Chassis Number</span>
+                        <span class="value">{{ vehicle.chassis_number }}</span>
+                    </div>
+                    <div class="row-item">
+                        <span class="label">Theft / Blacklist Flag</span>
+                        <span class="value" style="color: #3fb950;">{{ vehicle.blacklist_status }}</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- E-CHALLANS & TRAFFIC VIOLATIONS -->
+            <div class="challans-section">
+                <div class="challans-header">
+                    <div>
+                        <h3 style="font-size: 18px; color: #f0f6fc;">
+                            ⚖️ Traffic Violations & E-Challans ({{ challans.length }})
+                        </h3>
+                        <p style="color: #8b949e; font-size: 13px; margin-top: 4px;">
+                            Integrated with SMART ROADS Automated Sentinel Enforcement
+                        </p>
+                    </div>
+
+                    {% set pendingCount = 0 %}
+                    {% set pendingTotal = 0 %}
+                    {% for c in challans %}
+                        {% if c.status == 'Unpaid' %}
+                            {% set pendingCount = pendingCount + 1 %}
+                            {% set pendingTotal = pendingTotal + c.fine %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pendingCount > 0 %}
+                        <span class="badge badge-danger">
+                            ⚠️ {{ pendingCount }} Unpaid Challan(s) - Total: ₹{{ pendingTotal }}
+                        </span>
+                    {% else %}
+                        <span class="badge badge-active">
+                            ✅ All Dues Cleared
+                        </span>
+                    {% endif %}
+                </div>
+
+                {% if challans and challans.length > 0 %}
+                    {% for ch in challans %}
+                    <div class="challan-item {{ 'unpaid' if ch.status == 'Unpaid' else 'paid' }}">
+                        <div class="challan-top">
+                            <span class="challan-id">Notice #{{ ch.id }}</span>
+                            <span class="challan-fine">₹{{ ch.fine }}</span>
+                        </div>
+
+                        <div class="challan-violation">
+                            🚨 {{ ch.violation }}
+                        </div>
+
+                        <div class="challan-meta">
+                            <span>📅 <strong>Date:</strong> {{ ch.date }} {{ ch.time }}</span>
+                            <span>📍 <strong>Location:</strong> {{ ch.location }}</span>
+                            <span>📷 <strong>Source:</strong> {{ ch.detection_source }}</span>
+                            <span>📜 <strong>Section:</strong> {{ ch.section }}</span>
+                        </div>
+
+                        <div class="challan-actions">
+                            {% if ch.status == 'Unpaid' %}
+                                <span class="badge badge-danger">Status: UNPAID</span>
+                                <form method="POST" action="/pay-challan/{{ ch.id }}" style="display:inline;">
+                                    <input type="hidden" name="vehicle_number" value="{{ vehicle.registration_number }}">
+                                    <button type="submit" class="pay-btn">
+                                        💳 Pay ₹{{ ch.fine }} Online Now
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="badge badge-active">Status: PAID</span>
+                                <span class="receipt-pill">
+                                    🧾 Paid on {{ ch.payment_date or 'Recent' }} (Txn: {{ ch.payment_transaction_id or 'TXN-ONLINE' }})
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="clean-state">
+                        <div class="icon">🛡️</div>
+                        <h3>Clean Driving Record</h3>
+                        <p>No traffic violations or unpaid e-challans are recorded against vehicle <strong>{{ vehicle.formatted_number }}</strong>.</p>
+                    </div>
+                {% endif %}
+
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="page-actions">
+                <button class="btn-outline" onclick="window.print()">
+                    🖨️ Print RC & Challan Report
+                </button>
+                <button class="btn-outline" onclick="downloadVehicleSummary()">
+                    📥 Download Certificate Summary
+                </button>
+            </div>
+
+        </div>
+        {% endif %}
 
     </div>
 
+    <script>
+        function downloadVehicleSummary() {
+            const container = document.getElementById("printable-profile");
+            if (!container) return;
 
-    <!-- ERROR -->
-
-    {% if error %}
-
-    <div class="error">
-        ❌ {{ error }}
-    </div>
-
-    {% endif %}
-
-
-    <!-- VIOLATION NOTICE -->
-
-    {% if challan %}
-
-    <div class="notice" id="notice">
-
-        <h2>
-            TRAFFIC VIOLATION NOTICE
-        </h2>
-
-        <div class="notice-header">
-
-            SMART ROADS<br>
-            Digital Traffic Violation Notice
-
-        </div>
-
-
-        <div class="detail">
-            <strong>Vehicle Number</strong>
-            <span>{{ challan.vehicle_number }}</span>
-        </div>
-
-
-        <div class="detail">
-            <strong>Violation</strong>
-            <span>{{ challan.violation }}</span>
-        </div>
-
-
-        <div class="detail">
-            <strong>Date</strong>
-            <span>{{ challan.date }}</span>
-        </div>
-
-
-        <div class="detail">
-            <strong>Location</strong>
-            <span>{{ challan.location }}</span>
-        </div>
-
-
-        <div class="detail">
-            <strong>Fine Amount</strong>
-            <span>₹{{ challan.fine }}</span>
-        </div>
-
-
-        <div class="detail">
-            <strong>Status</strong>
-
-            <span class="status">
-                {{ challan.status }}
-            </span>
-
-        </div>
-
-
-        <div class="message">
-
-            <strong>Message to Vehicle Owner</strong><br><br>
-
-            A traffic violation has been recorded for the
-            above vehicle. This digital notice has been issued
-            by SMART ROADS. Please review the violation details
-            and complete the required action within the
-            specified period.
-
-        </div>
-
-
-        <div class="actions">
-
-            <button
-                class="print-btn"
-                onclick="window.print()"
-            >
-                🖨️ Print Notice
-            </button>
-
-            <button
-                class="download-btn"
-                onclick="downloadNotice()"
-            >
-                📥 Download Receipt
-            </button>
-
-        </div>
-
-    </div>
-
-    {% endif %}
-
-
-</div>
-
-
-<script>
-
-function downloadNotice() {
-
-    const notice =
-        document.getElementById("notice");
-
-    if (!notice) {
-        return;
-    }
-
-    const text =
-        notice.innerText;
-
-    const blob =
-        new Blob(
-            [text],
-            { type: "text/plain" }
-        );
-
-    const url =
-        URL.createObjectURL(blob);
-
-    const link =
-        document.createElement("a");
-
-    link.href = url;
-
-    link.download =
-        "SMART_ROADS_Violation_Notice.txt";
-
-    link.click();
-
-    URL.revokeObjectURL(url);
-
-}
-
-</script>
+            const content = container.innerText;
+            const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "SMART_ROADS_Vehicle_RC_{{ vehicle.registration_number if vehicle else 'Details' }}.txt";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
 
 </body>
-
 </html>

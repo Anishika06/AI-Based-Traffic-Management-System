@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Registry & Challan Management - SMART ROADS Authority</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        header {
+            background: #1e293b;
+            padding: 18px 30px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 20px;
+            color: #38bdf8;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .nav-btn {
+            color: #cbd5e1;
+            text-decoration: none;
+            background: #334155;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #475569;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .card h2 {
+            font-size: 18px;
+            color: #f8fafc;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form styling */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #f8fafc;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #38bdf8;
+        }
+
+        .btn-submit {
+            background: #e11d48;
+            color: #fff;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            background: #be123c;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            background: #0f172a;
+            padding: 12px;
+            text-align: left;
+            color: #94a3b8;
+            font-weight: 600;
+            border-bottom: 1px solid #334155;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            vertical-align: middle;
+        }
+
+        .plate {
+            background: #facc15;
+            color: #000;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-unpaid {
+            background: rgba(225, 29, 72, 0.2);
+            color: #fb7185;
+            border: 1px solid #e11d48;
+        }
+
+        .badge-paid {
+            background: rgba(34, 197, 94, 0.2);
+            color: #4ade80;
+            border: 1px solid #22c55e;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #4ade80;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🚔 SMART ROADS - Enforcement & Vehicle Database</h1>
+        <div class="nav-links">
+            <a href="/authority-dashboard" class="nav-btn">← Authority Dashboard</a>
+            <a href="/challan" class="nav-btn">🔍 Public RC Lookup</a>
+        </div>
+    </header>
+
+    <div class="container">
+
+        {% if success_msg %}
+        <div class="alert-success">
+            ✅ {{ success_msg }}
+        </div>
+        {% endif %}
+
+        <div class="grid-2">
+
+            <!-- REGISTERED VEHICLES IN DATABASE -->
+            <div class="card">
+                <h2>🗄️ Vehicles Stored in RTO Database ({{ vehicles.length }})</h2>
+                <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">
+                    All vehicles registered across states. Click any vehicle to inspect its full digital RC and e-challan violations.
+                </p>
+
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Plate #</th>
+                                <th>Owner</th>
+                                <th>Maker & Model</th>
+                                <th>RTO Office</th>
+                                <th>RC Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in vehicles %}
+                            <tr>
+                                <td><span class="plate">{{ v.formatted_number }}</span></td>
+                                <td><strong>{{ v.owner_name }}</strong></td>
+                                <td>{{ v.maker }} {{ v.model }}</td>
+                                <td style="font-size: 12px; color: #94a3b8;">{{ v.rto_code }} ({{ v.state }})</td>
+                                <td><span class="badge badge-paid">{{ v.rc_status }}</span></td>
+                                <td>
+                                    <a href="/challan?v={{ v.registration_number }}" style="color: #38bdf8; text-decoration: none; font-weight: 500;">
+                                        View RC &rarr;
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ISSUE NEW CHALLAN -->
+            <div class="card">
+                <h2>🚨 Issue Official E-Challan</h2>
+                <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">
+                    Enforce a new violation record. The violation will immediately appear on the vehicle owner's search page.
+                </p>
+
+                <form method="POST" action="/issue-challan">
+                    <div class="form-group">
+                        <label for="vehicle_number">Vehicle Registration Number</label>
+                        <input type="text" id="vehicle_number" name="vehicle_number" placeholder="e.g. TN01AB1234 or MH12DE4567" required style="text-transform: uppercase;">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="violation">Traffic Violation</label>
+                        <select id="violation" name="violation" required>
+                            <option value="Red Light Signal Violation (Sec 119/177 MVA)|1000">Red Light Signal Violation - ₹1,000</option>
+                            <option value="Exceeding Permitted Speed Limit (Sec 112/183 MVA)|1500">Exceeding Speed Limit (>80 km/h) - ₹1,500</option>
+                            <option value="Riding Without Protective Safety Helmet (Sec 129/194D MVA)|1000">Riding Without Helmet - ₹1,000</option>
+                            <option value="Driving Without Fastened Seatbelt (Sec 194B MVA)|1000">No Seatbelt - ₹1,000</option>
+                            <option value="Using Handheld Mobile Phone While Driving (Sec 184c MVA)|1500">Mobile Phone While Driving - ₹1,500</option>
+                            <option value="Unauthorized Parking in High Traffic Zone (Sec 122 MVA)|500">Illegal Parking - ₹500</option>
+                            <option value="Driving Without Valid PUC Certificate (Sec 190(2) MVA)|2000">Expired / No PUC Certificate - ₹2,000</option>
+                            <option value="Dangerous Overtaking / Rash Lane Change (Sec 184 MVA)|2500">Dangerous / Rash Driving - ₹2,500</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location / Intersection</label>
+                        <input type="text" id="location" name="location" placeholder="e.g. Anna Salai - Mount Road Junction" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="detection_source">Capturing Sensor / Officer ID</label>
+                        <input type="text" id="detection_source" name="detection_source" value="AI Automated Sentinel Camera #04" required>
+                    </div>
+
+                    <button type="submit" class="btn-submit">
+                        ⚖️ Record Violation & Issue Challan
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+        <!-- RECENT CHALLANS TABLE -->
+        <div class="card">
+            <h2>📜 Active & Historical E-Challans in Database ({{ challans.length }})</h2>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Notice ID</th>
+                            <th>Target Vehicle</th>
+                            <th>Violation Category</th>
+                            <th>Location</th>
+                            <th>Timestamp</th>
+                            <th>Penalty</th>
+                            <th>Payment Status</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ch in challans %}
+                        <tr>
+                            <td><strong>{{ ch.id }}</strong></td>
+                            <td><span class="plate">{{ ch.vehicle_number }}</span></td>
+                            <td>{{ ch.violation }}</td>
+                            <td>{{ ch.location }}</td>
+                            <td>{{ ch.date }} {{ ch.time }}</td>
+                            <td><strong style="color: #fb7185;">₹{{ ch.fine }}</strong></td>
+                            <td>
+                                {% if ch.status == 'Paid' %}
+                                    <span class="badge badge-paid">PAID</span>
+                                {% else %}
+                                    <span class="badge badge-unpaid">UNPAID</span>
+                                {% endif %}
+                            </td>
+                            <td style="font-size: 12px; color: #94a3b8;">{{ ch.detection_source }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
