@@ -1,0 +1,3409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps Real-Time Pan-India Traffic & ITS GIS - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS & JS for Interactive Cartography -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        :root {
+            --gm-blue: #1a73e8;
+            --gm-blue-hover: #1557b0;
+            --gm-green: #1e8e3e;
+            --gm-red: #d93025;
+            --gm-orange: #f29900;
+            --gm-dark-red: #b31412;
+            --gm-surface: #ffffff;
+            --gm-text: #202124;
+            --gm-subtext: #5f6368;
+            --gm-border: #dadce0;
+            --gm-shadow: 0 2px 6px rgba(60,64,67,0.3), 0 1px 2px rgba(60,64,67,0.15);
+            --gm-shadow-hover: 0 4px 12px rgba(60,64,67,0.35);
+        }
+
+        body.dark-theme {
+            --gm-surface: #1e242d;
+            --gm-text: #f1f3f4;
+            --gm-subtext: #9aa0a6;
+            --gm-border: #3c4043;
+            --gm-shadow: 0 2px 8px rgba(0,0,0,0.6);
+            --gm-shadow-hover: 0 4px 14px rgba(0,0,0,0.8);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #e5e3df;
+            color: var(--gm-text);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        body.dark-theme {
+            background: #14171d;
+        }
+
+        /* Top Slim Status Bar */
+        .gmaps-topbar {
+            height: 48px;
+            background: var(--gm-surface);
+            border-bottom: 1px solid var(--gm-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            z-index: 1000;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--gm-text);
+        }
+
+        .brand-logo-g {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            font-weight: 900;
+            font-size: 17px;
+        }
+
+        .brand-logo-g span:nth-child(1) { color: #4285f4; }
+        .brand-logo-g span:nth-child(2) { color: #ea4335; }
+        .brand-logo-g span:nth-child(3) { color: #fbbc05; }
+        .brand-logo-g span:nth-child(4) { color: #34a853; }
+
+        .topbar-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .live-traffic-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gm-green);
+            background: rgba(30, 142, 62, 0.1);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: #1e8e3e;
+            border-radius: 50%;
+            animation: pulse-green 1.8s infinite;
+        }
+
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.4); }
+        }
+
+        .topbar-select {
+            background: var(--gm-surface);
+            border: 1px solid var(--gm-border);
+            color: var(--gm-text);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Real-Time Live Telemetry HUD Elements */
+        .realtime-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 4px 9px;
+            border-radius: 14px;
+            background: var(--gm-surface);
+            border: 1px solid var(--gm-border);
+            color: var(--gm-text);
+            white-space: nowrap;
+        }
+
+        .live-sync-pill {
+            background: rgba(30, 142, 62, 0.08);
+            border-color: rgba(30, 142, 62, 0.3);
+            color: #137333;
+        }
+
+        .weather-pill {
+            background: rgba(26, 115, 232, 0.08);
+            border-color: rgba(26, 115, 232, 0.25);
+            color: #1a73e8;
+        }
+
+        .peak-pill {
+            background: rgba(234, 67, 53, 0.08);
+            border-color: rgba(234, 67, 53, 0.25);
+            color: #d93025;
+        }
+
+        .pulse-emerald {
+            width: 7px;
+            height: 7px;
+            background: #1e8e3e;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(30, 142, 62, 0.7);
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(30, 142, 62, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(30, 142, 62, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(30, 142, 62, 0); }
+        }
+
+        /* Real-Time Bottom Event Marquee Ticker */
+        .realtime-ticker-bar {
+            position: absolute;
+            bottom: 24px;
+            left: 106px;
+            right: 240px;
+            z-index: 999;
+            background: var(--gm-surface);
+            border-radius: 20px;
+            padding: 5px 14px;
+            box-shadow: var(--gm-shadow);
+            border: 1px solid var(--gm-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11.5px;
+            overflow: hidden;
+        }
+
+        .ticker-badge-tag {
+            background: #1a73e8;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .ticker-scroller {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            color: var(--gm-text);
+            font-weight: 600;
+        }
+
+        /* Live Smart Signal Dynamic Node */
+        .signal-node-marker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+            cursor: pointer;
+        }
+
+        .signal-light-pill {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #fff;
+            border: 1.5px solid #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+
+        .signal-green { background: #137333; }
+        .signal-amber { background: #b06000; }
+        .signal-red { background: #c5221f; }
+
+        /* Moving Vehicle Marker */
+        .fleet-vehicle-marker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.5s ease-out;
+        }
+
+        .vehicle-beacon-halo {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.35);
+            border: 2px solid #fff;
+        }
+
+        .vehicle-beacon-halo.ambulance {
+            border-color: #d93025;
+            background: #fee2e2;
+            animation: pulse-amb 1.2s infinite;
+        }
+
+        .vehicle-beacon-halo.police {
+            border-color: #1a73e8;
+            background: #e0f2fe;
+            animation: pulse-pol 1.5s infinite;
+        }
+
+        @keyframes pulse-amb {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(217, 48, 37, 0.6); }
+            50% { box-shadow: 0 0 0 8px rgba(217, 48, 37, 0); }
+        }
+
+        @keyframes pulse-pol {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(26, 115, 232, 0.6); }
+            50% { box-shadow: 0 0 0 8px rgba(26, 115, 232, 0); }
+        }
+
+        .vehicle-speed-tag {
+            background: rgba(0,0,0,0.8);
+            color: #fff;
+            font-size: 9.5px;
+            font-weight: 700;
+            padding: 1px 5px;
+            border-radius: 8px;
+            margin-top: 2px;
+            white-space: nowrap;
+        }
+
+        .topbar-btn {
+            background: var(--gm-surface);
+            border: 1px solid var(--gm-border);
+            color: var(--gm-text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+
+        .topbar-btn:hover {
+            background: rgba(0,0,0,0.05);
+            border-color: var(--gm-blue);
+        }
+
+        body.dark-theme .topbar-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Map Canvas Area */
+        #googleMap {
+            width: 100%;
+            height: calc(100vh - 48px);
+            position: relative;
+            background: #e5e3df;
+            z-index: 1;
+        }
+
+        /* Floating Google Maps Search & Explore Panel (Top-Left) */
+        .gmaps-floating-search-container {
+            position: absolute;
+            top: 60px;
+            left: 16px;
+            z-index: 1001;
+            width: 390px;
+            max-width: calc(100vw - 32px);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .gmaps-floating-search-container > * {
+            pointer-events: auto;
+        }
+
+        .gmaps-search-box {
+            background: var(--gm-surface);
+            border-radius: 24px;
+            box-shadow: var(--gm-shadow);
+            border: 1px solid var(--gm-border);
+            height: 48px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 8px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .gmaps-search-box:focus-within {
+            box-shadow: var(--gm-shadow-hover);
+            border-color: var(--gm-blue);
+        }
+
+        .gmaps-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 15px;
+            color: var(--gm-text);
+            font-family: inherit;
+        }
+
+        .gmaps-search-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--gm-subtext);
+            padding: 6px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .gmaps-search-btn:hover {
+            background: rgba(0,0,0,0.06);
+            color: var(--gm-text);
+        }
+
+        .directions-btn-round {
+            background: var(--gm-blue);
+            color: #ffffff !important;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .directions-btn-round:hover {
+            background: var(--gm-blue-hover);
+        }
+
+        /* Search Autocomplete Suggestions Dropdown */
+        .gmaps-suggestions {
+            background: var(--gm-surface);
+            border-radius: 12px;
+            box-shadow: var(--gm-shadow-hover);
+            border: 1px solid var(--gm-border);
+            max-height: 360px;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+        }
+
+        .suggestion-item {
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            transition: background 0.15s;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: rgba(0,0,0,0.04);
+        }
+
+        body.dark-theme .suggestion-item:hover {
+            background: rgba(255,255,255,0.06);
+        }
+
+        .sugg-icon {
+            font-size: 18px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sugg-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--gm-text);
+        }
+
+        .sugg-sub {
+            font-size: 11.5px;
+            color: var(--gm-subtext);
+        }
+
+        /* Category Chips Bar */
+        .gmaps-chips-bar {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .gmaps-chips-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gmaps-chip {
+            background: var(--gm-surface);
+            border: 1px solid var(--gm-border);
+            color: var(--gm-text);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            user-select: none;
+            transition: all 0.15s;
+        }
+
+        .gmaps-chip:hover {
+            border-color: var(--gm-blue);
+            background: #f8fafd;
+        }
+
+        body.dark-theme .gmaps-chip:hover {
+            background: #252d37;
+        }
+
+        .gmaps-chip.active {
+            background: #e8f0fe;
+            border-color: var(--gm-blue);
+            color: var(--gm-blue);
+        }
+
+        body.dark-theme .gmaps-chip.active {
+            background: #172b4d;
+            color: #8ab4f8;
+            border-color: #8ab4f8;
+        }
+
+        /* Turn-by-Turn Navigation Directions Sheet (Slide in) */
+        .gmaps-directions-panel {
+            background: var(--gm-surface);
+            border-radius: 12px;
+            box-shadow: var(--gm-shadow-hover);
+            border: 1px solid var(--gm-border);
+            width: 390px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            pointer-events: auto;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .directions-header {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--gm-border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .travel-mode-tabs {
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid var(--gm-border);
+            padding-bottom: 6px;
+        }
+
+        .mode-tab {
+            background: none;
+            border: none;
+            color: var(--gm-subtext);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s;
+        }
+
+        .mode-tab.active {
+            color: var(--gm-blue);
+            background: rgba(26, 115, 232, 0.1);
+        }
+
+        .route-inputs-box {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.03);
+            border: 1px solid var(--gm-border);
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+
+        body.dark-theme .input-row {
+            background: rgba(255,255,255,0.04);
+        }
+
+        .input-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .input-dot.start {
+            border: 2px solid var(--gm-blue);
+            background: #fff;
+        }
+
+        .input-dot.end {
+            background: var(--gm-red);
+        }
+
+        .input-row select, .input-row input {
+            border: none;
+            background: transparent;
+            outline: none;
+            color: var(--gm-text);
+            font-size: 13px;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .swap-inputs-btn {
+            position: absolute;
+            right: -2px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--gm-surface);
+            border: 1px solid var(--gm-border);
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        /* Route Options List */
+        .route-options-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .route-option-card {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--gm-border);
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .route-option-card:hover {
+            background: rgba(0,0,0,0.02);
+        }
+
+        .route-option-card.selected {
+            background: rgba(26, 115, 232, 0.06);
+            border-left: 4px solid var(--gm-blue);
+        }
+
+        .route-main-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .route-time {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--gm-green);
+        }
+
+        .route-dist {
+            font-size: 13px;
+            color: var(--gm-subtext);
+        }
+
+        .route-via {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gm-text);
+            margin-top: 2px;
+        }
+
+        .route-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+
+        .route-tag-pill {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .tag-toll {
+            background: #fef7e0;
+            color: #b06000;
+            border: 1px solid #f9ab00;
+        }
+
+        .tag-fast {
+            background: #e6f4ea;
+            color: #137333;
+            border: 1px solid #34a853;
+        }
+
+        .tag-wave {
+            background: #e8f0fe;
+            color: #1a73e8;
+            border: 1px solid #4285f4;
+        }
+
+        /* Turn-by-Turn Cue Steps */
+        .turn-cues-section {
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .cue-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 6px 0;
+            font-size: 12.5px;
+            border-bottom: 1px dashed var(--gm-border);
+        }
+
+        .cue-icon {
+            font-size: 16px;
+            color: var(--gm-blue);
+            width: 22px;
+            text-align: center;
+        }
+
+        .cue-text {
+            flex: 1;
+            color: var(--gm-text);
+            line-height: 1.35;
+        }
+
+        .cue-dist {
+            font-size: 11px;
+            color: var(--gm-subtext);
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        /* Interactive Place Details Drawer (Google Maps POI Card) */
+        .gmaps-place-drawer {
+            position: absolute;
+            top: 60px;
+            left: 16px;
+            width: 390px;
+            max-width: calc(100vw - 32px);
+            max-height: calc(100vh - 120px);
+            background: var(--gm-surface);
+            border-radius: 12px;
+            box-shadow: var(--gm-shadow-hover);
+            border: 1px solid var(--gm-border);
+            z-index: 1002;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-15px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .place-header-img {
+            height: 140px;
+            width: 100%;
+            background: linear-gradient(135deg, #1e3a8a, #0284c7);
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 14px;
+            color: #fff;
+        }
+
+        .place-header-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .place-content {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .place-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--gm-text);
+        }
+
+        .place-reviews {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+        }
+
+        .star-rating {
+            color: #fbbc04;
+            font-weight: 700;
+        }
+
+        .place-actions-row {
+            display: flex;
+            gap: 8px;
+            padding: 8px 0;
+            border-top: 1px solid var(--gm-border);
+            border-bottom: 1px solid var(--gm-border);
+        }
+
+        .place-action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 20px;
+            border: 1px solid var(--gm-border);
+            background: var(--gm-surface);
+            color: var(--gm-blue);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            transition: background 0.15s;
+        }
+
+        .place-action-btn:hover {
+            background: rgba(26, 115, 232, 0.08);
+        }
+
+        .place-action-btn.primary {
+            background: var(--gm-blue);
+            color: #fff;
+            border-color: var(--gm-blue);
+        }
+
+        .place-action-btn.primary:hover {
+            background: var(--gm-blue-hover);
+        }
+
+        .place-detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--gm-text);
+        }
+
+        .detail-icon {
+            font-size: 16px;
+            color: var(--gm-subtext);
+            width: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Busyness Graph */
+        .busyness-box {
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .busyness-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--gm-subtext);
+            text-transform: uppercase;
+        }
+
+        .busyness-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 40px;
+            padding-top: 4px;
+        }
+
+        .bar {
+            flex: 1;
+            background: #90caf9;
+            border-radius: 2px;
+            transition: height 0.3s;
+        }
+
+        .bar.current {
+            background: #1976d2;
+        }
+
+        /* Bottom-Left Layer Switcher Button (Square Thumbnail) */
+        .gmaps-layer-thumbnail-btn {
+            position: absolute;
+            bottom: 24px;
+            left: 16px;
+            z-index: 1000;
+            width: 76px;
+            height: 76px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--gm-shadow-hover);
+            border: 2px solid #fff;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .gmaps-layer-thumbnail-btn:hover {
+            transform: scale(1.04);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }
+
+        .thumbnail-label {
+            background: rgba(0,0,0,0.7);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            width: 100%;
+            text-align: center;
+            padding: 3px 0;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Layers Menu Popover */
+        .gmaps-layers-popover {
+            position: absolute;
+            bottom: 110px;
+            left: 16px;
+            z-index: 1000;
+            background: var(--gm-surface);
+            border-radius: 10px;
+            box-shadow: var(--gm-shadow-hover);
+            border: 1px solid var(--gm-border);
+            padding: 14px;
+            width: 320px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .layers-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gm-subtext);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .map-types-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .map-type-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .type-thumb {
+            width: 54px;
+            height: 54px;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            background-size: cover;
+            background-position: center;
+            transition: border-color 0.2s;
+        }
+
+        .map-type-card.active .type-thumb {
+            border-color: var(--gm-blue);
+        }
+
+        .type-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gm-text);
+        }
+
+        .layer-toggles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .layer-toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--gm-text);
+            cursor: pointer;
+        }
+
+        /* Traffic Speed Legend (Google Maps Style) */
+        .gmaps-traffic-legend {
+            position: absolute;
+            bottom: 24px;
+            left: 110px;
+            z-index: 999;
+            background: var(--gm-surface);
+            border-radius: 8px;
+            box-shadow: var(--gm-shadow);
+            border: 1px solid var(--gm-border);
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--gm-subtext);
+        }
+
+        .traffic-gradient-bar {
+            width: 90px;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, #1e8e3e 0%, #f29900 45%, #d93025 80%, #790000 100%);
+        }
+
+        /* Right Floating Controls (Compass, Pegman, Zoom, Measure, GPS) */
+        .gmaps-floating-controls {
+            position: absolute;
+            bottom: 24px;
+            right: 16px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls-group {
+            background: var(--gm-surface);
+            border-radius: 8px;
+            box-shadow: var(--gm-shadow);
+            border: 1px solid var(--gm-border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--gm-surface);
+            border: none;
+            color: var(--gm-subtext);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background 0.15s, color 0.15s;
+            position: relative;
+        }
+
+        .control-btn:hover {
+            background: rgba(0,0,0,0.06);
+            color: var(--gm-text);
+        }
+
+        body.dark-theme .control-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        .control-btn + .control-btn {
+            border-top: 1px solid var(--gm-border);
+        }
+
+        /* Pegman Icon */
+        .pegman-btn {
+            background: var(--gm-surface);
+            border-radius: 8px;
+            box-shadow: var(--gm-shadow);
+            border: 1px solid var(--gm-border);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pegman-btn:hover {
+            transform: scale(1.08);
+            box-shadow: var(--gm-shadow-hover);
+        }
+
+        .pegman-icon-svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* Live Speedometer HUD */
+        .gmaps-speedometer-hud {
+            position: absolute;
+            top: 60px;
+            right: 16px;
+            z-index: 1000;
+            background: var(--gm-surface);
+            border-radius: 10px;
+            box-shadow: var(--gm-shadow);
+            border: 1px solid var(--gm-border);
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .speed-val {
+            font-size: 22px;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--gm-text);
+        }
+
+        .speed-unit {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gm-subtext);
+            text-transform: uppercase;
+        }
+
+        .speed-limit-circle {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: 3px solid #d93025;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            font-weight: 900;
+            font-size: 12px;
+            color: #000;
+        }
+
+        /* 360° Street View Panoramic Viewer Modal */
+        .street-view-modal {
+            position: absolute;
+            inset: 0;
+            background: #000;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .street-view-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 14px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            color: #fff;
+        }
+
+        .street-view-title {
+            font-size: 16px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .street-view-close-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+        }
+
+        .street-view-canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #streetViewCanvas {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        #streetViewCanvas:active {
+            cursor: grabbing;
+        }
+
+        .street-view-controls-overlay {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            font-size: 13px;
+            align-items: center;
+        }
+
+        .pano-nav-arrow {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        /* Marker Pin Styling (Google Maps Teardrop Pins) */
+        .gmaps-pin {
+            width: 32px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .gmaps-pin:hover {
+            transform: scale(1.15) translateY(-3px);
+        }
+
+        /* Leaflet Popups Styled to Google Maps */
+        .leaflet-popup-content-wrapper {
+            border-radius: 10px;
+            padding: 0;
+            box-shadow: var(--gm-shadow-hover);
+            background: var(--gm-surface);
+            color: var(--gm-text);
+            overflow: hidden;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .leaflet-container a.leaflet-popup-close-button {
+            top: 8px;
+            right: 8px;
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* Responsive Mobile Layout */
+        @media (max-width: 600px) {
+            .gmaps-floating-search-container,
+            .gmaps-directions-panel,
+            .gmaps-place-drawer {
+                width: calc(100vw - 24px);
+                left: 12px;
+            }
+            .gmaps-traffic-legend {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Top Status Bar -->
+    <header class="gmaps-topbar">
+        <a href="/" class="topbar-brand" style="text-decoration: none; color: inherit; cursor: pointer;" title="Exit to Smart Roads Home">
+            <div class="brand-logo-g">
+                <span>G</span><span>o</span><span>o</span><span>g</span>
+            </div>
+            <span>Maps • Real-Time Pan-India Traffic & ITS GIS</span>
+        </a>
+
+        <div class="topbar-meta">
+            <!-- Real-Time Connection & Sync Indicator -->
+            <div class="realtime-pill live-sync-pill" title="Connected to Central ITS Telematics Stream">
+                <span class="pulse-emerald"></span>
+                <span id="telemetryStatusLabel">LIVE STREAM • 2.5s Sync</span>
+            </div>
+
+            <!-- Live Open-Meteo Real-World Weather & Road Friction -->
+            <div class="realtime-pill weather-pill" id="weatherPill" title="Open-Meteo Real-Time Weather Sensor & Road Friction Index">
+                <span>🌦️</span>
+                <span id="weatherTemp">29.6°C</span>
+                <span style="opacity: 0.6;">•</span>
+                <span id="weatherCond">Clear Sky</span>
+                <span style="opacity: 0.6;">•</span>
+                <span id="roadGripText" style="font-weight: 700;">Grip: 0.85 DRY</span>
+            </div>
+
+            <!-- Real-Time IST Peak Metric -->
+            <div class="realtime-pill peak-pill" id="peakPill" title="Real-World Indian Standard Time (IST) Peak Congestion Calculation">
+                <span>⏱️</span>
+                <span id="istClock">--:-- IST</span>
+                <span style="opacity: 0.6;">•</span>
+                <span id="peakLabel">Active Traffic Flow</span>
+            </div>
+
+            <!-- Emergency Preemption Fast Action Button -->
+            <button class="topbar-btn" style="background: rgba(217, 48, 37, 0.1); border-color: rgba(217, 48, 37, 0.4); color: #d93025; font-weight: 700;" onclick="triggerEmergencyGreenWaveDemo()" title="Test AI Emergency Green Wave corridor preemption">
+                🚑 Preempt Green Wave
+            </button>
+
+            <!-- City Fast Center Switcher -->
+            <select id="cityQuickSelect" class="topbar-select" onchange="handleCitySelectChange(this.value)">
+                <option value="delhi">Delhi NCR</option>
+                <option value="mumbai">Mumbai & MMR (Atal Setu)</option>
+                <option value="bengaluru">Bengaluru (ORR & Silk Board)</option>
+                <option value="hyderabad">Hyderabad (HITEC City)</option>
+                <option value="kolkata">Kolkata (EM Bypass)</option>
+                <option value="chennai">Chennai (Anna Salai & OMR)</option>
+                <option value="ahmedabad">Ahmedabad (SG Highway)</option>
+                <option value="jaipur">Jaipur (NH-48 Corridor)</option>
+                <option value="lucknow">Lucknow (Shaheed Path)</option>
+                <option value="kochi">Kochi (NH-66 Bypass)</option>
+                <option value="all">🇮🇳 All India National Highway Grid</option>
+            </select>
+
+            <a href="/gps" class="topbar-btn" style="background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #0284c7; font-weight: 700;">
+                🛰️ GPS Turn-by-Turn Navigator
+            </a>
+
+            <button class="topbar-btn" onclick="toggleDarkMode()">
+                <span id="themeIcon">🌙</span> Dark Mode
+            </button>
+
+            <a href="/" class="topbar-btn exit-map-btn" id="exitMapBtn" style="background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.45); color: #dc2626; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 6px; transition: all 0.2s ease;" title="Exit Pan-India Live Traffic Map and return to Home">
+                <span style="font-size: 14px;">🚪</span>
+                <span>Exit Map</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Google Map Interactive Canvas -->
+    <div id="googleMap"></div>
+
+    <!-- Floating Search & Category Chips (Top Left) -->
+    <div class="gmaps-floating-search-container">
+
+        <!-- Google Maps Search Box -->
+        <div class="gmaps-search-box">
+            <button class="gmaps-search-btn" title="Exit Map to Home" onclick="window.location.href='/'" style="color: #dc2626; font-weight: 700; font-size: 15px;" aria-label="Exit Map">
+                🚪
+            </button>
+            <button class="gmaps-search-btn" onclick="triggerSearch()">
+                🔍
+            </button>
+            <input 
+                type="text" 
+                id="gmapsSearchInput" 
+                class="gmaps-search-input" 
+                placeholder="Search Google Maps or place name..." 
+                autocomplete="off"
+                oninput="handleSearchInput(this.value)"
+                onkeydown="if(event.key==='Enter') triggerSearch()"
+            >
+            <button class="gmaps-search-btn" id="clearSearchBtn" style="display: none;" onclick="clearSearch()">
+                ✕
+            </button>
+            <button class="gmaps-search-btn" title="Voice Search" onclick="simulateVoiceSearch()">
+                🎙️
+            </button>
+            <button class="directions-btn-round" title="Directions" onclick="openDirectionsPanel()">
+                ➤
+            </button>
+        </div>
+
+        <!-- Autocomplete Suggestions Dropdown -->
+        <div class="gmaps-suggestions" id="suggestionsBox"></div>
+
+        <!-- Category Chips Carousel -->
+        <div class="gmaps-chips-bar">
+            <div class="gmaps-chip" onclick="filterCategory('traffic', this)">
+                <span>🚗</span> Traffic
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('hospitals', this)">
+                <span>🏥</span> Hospitals
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('tolls', this)">
+                <span>⛽</span> FASTag Tolls
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('ev_chargers', this)">
+                <span>⚡</span> EV Chargers
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('metro', this)">
+                <span>🚇</span> Metro Stations
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('speed_cams', this)">
+                <span>🚨</span> Speed Radars
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('fuel', this)">
+                <span>⛽</span> Fuel Pumps
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('parking', this)">
+                <span>🅿️</span> Smart Parking
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('hazards', this)">
+                <span>⚠️</span> Roadworks
+            </div>
+            <div class="gmaps-chip" onclick="filterCategory('rest_stops', this)">
+                <span>🍽️</span> Rest Areas
+            </div>
+        </div>
+
+        <!-- Directions Navigation Panel -->
+        <div class="gmaps-directions-panel" id="directionsPanel">
+            <div class="directions-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 700; font-size: 14px;">Directions</span>
+                    <button style="background: none; border: none; font-size: 16px; cursor: pointer; color: var(--gm-subtext);" onclick="closeDirectionsPanel()">✕</button>
+                </div>
+
+                <div class="travel-mode-tabs">
+                    <button class="mode-tab active" onclick="setTravelMode('car', this)">🚗 Drive</button>
+                    <button class="mode-tab" onclick="setTravelMode('two_wheeler', this)">🛵 Moto</button>
+                    <button class="mode-tab" onclick="setTravelMode('transit', this)">🚌 Transit</button>
+                    <button class="mode-tab" onclick="setTravelMode('walk', this)">🚶 Walk</button>
+                </div>
+
+                <div class="route-inputs-box">
+                    <div class="input-row">
+                        <span class="input-dot start"></span>
+                        <select id="dirStartSelect" onchange="calculateNavRoute()">
+                            <option value="current">📍 Your Location (Live GPS)</option>
+                            <option value="delhi_cp">Connaught Place Central Hub</option>
+                            <option value="delhi_igi">IGI Airport Terminal 3</option>
+                            <option value="mumbai_bkc">Bandra Kurla Complex (BKC)</option>
+                            <option value="blr_mgroad">MG Road Central Bengaluru</option>
+                            <option value="hyd_hitec">HITEC City Cyberabad</option>
+                        </select>
+                    </div>
+
+                    <div class="input-row">
+                        <span class="input-dot end"></span>
+                        <select id="dirEndSelect" onchange="calculateNavRoute()">
+                            <option value="delhi_aiims">AIIMS Trauma Centre & Specialty Hospital</option>
+                            <option value="delhi_indiagate">India Gate / Central Secretariat</option>
+                            <option value="mumbai_mthl">Atal Setu (MTHL) Chirle Landing</option>
+                            <option value="blr_ecity">Electronic City Elevated Tollway</option>
+                            <option value="hyd_airport">RGIA Hyderabad Airport Corridor</option>
+                        </select>
+                    </div>
+
+                    <button class="swap-inputs-btn" title="Reverse origin & destination" onclick="swapRouteInputs()">
+                        ⇅
+                    </button>
+                </div>
+            </div>
+
+            <!-- Route Alternatives Selection -->
+            <div class="route-options-list" id="routeOptionsContainer">
+                <!-- Dynamically populated -->
+            </div>
+
+            <!-- Step by Step Turn Instructions -->
+            <div class="turn-cues-section" id="turnCuesContainer">
+                <div style="font-weight: 700; font-size: 12px; color: var(--gm-subtext); text-transform: uppercase;">Step-by-Step Navigation</div>
+                <div id="cueStepsList"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Interactive Place Details Sheet (Google Maps Style Drawer) -->
+    <div class="gmaps-place-drawer" id="placeDetailsDrawer">
+        <div class="place-header-img" id="placeHeaderImg">
+            <button class="place-header-close" onclick="closePlaceDrawer()">✕</button>
+            <div>
+                <span style="font-size: 10px; font-weight: 800; background: rgba(0,0,0,0.6); padding: 3px 7px; border-radius: 4px; text-transform: uppercase;" id="placeCategoryTag">HOSPITAL</span>
+            </div>
+        </div>
+
+        <div class="place-content">
+            <div>
+                <h3 class="place-title" id="placeTitle">AIIMS Trauma Centre</h3>
+                <div class="place-reviews">
+                    <span class="star-rating">★ 4.7</span>
+                    <span style="color: var(--gm-subtext);" id="placeReviewsCount">(14,280 reviews)</span>
+                    <span>•</span>
+                    <span style="color: var(--gm-green); font-weight: 700;" id="placeOpenStatus">Open 24 hours</span>
+                </div>
+            </div>
+
+            <div class="place-actions-row">
+                <button class="place-action-btn primary" onclick="navigateHere()">
+                    <span>➤</span> Directions
+                </button>
+                <button class="place-action-btn" onclick="startStreetViewFromPlace()">
+                    <span>🧍</span> Street View
+                </button>
+                <button class="place-action-btn" onclick="savePlaceBookmark()">
+                    <span>🔖</span> Save
+                </button>
+                <button class="place-action-btn" onclick="sharePlace()">
+                    <span>🔗</span> Share
+                </button>
+            </div>
+
+            <div class="place-detail-item">
+                <span class="detail-icon">📍</span>
+                <div id="placeAddress">Sri Aurobindo Marg, Ansari Nagar, New Delhi, Delhi 110029</div>
+            </div>
+
+            <div class="place-detail-item">
+                <span class="detail-icon">🏷️</span>
+                <div>Plus Code: <strong id="placePlusCode">7JWV+8Q New Delhi</strong></div>
+            </div>
+
+            <div class="place-detail-item">
+                <span class="detail-icon">📞</span>
+                <div id="placePhone">+91 11 2658 8500 (24x7 Emergency Trauma Hotline)</div>
+            </div>
+
+            <!-- Popular Times / Live Busyness Graph -->
+            <div class="busyness-box">
+                <div class="busyness-title">Live Traffic & Visitor Busyness</div>
+                <div style="font-size: 12.5px; color: var(--gm-green); font-weight: 600;" id="busynessDesc">As busy as it gets • Green Corridor active</div>
+                <div class="busyness-bars">
+                    <div class="bar" style="height: 25%;"></div>
+                    <div class="bar" style="height: 40%;"></div>
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="bar" style="height: 85%;"></div>
+                    <div class="bar current" style="height: 95%;"></div>
+                    <div class="bar" style="height: 70%;"></div>
+                    <div class="bar" style="height: 45%;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom-Left Layer Switcher (Square Thumbnail) -->
+    <div class="gmaps-layer-thumbnail-btn" id="layerThumbnailBtn" onclick="toggleLayersPopover()" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/11');">
+        <div class="thumbnail-label" id="thumbnailLabel">Satellite</div>
+    </div>
+
+    <!-- Expandable Layers Popover -->
+    <div class="gmaps-layers-popover" id="layersPopover">
+        <div class="layers-section-title">Map Type</div>
+        <div class="map-types-grid">
+            <div class="map-type-card active" id="type-default" onclick="switchBaseMap('default')">
+                <div class="type-thumb" style="background-image: url('https://a.basemaps.cartocdn.com/rastertiles/voyager/5/17/12.png');"></div>
+                <span class="type-label">Default</span>
+            </div>
+            <div class="map-type-card" id="type-satellite" onclick="switchBaseMap('satellite')">
+                <div class="type-thumb" style="background-image: url('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/4/7/11');"></div>
+                <span class="type-label">Satellite</span>
+            </div>
+            <div class="map-type-card" id="type-terrain" onclick="switchBaseMap('terrain')">
+                <div class="type-thumb" style="background-image: url('https://a.tile.opentopomap.org/5/17/12.png');"></div>
+                <span class="type-label">Terrain</span>
+            </div>
+            <div class="map-type-card" id="type-dark" onclick="switchBaseMap('dark')">
+                <div class="type-thumb" style="background-image: url('https://a.basemaps.cartocdn.com/dark_all/5/17/12.png');"></div>
+                <span class="type-label">Midnight</span>
+            </div>
+        </div>
+
+        <div class="layers-section-title" style="margin-top: 4px;">Map Details</div>
+        <div class="layer-toggles-list">
+            <label class="layer-toggle-row">
+                <span>🚗 Live Traffic Flow</span>
+                <input type="checkbox" id="chk-traffic" checked onchange="toggleMapLayer('traffic', this.checked)">
+            </label>
+            <label class="layer-toggle-row">
+                <span>🚇 Transit & Metro Lines</span>
+                <input type="checkbox" id="chk-transit" checked onchange="toggleMapLayer('transit', this.checked)">
+            </label>
+            <label class="layer-toggle-row">
+                <span>⚡ EV Superchargers</span>
+                <input type="checkbox" id="chk-ev" checked onchange="toggleMapLayer('ev', this.checked)">
+            </label>
+            <label class="layer-toggle-row">
+                <span>🚨 Speed Cameras & Radars</span>
+                <input type="checkbox" id="chk-cams" checked onchange="toggleMapLayer('cams', this.checked)">
+            </label>
+            <label class="layer-toggle-row">
+                <span>⚠️ Road Incidents & Works</span>
+                <input type="checkbox" id="chk-hazards" checked onchange="toggleMapLayer('hazards', this.checked)">
+            </label>
+            <label class="layer-toggle-row">
+                <span>🧍 Street View Coverage (Blue Roads)</span>
+                <input type="checkbox" id="chk-streetview-lines" checked onchange="toggleMapLayer('streetview_lines', this.checked)">
+            </label>
+        </div>
+    </div>
+
+    <!-- Live Traffic Speed Color Legend -->
+    <div class="gmaps-traffic-legend" id="trafficLegend">
+        <span>Fast</span>
+        <div class="traffic-gradient-bar"></div>
+        <span>Slow</span>
+    </div>
+
+    <!-- Real-Time Bottom Event Marquee Ticker -->
+    <div class="realtime-ticker-bar" id="realtimeTicker">
+        <div class="ticker-badge-tag">
+            <span>📡</span>
+            <span>LIVE ITS TELEMETRY</span>
+        </div>
+        <div class="ticker-scroller">
+            <span class="ticker-text" id="tickerText">
+                🟢 Live telematics online • Connected to National Highway Authority sensors • Weather: Open-Meteo realtime atmospheric ingest active.
+            </span>
+        </div>
+    </div>
+
+    <!-- Live Speedometer HUD (Top Right) -->
+    <div class="gmaps-speedometer-hud">
+        <div>
+            <div class="speed-val" id="hudSpeed">54</div>
+            <div class="speed-unit">km/h</div>
+        </div>
+        <div class="speed-limit-circle" title="Speed Limit on Corridor">
+            <span id="hudSpeedLimit">60</span>
+        </div>
+    </div>
+
+    <!-- Right Floating Controls (Pegman, Compass, Measure, Zoom, GPS) -->
+    <div class="gmaps-floating-controls">
+        <!-- Rotating Compass -->
+        <div class="controls-group">
+            <button class="control-btn" id="compassBtn" title="Reset North" onclick="resetNorth()">
+                🧭
+            </button>
+        </div>
+
+        <!-- Pegman (Street View) -->
+        <button class="pegman-btn" id="pegmanBtn" title="Drop Pegman for 360° Street View" onclick="launchStreetView()">
+            <svg class="pegman-icon-svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="4" r="3" fill="#fbbc04"/>
+                <path d="M10 8h4c1.1 0 2 .9 2 2v6h-2v6h-4v-6H8v-6c0-1.1.9-2 2-2z" fill="#fbbc04"/>
+                <circle cx="12" cy="11" r="1.5" fill="#ea4335"/>
+            </svg>
+        </button>
+
+        <!-- Measure Distance Tool -->
+        <div class="controls-group">
+            <button class="control-btn" id="measureBtn" title="Measure Distance" onclick="toggleMeasureTool()">
+                📐
+            </button>
+        </div>
+
+        <!-- Zoom Controls -->
+        <div class="controls-group">
+            <button class="control-btn" title="Zoom In" onclick="map.zoomIn()">➕</button>
+            <button class="control-btn" title="Zoom Out" onclick="map.zoomOut()">➖</button>
+        </div>
+
+        <!-- Geolocation "My Location" -->
+        <div class="controls-group">
+            <button class="control-btn" title="Your Location" onclick="locateUserGPS()">
+                📍
+            </button>
+        </div>
+
+        <!-- Voice Guidance / Audio Alert Mute Toggle -->
+        <div class="controls-group">
+            <button class="control-btn" id="gmapsVoiceBtn" title="Voice Guidance: Active (Click to Mute)" onclick="toggleGmapsVoice()">
+                🔊
+            </button>
+        </div>
+
+        <!-- Direct Floating Exit Map Button -->
+        <div class="controls-group">
+            <button class="control-btn" id="floatingExitBtn" style="color: #ef4444; font-weight: 700; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.35);" title="Exit Map and Return Home" onclick="exitPublicMap()">
+                🚪
+            </button>
+        </div>
+    </div>
+
+    <!-- 360° Street View Panoramic Viewer Modal -->
+    <div class="street-view-modal" id="streetViewModal">
+        <div class="street-view-header">
+            <div class="street-view-title">
+                <span>🧍 Google Street View • 360° Real Road Inspection</span>
+                <span style="font-size: 12px; font-weight: 500; color: #cbd5e1;" id="panoStreetName">Western Express Highway, Mumbai</span>
+            </div>
+            <button class="street-view-close-btn" onclick="closeStreetView()">✕ Exit Street View</button>
+        </div>
+
+        <div class="street-view-canvas-container">
+            <canvas id="streetViewCanvas"></canvas>
+            <div class="street-view-controls-overlay">
+                <button class="pano-nav-arrow" onclick="rotatePano(-30)">↺</button>
+                <span>Drag to look 360° • Compass: <strong id="panoHeading">78° ENE</strong></span>
+                <button class="pano-nav-arrow" onclick="rotatePano(30)">↻</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GLOBAL MAP STATE & GIS REPOSITORY ---
+        let map;
+        let currentBaseMap = 'default';
+        let isDarkMode = false;
+        let activeCategory = 'all';
+
+        // Base tile layers
+        let baseLayers = {};
+        // Feature layer groups
+        let trafficLayerGroup;
+        let transitLayerGroup;
+        let placesLayerGroup;
+        let emergencyLayerGroup;
+        let speedCamsLayerGroup;
+        let evChargersLayerGroup;
+        let tollsLayerGroup;
+        let navRouteLayerGroup;
+        let measureLayerGroup;
+        let streetViewLinesGroup;
+
+        let activePlace = null;
+        let isMeasuring = false;
+        let measurePoints = [];
+
+        // Comprehensive Minute POI Database for Pan-India Metros & Corridors
+        const GMAPS_DATABASE = {
+            cities: {
+                delhi: { name: 'Delhi NCR', center: [28.6139, 77.2090], zoom: 12, speedLimit: 60 },
+                mumbai: { name: 'Mumbai & MMR', center: [19.0760, 72.8777], zoom: 12, speedLimit: 70 },
+                bengaluru: { name: 'Bengaluru', center: [12.9716, 77.5946], zoom: 12, speedLimit: 50 },
+                hyderabad: { name: 'Hyderabad', center: [17.3850, 78.4867], zoom: 12, speedLimit: 60 },
+                kolkata: { name: 'Kolkata', center: [22.5726, 88.3639], zoom: 12, speedLimit: 40 },
+                chennai: { name: 'Chennai', center: [13.0827, 80.2707], zoom: 12, speedLimit: 50 },
+                ahmedabad: { name: 'Ahmedabad', center: [23.0225, 72.5714], zoom: 12, speedLimit: 60 },
+                jaipur: { name: 'Jaipur', center: [26.9124, 75.7873], zoom: 12, speedLimit: 60 },
+                lucknow: { name: 'Lucknow', center: [26.8467, 80.9462], zoom: 12, speedLimit: 60 },
+                kochi: { name: 'Kochi', center: [9.9312, 76.2673], zoom: 12, speedLimit: 50 },
+                all: { name: 'All India Highway Grid', center: [22.0, 78.9], zoom: 5, speedLimit: 100 }
+            },
+
+            // High-detail POIs with ratings, plus codes, telephone, street previews
+            places: [
+                // Hospitals & Emergency Trauma Centers
+                {
+                    id: 'poi-del-aiims',
+                    title: 'All India Institute of Medical Sciences (AIIMS)',
+                    category: 'hospitals',
+                    lat: 28.5672,
+                    lng: 77.2100,
+                    city: 'delhi',
+                    rating: '4.8',
+                    reviews: '28,490',
+                    address: 'Sri Aurobindo Marg, Ansari Nagar East, New Delhi 110029',
+                    plusCode: '7JWV+8Q New Delhi',
+                    phone: '+91 11 2658 8500 (Apex Trauma Centre)',
+                    openStatus: 'Open 24 hours (Level 1 Apex Trauma Center)',
+                    color: '#d93025',
+                    icon: '🏥',
+                    imgBg: 'linear-gradient(135deg, #b91c1c, #450a0a)'
+                },
+                {
+                    id: 'poi-del-safdarjung',
+                    title: 'Safdarjung Hospital Emergency Trauma Block',
+                    category: 'hospitals',
+                    lat: 28.5710,
+                    lng: 77.2070,
+                    city: 'delhi',
+                    rating: '4.5',
+                    reviews: '12,300',
+                    address: 'Ring Road, Opposite AIIMS, New Delhi 110029',
+                    plusCode: '7HVR+9G New Delhi',
+                    phone: '+91 11 2616 5060',
+                    openStatus: 'Open 24 hours',
+                    color: '#d93025',
+                    icon: '🏥',
+                    imgBg: 'linear-gradient(135deg, #b91c1c, #1e293b)'
+                },
+                {
+                    id: 'poi-mum-lilavati',
+                    title: 'Lilavati Hospital & Research Centre',
+                    category: 'hospitals',
+                    lat: 19.0544,
+                    lng: 72.8402,
+                    city: 'mumbai',
+                    rating: '4.7',
+                    reviews: '9,840',
+                    address: 'A-791, Bandra Reclamation, Bandra West, Mumbai 400050',
+                    plusCode: '3R3R+Q3 Mumbai',
+                    phone: '+91 22 2675 1000',
+                    openStatus: 'Open 24 hours (Cardiac Intensive Care)',
+                    color: '#d93025',
+                    icon: '🏥',
+                    imgBg: 'linear-gradient(135deg, #0284c7, #0f172a)'
+                },
+                {
+                    id: 'poi-mum-hinduja',
+                    title: 'P. D. Hinduja National Hospital',
+                    category: 'hospitals',
+                    lat: 19.0340,
+                    lng: 72.8390,
+                    city: 'mumbai',
+                    rating: '4.7',
+                    reviews: '8,210',
+                    address: 'Veer Savarkar Marg, Mahim West, Mumbai 400016',
+                    plusCode: '2RMR+HJ Mumbai',
+                    phone: '+91 22 2445 1515',
+                    openStatus: 'Open 24 hours',
+                    color: '#d93025',
+                    icon: '🏥',
+                    imgBg: 'linear-gradient(135deg, #0369a1, #1e293b)'
+                },
+                {
+                    id: 'poi-blr-narayana',
+                    title: 'Narayana Health City (Mazumdar Shaw Medical)',
+                    category: 'hospitals',
+                    lat: 12.8250,
+                    lng: 77.6890,
+                    city: 'bengaluru',
+                    rating: '4.8',
+                    reviews: '15,600',
+                    address: '258/A, Bommasandra Industrial Area, Anekal Taluk, Bengaluru 560099',
+                    plusCode: 'RHGM+XJ Bengaluru',
+                    phone: '+91 80 7122 2222',
+                    openStatus: 'Open 24 hours (Advanced Cardiac & Trauma)',
+                    color: '#d93025',
+                    icon: '🏥',
+                    imgBg: 'linear-gradient(135deg, #b91c1c, #0369a1)'
+                },
+                {
+                    id: 'poi-hyd-apollo',
+                    title: 'Apollo Hospitals Jubilee Hills',
+                    category: 'hospitals',
+                    lat: 17.4280,
+                    lng: 78.4100,
+                    city: 'hyderabad',
+                    rating: '4.7',
+                    reviews: '19,200',
+                    address: 'Road No. 72, Film Nagar, Jubilee Hills, Hyderabad 500033',
+                    plusCode: 'CCFP+6X Hyderabad',
+                    phone: '+91 40 2360 7777',
+                    openStatus: 'Open 24 hours (Level 1 Emergency)',
+                    color: '#d93025',
+                    icon: '🏥',
+                    imgBg: 'linear-gradient(135deg, #b91c1c, #1e293b)'
+                },
+
+                // FASTag Toll Plazas
+                {
+                    id: 'poi-toll-kherki',
+                    title: 'Kherki Daula FASTag Toll Plaza',
+                    category: 'tolls',
+                    lat: 28.4069,
+                    lng: 76.9897,
+                    city: 'delhi',
+                    rating: '4.2',
+                    reviews: '4,510',
+                    address: 'NH-48 Delhi-Gurugram Expressway, Sector 74, Gurugram 122004',
+                    plusCode: 'CXRQ+QV Gurugram',
+                    phone: '1033 (NHAI Emergency Helpline)',
+                    openStatus: 'Open 24 hours • 16 ETC Lanes Active • Avg Wait 2 mins',
+                    color: '#f59e0b',
+                    icon: '⛽',
+                    imgBg: 'linear-gradient(135deg, #d97706, #78350f)'
+                },
+                {
+                    id: 'poi-toll-jewar',
+                    title: 'Jewar Yamuna Expressway Toll Plaza',
+                    category: 'tolls',
+                    lat: 28.1287,
+                    lng: 77.5550,
+                    city: 'delhi',
+                    rating: '4.5',
+                    reviews: '3,800',
+                    address: 'Yamuna Expressway KM 38, Jewar, Uttar Pradesh 203135',
+                    plusCode: '4HP4+FF Jewar',
+                    phone: '1800 180 8888',
+                    openStatus: 'Open 24 hours • 100% ETC FASTag • Fee ₹165 LMV',
+                    color: '#f59e0b',
+                    icon: '⛽',
+                    imgBg: 'linear-gradient(135deg, #d97706, #1c1917)'
+                },
+                {
+                    id: 'poi-toll-vashi',
+                    title: 'Vashi Creek Bridge FASTag Toll Plaza',
+                    category: 'tolls',
+                    lat: 19.0650,
+                    lng: 72.9780,
+                    city: 'mumbai',
+                    rating: '4.3',
+                    reviews: '6,100',
+                    address: 'Sion-Panvel Expressway, Vashi Creek, Navi Mumbai 400703',
+                    plusCode: '3X8H+26 Navi Mumbai',
+                    phone: '+91 22 2781 0000',
+                    openStatus: 'Open 24 hours • 14 Lanes • Fee ₹45 LMV',
+                    color: '#f59e0b',
+                    icon: '⛽',
+                    imgBg: 'linear-gradient(135deg, #0284c7, #d97706)'
+                },
+                {
+                    id: 'poi-toll-khalapur',
+                    title: 'Khalapur Toll Plaza (Mumbai-Pune Expressway)',
+                    category: 'tolls',
+                    lat: 18.8286,
+                    lng: 73.2842,
+                    city: 'mumbai',
+                    rating: '4.6',
+                    reviews: '9,400',
+                    address: 'Yashwantrao Chavan Expressway KM 32, Khalapur 410203',
+                    plusCode: 'RHHR+C3 Khalapur',
+                    phone: '98224 98224 (Expressway Highway Patrol)',
+                    openStatus: 'Open 24 hours • Multi-lane Free Flow ETC • Fee ₹320 LMV',
+                    color: '#f59e0b',
+                    icon: '⛽',
+                    imgBg: 'linear-gradient(135deg, #d97706, #451a03)'
+                },
+                {
+                    id: 'poi-toll-attibele',
+                    title: 'Attibele Toll Plaza (NH-44 Bengaluru Gateway)',
+                    category: 'tolls',
+                    lat: 12.7780,
+                    lng: 77.7710,
+                    city: 'bengaluru',
+                    rating: '4.1',
+                    reviews: '5,290',
+                    address: 'NH-44 Hosur Road, Karnataka-Tamil Nadu Border, Attibele 562107',
+                    plusCode: 'QQRQ+59 Attibele',
+                    phone: '1033 (NHAI)',
+                    openStatus: 'Open 24 hours • 16 Dedicated FASTag Lanes • Fee ₹85',
+                    color: '#f59e0b',
+                    icon: '⛽',
+                    imgBg: 'linear-gradient(135deg, #d97706, #1e293b)'
+                },
+
+                // EV Fast Superchargers
+                {
+                    id: 'poi-ev-del-aerocity',
+                    title: 'Tata Power EZ Charge Superhub (120kW CCS2)',
+                    category: 'ev_chargers',
+                    lat: 28.5490,
+                    lng: 77.1210,
+                    city: 'delhi',
+                    rating: '4.9',
+                    reviews: '1,420',
+                    address: 'Worldmark 1 Multi-level Parking, Aerocity, New Delhi 110037',
+                    plusCode: 'GCXR+J9 New Delhi',
+                    phone: '1800 209 5161',
+                    openStatus: 'Open 24 hours • 6 DC Fast Guns Free (120kW Dual)',
+                    color: '#10b981',
+                    icon: '⚡',
+                    imgBg: 'linear-gradient(135deg, #059669, #022c22)'
+                },
+                {
+                    id: 'poi-ev-mum-bkc',
+                    title: 'Jio-bp pulse EV Fast Charging Hub (60kW)',
+                    category: 'ev_chargers',
+                    lat: 19.0670,
+                    lng: 72.8680,
+                    city: 'mumbai',
+                    rating: '4.8',
+                    reviews: '890',
+                    address: 'G Block, Bandra Kurla Complex, Bandra East, Mumbai 400051',
+                    plusCode: '3V89+R6 Mumbai',
+                    phone: '1800 891 9023',
+                    openStatus: 'Open 24 hours • 8 Fast Charging Bays Available',
+                    color: '#10b981',
+                    icon: '⚡',
+                    imgBg: 'linear-gradient(135deg, #059669, #1e3a8a)'
+                },
+                {
+                    id: 'poi-ev-blr-ecity',
+                    title: 'Statiq HyperCharge EV Station (150kW)',
+                    category: 'ev_chargers',
+                    lat: 12.8450,
+                    lng: 77.6620,
+                    city: 'bengaluru',
+                    rating: '4.8',
+                    reviews: '740',
+                    address: 'Infosys Avenue, Electronic City Phase 1, Bengaluru 560100',
+                    plusCode: 'RRVR+J2 Bengaluru',
+                    phone: '+91 80 4718 1000',
+                    openStatus: 'Open 24 hours • 4 CCS-2 Ultra-Fast Guns Available',
+                    color: '#10b981',
+                    icon: '⚡',
+                    imgBg: 'linear-gradient(135deg, #059669, #0f172a)'
+                },
+
+                // Metro Stations & Interchanges
+                {
+                    id: 'poi-metro-rajivchowk',
+                    title: 'Rajiv Chowk Metro Station (Yellow & Blue Line Interchange)',
+                    category: 'metro',
+                    lat: 28.6328,
+                    lng: 77.2195,
+                    city: 'delhi',
+                    rating: '4.6',
+                    reviews: '42,000',
+                    address: 'Connaught Place Inner Circle, Block B, New Delhi 110001',
+                    plusCode: '76MR+4R New Delhi',
+                    phone: '155370 (DMRC 24x7 Helpline)',
+                    openStatus: 'Open • 05:30 AM – 11:30 PM • 8 Exit Gates',
+                    color: '#0284c7',
+                    icon: '🚇',
+                    imgBg: 'linear-gradient(135deg, #0284c7, #f59e0b)'
+                },
+                {
+                    id: 'poi-metro-bkc',
+                    title: 'BKC Metro Station (Mumbai Metro Line 3 Aqua)',
+                    category: 'metro',
+                    lat: 19.0620,
+                    lng: 72.8650,
+                    city: 'mumbai',
+                    rating: '4.8',
+                    reviews: '6,400',
+                    address: 'Bandra Kurla Complex, Mumbai 400051',
+                    plusCode: '3V68+RW Mumbai',
+                    phone: '1800 889 0505',
+                    openStatus: 'Open • 06:30 AM – 10:30 PM • Fully Air Conditioned',
+                    color: '#0284c7',
+                    icon: '🚇',
+                    imgBg: 'linear-gradient(135deg, #06b6d4, #0f172a)'
+                },
+                {
+                    id: 'poi-metro-silkboard',
+                    title: 'Central Silk Board Metro Interchange (Yellow & Blue Lines)',
+                    category: 'metro',
+                    lat: 12.9177,
+                    lng: 77.6238,
+                    city: 'bengaluru',
+                    rating: '4.5',
+                    reviews: '18,500',
+                    address: 'Outer Ring Road, BTM 2nd Stage, Bengaluru 560068',
+                    plusCode: 'WJ9F+3G Bengaluru',
+                    phone: '1800 425 12345 (Namma Metro)',
+                    openStatus: 'Open • 05:00 AM – 11:00 PM • Elevated Multi-level Flyover Link',
+                    color: '#0284c7',
+                    icon: '🚇',
+                    imgBg: 'linear-gradient(135deg, #0284c7, #84cc16)'
+                },
+
+                // Speed Cameras & Radars
+                {
+                    id: 'poi-cam-barapullah',
+                    title: 'Delhi Police Automated Speed Radar & ANPR Camera',
+                    category: 'speed_cams',
+                    lat: 28.5830,
+                    lng: 77.2350,
+                    city: 'delhi',
+                    rating: '4.9',
+                    reviews: '1,200',
+                    address: 'Barapullah Elevated Corridor Westbound, New Delhi',
+                    plusCode: '7HMQ+55 New Delhi',
+                    phone: '1095 (Traffic Police Helpline)',
+                    openStatus: 'Active 24x7 • Speed Limit 60 km/h • Automated E-Challan',
+                    color: '#ef4444',
+                    icon: '🚨',
+                    imgBg: 'linear-gradient(135deg, #ef4444, #7f1d1d)'
+                },
+                {
+                    id: 'poi-cam-mthl',
+                    title: 'Atal Setu (MTHL) Section Radar Speed Trap (100 km/h)',
+                    category: 'speed_cams',
+                    lat: 18.9600,
+                    lng: 72.9300,
+                    city: 'mumbai',
+                    rating: '4.9',
+                    reviews: '2,100',
+                    address: 'Mumbai Trans Harbour Link Pier 124, Maritime Viaduct',
+                    plusCode: 'XR6H+22 Mumbai',
+                    phone: '112 (Highway Police)',
+                    openStatus: 'Active 24x7 • Speed Limit 100 km/h • High-Precision Radar',
+                    color: '#ef4444',
+                    icon: '🚨',
+                    imgBg: 'linear-gradient(135deg, #ef4444, #0f172a)'
+                },
+
+                // Smart Multi-Level Parking
+                {
+                    id: 'poi-park-cp',
+                    title: 'NDMC Shivaji Stadium Automated Smart Parking',
+                    category: 'parking',
+                    lat: 28.6290,
+                    lng: 77.2130,
+                    city: 'delhi',
+                    rating: '4.4',
+                    reviews: '3,100',
+                    address: 'Shaheed Bhagat Singh Marg, Connaught Place, New Delhi 110001',
+                    plusCode: '76HM+J5 New Delhi',
+                    phone: '+91 11 2336 0000',
+                    openStatus: 'Open 24 hours • 182 Free Spots (Live Sensor Tracking)',
+                    color: '#6366f1',
+                    icon: '🅿️',
+                    imgBg: 'linear-gradient(135deg, #6366f1, #312e81)'
+                },
+
+                // Fuel Stations (Petrol/CNG/Diesel)
+                {
+                    id: 'poi-fuel-iocl-cp',
+                    title: 'Indian Oil Flagship COCO Retail Outlet & Auto CNG',
+                    category: 'fuel',
+                    lat: 28.6250,
+                    lng: 77.2180,
+                    city: 'delhi',
+                    rating: '4.6',
+                    reviews: '5,800',
+                    address: 'Janpath Road, Connaught Place, New Delhi 110001',
+                    plusCode: '76FM+X4 New Delhi',
+                    phone: '+91 11 2332 5000',
+                    openStatus: 'Open 24 hours • Petrol ₹94.72 • Diesel ₹87.62 • Auto CNG',
+                    color: '#ea580c',
+                    icon: '⛽',
+                    imgBg: 'linear-gradient(135deg, #ea580c, #7c2d12)'
+                },
+
+                // Highway Rest Areas & Amenities
+                {
+                    id: 'poi-rest-del-agra',
+                    title: 'Yamuna Expressway Mile 65 Way-Side Food Court & Lounge',
+                    category: 'rest_stops',
+                    lat: 27.8500,
+                    lng: 77.6200,
+                    city: 'delhi',
+                    rating: '4.5',
+                    reviews: '8,400',
+                    address: 'Yamuna Expressway Rest Plaza KM 65, Mathura District',
+                    plusCode: 'RM2C+55 Mathura',
+                    phone: '1800 180 8888',
+                    openStatus: 'Open 24 hours • McDonald\'s, Starbucks, Clean Restrooms, First Aid',
+                    color: '#8b5cf6',
+                    icon: '🍽️',
+                    imgBg: 'linear-gradient(135deg, #8b5cf6, #4c1d95)'
+                }
+            ],
+
+            // Real-Time Traffic Congestion Corridors with Google Maps Congestion Colors
+            trafficCorridors: [
+                {
+                    name: 'Western Express Highway (WEH - Bandra to Andheri)',
+                    coords: [[19.0544, 72.8402], [19.0850, 72.8480], [19.1150, 72.8550], [19.1600, 72.8600]],
+                    status: 'HEAVY_CONGESTION',
+                    color: '#d93025', // Red
+                    speed: '18 km/h',
+                    delay: '+18 min delay',
+                    desc: 'Stop-and-go commuter crawl at Santacruz flyover'
+                },
+                {
+                    name: 'Atal Setu (MTHL - 6-Lane Marine Bridge)',
+                    coords: [[18.9950, 72.8550], [18.9600, 72.9300], [18.9100, 73.0200]],
+                    status: 'FREE_FLOW',
+                    color: '#1e8e3e', // Green
+                    speed: '96 km/h',
+                    delay: 'Fastest route',
+                    desc: 'Zero congestion on cable-stayed sea viaduct'
+                },
+                {
+                    name: 'Bandra-Worli Sea Link',
+                    coords: [[19.0430, 72.8180], [19.0150, 72.8150], [18.9950, 72.8120]],
+                    status: 'FREE_FLOW',
+                    color: '#1e8e3e',
+                    speed: '78 km/h',
+                    delay: 'Smooth sailing',
+                    desc: 'Free flow across Mahim Bay'
+                },
+                {
+                    name: 'Delhi AIIMS Ring Road Emergency Wave Link',
+                    coords: [[28.5672, 77.2100], [28.5833, 77.2200], [28.6129, 77.2295]],
+                    status: 'MODERATE',
+                    color: '#f29900', // Orange
+                    speed: '44 km/h',
+                    delay: '+4 min delay',
+                    desc: 'Preempted for emergency ambulance trauma link'
+                },
+                {
+                    name: 'Delhi-Gurugram Expressway (NH-48)',
+                    coords: [[28.5562, 77.1000], [28.5000, 77.0600], [28.4595, 77.0266]],
+                    status: 'FREE_FLOW',
+                    color: '#1e8e3e',
+                    speed: '68 km/h',
+                    delay: 'Normal traffic',
+                    desc: 'Steady flow through Cyber City gateway'
+                },
+                {
+                    name: 'Bengaluru Outer Ring Road (ORR Bellandur to Marathahalli)',
+                    coords: [[12.9279, 77.6271], [12.9350, 77.6700], [12.9550, 77.6950], [12.9700, 77.7100]],
+                    status: 'STANDSTILL',
+                    color: '#b31412', // Dark Maroon
+                    speed: '11 km/h',
+                    delay: '+28 min delay',
+                    desc: 'Peak tech corridor crawl near Ecospace junction'
+                },
+                {
+                    name: 'Bengaluru Electronic City Elevated Tollway',
+                    coords: [[12.9177, 77.6238], [12.8800, 77.6500], [12.8400, 77.6650]],
+                    status: 'FREE_FLOW',
+                    color: '#1e8e3e',
+                    speed: '80 km/h',
+                    delay: 'Optimal expressway flow',
+                    desc: '10km bypass above Hosur Road congestion'
+                },
+                {
+                    name: 'Hyderabad Nehru Outer Ring Road (ORR Gachibowli to Airport)',
+                    coords: [[17.4387, 78.3924], [17.3800, 78.3600], [17.3100, 78.3900], [17.2400, 78.4300]],
+                    status: 'FREE_FLOW',
+                    color: '#1e8e3e',
+                    speed: '105 km/h',
+                    delay: 'High speed corridor',
+                    desc: '8-lane access controlled ring road'
+                }
+            ],
+
+            // Transit / Metro Rail Network Polylines
+            transitLines: [
+                {
+                    name: 'Delhi Metro Yellow Line (Samaypur Badli to Millennium City Gurugram)',
+                    coords: [[28.7145, 77.1378], [28.6675, 77.2065], [28.6328, 77.2195], [28.5672, 77.2100], [28.4595, 77.0725]],
+                    color: '#eab308'
+                },
+                {
+                    name: 'Delhi Metro Blue Line (Dwarka Sec 21 to Noida Electronic City)',
+                    coords: [[28.5520, 77.0580], [28.6328, 77.2195], [28.5700, 77.3200], [28.6280, 77.3750]],
+                    color: '#0284c7'
+                },
+                {
+                    name: 'Mumbai Metro Line 2A & 7 Red/Yellow Line',
+                    coords: [[19.2500, 72.8550], [19.1800, 72.8500], [19.1150, 72.8550], [19.0700, 72.8500]],
+                    color: '#ef4444'
+                },
+                {
+                    name: 'Namma Metro Bengaluru Purple Line (Challaghatta to Whitefield)',
+                    coords: [[12.9050, 77.4850], [12.9716, 77.5946], [12.9900, 77.6700], [12.9980, 77.7500]],
+                    color: '#9333ea'
+                }
+            ]
+        };
+
+        // --- MAP INITIALIZATION ---
+        function initGoogleMap() {
+            // CartoDB Voyager / Google-like Light Cartography
+            const voyagerTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://carto.com/">CARTO</a>, &copy; OpenStreetMap contributors',
+                maxZoom: 20
+            });
+
+            // ESRI High-Resolution Satellite with Street Overlay
+            const satelliteImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS',
+                maxZoom: 19
+            });
+
+            const satelliteLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB',
+                maxZoom: 19
+            });
+
+            const satelliteHybrid = L.layerGroup([satelliteImagery, satelliteLabels]);
+
+            // OpenTopoMap for Topography / Contours
+            const terrainTile = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data: &copy; OpenStreetMap, SRTM | Map style: &copy; OpenTopoMap',
+                maxZoom: 17
+            });
+
+            // CartoDB Dark Matter for Google Midnight theme
+            const darkTile = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; CartoDB, &copy; OpenStreetMap',
+                maxZoom: 20
+            });
+
+            baseLayers = {
+                'default': voyagerTile,
+                'satellite': satelliteHybrid,
+                'terrain': terrainTile,
+                'dark': darkTile
+            };
+
+            map = L.map('googleMap', {
+                center: [28.6139, 77.2090], // Default Delhi NCR
+                zoom: 13,
+                zoomControl: false, // We use custom Google Maps floating controls
+                layers: [voyagerTile]
+            });
+
+            // Initialize Layer Groups
+            trafficLayerGroup = L.layerGroup().addTo(map);
+            transitLayerGroup = L.layerGroup().addTo(map);
+            placesLayerGroup = L.layerGroup().addTo(map);
+            emergencyLayerGroup = L.layerGroup().addTo(map);
+            speedCamsLayerGroup = L.layerGroup().addTo(map);
+            evChargersLayerGroup = L.layerGroup().addTo(map);
+            tollsLayerGroup = L.layerGroup().addTo(map);
+            navRouteLayerGroup = L.layerGroup().addTo(map);
+            measureLayerGroup = L.layerGroup().addTo(map);
+            streetViewLinesGroup = L.layerGroup().addTo(map);
+
+            // Render all layers
+            renderTrafficCongestionLayer();
+            renderTransitNetworkLayer();
+            renderPOIMarkers();
+            renderStreetViewCoverageLayer();
+
+            // Setup map event listeners
+            map.on('click', handleMapClick);
+
+            // Initial route calculation in background
+            calculateNavRoute();
+
+            // Kick off live realtime telemetry poll
+            pollRealtimeTelemetry();
+            realtimeTimer = setInterval(pollRealtimeTelemetry, 2500);
+        }
+
+        // --- RENDER LIVE TRAFFIC CONGESTION LAYER (GOOGLE MAPS STYLE) ---
+        function renderTrafficCongestionLayer() {
+            trafficLayerGroup.clearLayers();
+
+            GMAPS_DATABASE.trafficCorridors.forEach(corridor => {
+                // Background shadow for depth
+                L.polyline(corridor.coords, {
+                    color: '#ffffff',
+                    weight: 8,
+                    opacity: 0.8,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(trafficLayerGroup);
+
+                // Foreground traffic colored line
+                const trafficLine = L.polyline(corridor.coords, {
+                    color: corridor.color,
+                    weight: 5,
+                    opacity: 0.95,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(trafficLayerGroup);
+
+                trafficLine.bindPopup(`
+                    <div style="font-family: Roboto, sans-serif; padding: 12px; min-width: 220px;">
+                        <div style="font-size: 11px; font-weight: 700; color: ${corridor.color}; text-transform: uppercase;">
+                            ${corridor.status.replace('_', ' ')}
+                        </div>
+                        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin: 3px 0;">
+                            ${corridor.name}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: #475569;">
+                            <span>Avg Speed: <strong>${corridor.speed}</strong></span>
+                            <span>${corridor.delay}</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
+                            ${corridor.desc}
+                        </div>
+                    </div>
+                `);
+            });
+        }
+
+        // --- RENDER TRANSIT (METRO & COMMUTER) LAYER ---
+        function renderTransitNetworkLayer() {
+            transitLayerGroup.clearLayers();
+
+            GMAPS_DATABASE.transitLines.forEach(line => {
+                L.polyline(line.coords, {
+                    color: line.color,
+                    weight: 4,
+                    dashArray: '6, 6',
+                    opacity: 0.85
+                }).addTo(transitLayerGroup).bindTooltip(`🚇 ${line.name}`, { sticky: true });
+            });
+        }
+
+        // --- RENDER STREET VIEW COVERAGE (BLUE ROADS) ---
+        function renderStreetViewCoverageLayer() {
+            streetViewLinesGroup.clearLayers();
+
+            // Highlight all major corridors in Google Street View Blue
+            GMAPS_DATABASE.trafficCorridors.forEach(c => {
+                L.polyline(c.coords, {
+                    color: '#38bdf8',
+                    weight: 2,
+                    opacity: 0.6,
+                    dashArray: '2, 4'
+                }).addTo(streetViewLinesGroup);
+            });
+        }
+
+        // --- RENDER ALL DETAILED POI MARKERS ---
+        function renderPOIMarkers() {
+            placesLayerGroup.clearLayers();
+
+            GMAPS_DATABASE.places.forEach(poi => {
+                if (activeCategory !== 'all' && poi.category !== activeCategory) {
+                    return;
+                }
+
+                // Custom SVG Google Teardrop Pin Marker
+                const pinHtml = `
+                    <div class="gmaps-pin" style="color: ${poi.color};" onclick="openPlaceDetails('${poi.id}')">
+                        <svg viewBox="0 0 32 42" width="32" height="42">
+                            <path d="M16 0C7.163 0 0 7.163 0 16c0 11.4 16 26 16 26s16-14.6 16-26c0-8.837-7.163-16-16-16z" fill="${poi.color}"/>
+                            <circle cx="16" cy="15" r="9" fill="#ffffff"/>
+                            <text x="16" y="19" font-size="11" text-anchor="middle" fill="#000">${poi.icon}</text>
+                        </svg>
+                    </div>
+                `;
+
+                const icon = L.divIcon({
+                    html: pinHtml,
+                    className: '',
+                    iconSize: [32, 42],
+                    iconAnchor: [16, 42],
+                    popupAnchor: [0, -42]
+                });
+
+                const marker = L.marker([poi.lat, poi.lng], { icon: icon }).addTo(placesLayerGroup);
+
+                marker.on('click', () => {
+                    openPlaceDetails(poi.id);
+                });
+            });
+        }
+
+        // --- PLACE DETAILS DRAWER (GOOGLE MAPS CARD) ---
+        function openPlaceDetails(poiId) {
+            let poi = GMAPS_DATABASE.places.find(p => p.id === poiId);
+            if (!poi && activePlace && activePlace.id === poiId) {
+                poi = activePlace;
+            }
+            if (!poi) return;
+
+            activePlace = poi;
+
+            document.getElementById('placeCategoryTag').innerText = (poi.category || 'POI').replace('_', ' ');
+            document.getElementById('placeHeaderImg').style.background = poi.imgBg || 'linear-gradient(135deg, #1e3a8a, #0369a1)';
+            document.getElementById('placeTitle').innerText = poi.title;
+            document.getElementById('placeReviewsCount').innerText = poi.reviews ? `(${poi.reviews} reviews)` : '';
+            document.getElementById('placeOpenStatus').innerText = poi.openStatus ? poi.openStatus.split('•')[0].trim() : 'Live Node';
+            document.getElementById('placeAddress').innerText = poi.address || '';
+            document.getElementById('placePlusCode').innerText = poi.plusCode || '';
+            document.getElementById('placePhone').innerText = poi.phone || '';
+
+            // Pan smoothly to place
+            map.flyTo([poi.lat, poi.lng], 15, { duration: 1 });
+
+            // Show drawer, hide search dropdown
+            document.getElementById('placeDetailsDrawer').style.display = 'flex';
+            document.getElementById('suggestionsBox').style.display = 'none';
+        }
+
+        function closePlaceDrawer() {
+            document.getElementById('placeDetailsDrawer').style.display = 'none';
+        }
+
+        function navigateHere() {
+            if (!activePlace) return;
+            openDirectionsPanel();
+            document.getElementById('dirEndSelect').value = 'delhi_aiims'; // Map to destination
+            calculateNavRoute();
+        }
+
+        function startStreetViewFromPlace() {
+            if (!activePlace) return;
+            launchStreetView(activePlace.title, activePlace.lat, activePlace.lng);
+        }
+
+        function savePlaceBookmark() {
+            if (!activePlace) return;
+            alert(`⭐ "${activePlace.title}" has been saved to your Google Maps Saved Places!`);
+        }
+
+        function sharePlace() {
+            if (!activePlace) return;
+            navigator.clipboard.writeText(`https://maps.google.com/?q=${activePlace.lat},${activePlace.lng}`);
+            alert(`🔗 Share link copied to clipboard:\nGoogle Maps coordinates: ${activePlace.lat}, ${activePlace.lng}`);
+        }
+
+        // --- CATEGORY CHIP FILTERING ---
+        function filterCategory(category, chipEl) {
+            const chips = document.querySelectorAll('.gmaps-chip');
+            if (activeCategory === category) {
+                activeCategory = 'all';
+                chipEl.classList.remove('active');
+            } else {
+                activeCategory = category;
+                chips.forEach(c => c.classList.remove('active'));
+                chipEl.classList.add('active');
+            }
+            renderPOIMarkers();
+        }
+
+        // --- SEARCH AUTOCOMPLETE & JUMP ---
+        function handleSearchInput(query) {
+            const suggBox = document.getElementById('suggestionsBox');
+            const clearBtn = document.getElementById('clearSearchBtn');
+
+            if (!query || query.trim().length === 0) {
+                suggBox.style.display = 'none';
+                clearBtn.style.display = 'none';
+                return;
+            }
+
+            clearBtn.style.display = 'flex';
+            const q = query.toLowerCase().trim();
+
+            // Match places or cities
+            const placeMatches = GMAPS_DATABASE.places.filter(p => 
+                p.title.toLowerCase().includes(q) ||
+                p.address.toLowerCase().includes(q) ||
+                p.category.toLowerCase().includes(q)
+            );
+
+            const cityMatches = Object.keys(GMAPS_DATABASE.cities).filter(k => 
+                GMAPS_DATABASE.cities[k].name.toLowerCase().includes(q)
+            );
+
+            let html = '';
+
+            cityMatches.forEach(cityKey => {
+                const city = GMAPS_DATABASE.cities[cityKey];
+                html += `
+                    <div class="suggestion-item" onclick="panToCity('${cityKey}')">
+                        <div class="sugg-icon">🏙️</div>
+                        <div>
+                            <div class="sugg-title">${city.name}</div>
+                            <div class="sugg-sub">City & Metropolitan Region</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            placeMatches.slice(0, 6).forEach(poi => {
+                html += `
+                    <div class="suggestion-item" onclick="openPlaceDetails('${poi.id}')">
+                        <div class="sugg-icon">${poi.icon}</div>
+                        <div>
+                            <div class="sugg-title">${poi.title}</div>
+                            <div class="sugg-sub">${poi.address.slice(0, 48)}...</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (html.length === 0) {
+                html = `
+                    <div style="padding: 12px 14px; font-size: 13px; color: var(--gm-subtext);">
+                        No exact match found. Press Enter to search live web cartography.
+                    </div>
+                `;
+            }
+
+            suggBox.innerHTML = html;
+            suggBox.style.display = 'flex';
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('gmapsSearchInput');
+            input.value = '';
+            document.getElementById('suggestionsBox').style.display = 'none';
+            document.getElementById('clearSearchBtn').style.display = 'none';
+            input.focus();
+        }
+
+        function triggerSearch() {
+            const q = document.getElementById('gmapsSearchInput').value.trim();
+            if (!q) return;
+
+            // Check if matches a city
+            const cityMatch = Object.keys(GMAPS_DATABASE.cities).find(k => 
+                GMAPS_DATABASE.cities[k].name.toLowerCase().includes(q.toLowerCase())
+            );
+
+            if (cityMatch) {
+                panToCity(cityMatch);
+                document.getElementById('suggestionsBox').style.display = 'none';
+                return;
+            }
+
+            // Check POI
+            const poiMatch = GMAPS_DATABASE.places.find(p => p.title.toLowerCase().includes(q.toLowerCase()));
+            if (poiMatch) {
+                openPlaceDetails(poiMatch.id);
+                document.getElementById('suggestionsBox').style.display = 'none';
+                return;
+            }
+
+            alert(`🔍 Searching Google Maps database for "${q}"... Coordinates centered.`);
+        }
+
+        function simulateVoiceSearch() {
+            alert("🎙️ Google Voice Search Listening...\nSay: 'Navigate to AIIMS' or 'Find FASTag Tolls'");
+        }
+
+        // --- DIRECTIONS NAVIGATION ENGINE ---
+        function openDirectionsPanel() {
+            document.getElementById('directionsPanel').style.display = 'flex';
+            document.getElementById('placeDetailsDrawer').style.display = 'none';
+            document.getElementById('suggestionsBox').style.display = 'none';
+            calculateNavRoute();
+        }
+
+        function closeDirectionsPanel() {
+            document.getElementById('directionsPanel').style.display = 'none';
+            navRouteLayerGroup.clearLayers();
+        }
+
+        function swapRouteInputs() {
+            const start = document.getElementById('dirStartSelect');
+            const end = document.getElementById('dirEndSelect');
+            const temp = start.value;
+            start.value = end.value;
+            end.value = temp;
+            calculateNavRoute();
+        }
+
+        let currentTravelMode = 'car';
+        function setTravelMode(mode, btnEl) {
+            currentTravelMode = mode;
+            document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            calculateNavRoute();
+        }
+
+        function calculateNavRoute() {
+            navRouteLayerGroup.clearLayers();
+
+            // Generate 3 Realistic Google Route Alternatives
+            const routeCoordinates1 = [
+                [28.6328, 77.2195], // Connaught Place
+                [28.6180, 77.2210], // Janpath
+                [28.6129, 77.2295], // C-Hexagon India Gate
+                [28.5890, 77.2250], // Lodhi Road
+                [28.5672, 77.2100]  // AIIMS Trauma
+            ];
+
+            const routeCoordinates2 = [
+                [28.6328, 77.2195],
+                [28.6139, 77.2090], // Parliament Street
+                [28.5830, 77.1950], // Chanakyapuri
+                [28.5672, 77.2100]  // AIIMS Trauma
+            ];
+
+            // Render Route 1 (Primary - Google Blue Line with Traffic Congestion points)
+            // Outer casing
+            L.polyline(routeCoordinates1, {
+                color: '#1a73e8',
+                weight: 8,
+                opacity: 0.95,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(navRouteLayerGroup);
+
+            // Fit route in view
+            map.fitBounds(L.polyline(routeCoordinates1).getBounds(), { padding: [80, 80] });
+
+            // Start Pin
+            L.marker(routeCoordinates1[0], {
+                icon: L.divIcon({
+                    html: `<div style="background: #1a73e8; width: 14px; height: 14px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.5);"></div>`,
+                    className: '',
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
+                })
+            }).addTo(navRouteLayerGroup);
+
+            // End Pin
+            L.marker(routeCoordinates1[routeCoordinates1.length - 1], {
+                icon: L.divIcon({
+                    html: `<div style="background: #d93025; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.5);"></div>`,
+                    className: '',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                })
+            }).addTo(navRouteLayerGroup);
+
+            // Populate Route Options UI
+            const optionsContainer = document.getElementById('routeOptionsContainer');
+            optionsContainer.innerHTML = `
+                <div class="route-option-card selected">
+                    <div class="route-main-info">
+                        <span class="route-time">19 min</span>
+                        <span class="route-dist">9.4 km</span>
+                    </div>
+                    <div class="route-via">via C-Hexagon India Gate & Sri Aurobindo Marg</div>
+                    <div class="route-tags">
+                        <span class="route-tag-pill tag-fast">Fastest route</span>
+                        <span class="route-tag-pill tag-wave">Green Wave Active</span>
+                        <span class="route-tag-pill tag-toll">Toll-free</span>
+                    </div>
+                </div>
+
+                <div class="route-option-card">
+                    <div class="route-main-info">
+                        <span class="route-time" style="color: var(--gm-orange);">24 min</span>
+                        <span class="route-dist">11.2 km</span>
+                    </div>
+                    <div class="route-via">via Shanti Path & Chanakyapuri Diplomatic Enclave</div>
+                    <div class="route-tags">
+                        <span class="route-tag-pill" style="background: #f1f3f4; color: #5f6368;">+5 mins slower</span>
+                    </div>
+                </div>
+            `;
+
+            // Step-by-Step Instructions
+            const stepsList = document.getElementById('cueStepsList');
+            stepsList.innerHTML = `
+                <div class="cue-step">
+                    <span class="cue-icon">⬆️</span>
+                    <div class="cue-text">
+                        Head south on <strong>Connaught Circus</strong> toward Janpath
+                        <div class="cue-dist">400 m</div>
+                    </div>
+                </div>
+                <div class="cue-step">
+                    <span class="cue-icon">➡️</span>
+                    <div class="cue-text">
+                        Turn right onto <strong>Janpath Road</strong>
+                        <div class="cue-dist">1.2 km</div>
+                    </div>
+                </div>
+                <div class="cue-step">
+                    <span class="cue-icon">🔄</span>
+                    <div class="cue-text">
+                        At the roundabout, take the <strong>2nd exit</strong> onto C-Hexagon India Gate
+                        <div class="cue-dist">2.4 km</div>
+                    </div>
+                </div>
+                <div class="cue-step">
+                    <span class="cue-icon">↖️</span>
+                    <div class="cue-text">
+                        Merge onto <strong>Sri Aurobindo Marg</strong> toward AIIMS Trauma
+                        <div class="cue-dist">4.8 km</div>
+                    </div>
+                </div>
+                <div class="cue-step">
+                    <span class="cue-icon">🏁</span>
+                    <div class="cue-text">
+                        Arrive at <strong>AIIMS Apex Trauma Centre</strong> on the right
+                        <div class="cue-dist">Destination</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- BASEMAP SWITCHER & LAYERS POPOVER ---
+        function toggleLayersPopover() {
+            const popover = document.getElementById('layersPopover');
+            popover.style.display = (popover.style.display === 'flex') ? 'none' : 'flex';
+        }
+
+        function switchBaseMap(type) {
+            if (!baseLayers[type]) return;
+
+            map.removeLayer(baseLayers[currentBaseMap]);
+            map.addLayer(baseLayers[type]);
+            currentBaseMap = type;
+
+            document.querySelectorAll('.map-type-card').forEach(c => c.classList.remove('active'));
+            const activeCard = document.getElementById(`type-${type}`);
+            if (activeCard) activeCard.classList.add('active');
+
+            // Update thumbnail label
+            const labelMap = {
+                'default': 'Default',
+                'satellite': 'Satellite',
+                'terrain': 'Terrain',
+                'dark': 'Midnight'
+            };
+            document.getElementById('thumbnailLabel').innerText = labelMap[type] || 'Map';
+
+            // Close popover
+            document.getElementById('layersPopover').style.display = 'none';
+        }
+
+        function toggleMapLayer(layerName, isChecked) {
+            if (layerName === 'traffic') {
+                isChecked ? map.addLayer(trafficLayerGroup) : map.removeLayer(trafficLayerGroup);
+            } else if (layerName === 'transit') {
+                isChecked ? map.addLayer(transitLayerGroup) : map.removeLayer(transitLayerGroup);
+            } else if (layerName === 'ev') {
+                isChecked ? map.addLayer(evChargersLayerGroup) : map.removeLayer(evChargersLayerGroup);
+            } else if (layerName === 'cams') {
+                isChecked ? map.addLayer(speedCamsLayerGroup) : map.removeLayer(speedCamsLayerGroup);
+            } else if (layerName === 'streetview_lines') {
+                isChecked ? map.addLayer(streetViewLinesGroup) : map.removeLayer(streetViewLinesGroup);
+            }
+        }
+
+        // --- DARK / LIGHT THEME TOGGLE ---
+        function toggleDarkMode() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.body.classList.add('dark-theme');
+                document.getElementById('themeIcon').innerText = '☀️';
+                switchBaseMap('dark');
+            } else {
+                document.body.classList.remove('dark-theme');
+                document.getElementById('themeIcon').innerText = '🌙';
+                switchBaseMap('default');
+            }
+        }
+
+        // --- PAN TO REGIONAL METRO ---
+        function panToCity(cityKey) {
+            const city = GMAPS_DATABASE.cities[cityKey];
+            if (!city) return;
+
+            document.getElementById('cityQuickSelect').value = cityKey;
+            map.flyTo(city.center, city.zoom, { duration: 1.5 });
+
+            document.getElementById('hudSpeedLimit').innerText = city.speedLimit;
+        }
+
+        // --- GEOLOCATION / "MY LOCATION" GPS ---
+        function locateUserGPS() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+
+                    map.flyTo([lat, lng], 15, { duration: 1.5 });
+
+                    // Pulsing blue Google location puck
+                    const userPuck = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        fillColor: '#1a73e8',
+                        color: '#ffffff',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 1
+                    }).addTo(map);
+
+                    // Accuracy circle
+                    L.circle([lat, lng], {
+                        radius: pos.coords.accuracy || 150,
+                        color: '#1a73e8',
+                        weight: 1,
+                        fillColor: '#1a73e8',
+                        fillOpacity: 0.15
+                    }).addTo(map);
+
+                    userPuck.bindPopup("<strong>📍 Your Current GPS Location</strong><br>Accuracy: " + Math.round(pos.coords.accuracy) + " meters").openPopup();
+                },
+                (err) => {
+                    // Fallback to Delhi Center if denied in iframe
+                    map.flyTo([28.6139, 77.2090], 14, { duration: 1.2 });
+                    alert("Showing central metropolitan corridor (GPS preview mode).");
+                }
+            );
+        }
+
+        // --- ROTATING COMPASS CONTROL ---
+        function resetNorth() {
+            const compass = document.getElementById('compassBtn');
+            compass.style.transform = 'rotate(0deg)';
+            map.setView(map.getCenter(), map.getZoom());
+            alert("🧭 Map view locked directly North (0° Bearing).");
+        }
+
+        // --- MEASURE DISTANCE TOOL ---
+        function toggleMeasureTool() {
+            isMeasuring = !isMeasuring;
+            const btn = document.getElementById('measureBtn');
+
+            if (isMeasuring) {
+                btn.style.color = 'var(--gm-blue)';
+                btn.style.background = 'rgba(26, 115, 232, 0.15)';
+                measurePoints = [];
+                measureLayerGroup.clearLayers();
+                alert("📐 Measure Distance active: Click anywhere on the map to add measurement points.");
+            } else {
+                btn.style.color = '';
+                btn.style.background = '';
+                measureLayerGroup.clearLayers();
+            }
+        }
+
+        function handleMapClick(e) {
+            if (!isMeasuring) return;
+
+            measurePoints.push(e.latlng);
+
+            // Drop point marker
+            L.circleMarker(e.latlng, {
+                radius: 5,
+                fillColor: '#ffffff',
+                color: '#1a73e8',
+                weight: 3,
+                fillOpacity: 1
+            }).addTo(measureLayerGroup);
+
+            if (measurePoints.length > 1) {
+                // Draw measuring line
+                L.polyline(measurePoints, {
+                    color: '#1a73e8',
+                    weight: 3,
+                    dashArray: '5, 5'
+                }).addTo(measureLayerGroup);
+
+                // Calculate cumulative distance
+                let totalMeters = 0;
+                for (let i = 0; i < measurePoints.length - 1; i++) {
+                    totalMeters += measurePoints[i].distanceTo(measurePoints[i+1]);
+                }
+
+                const km = (totalMeters / 1000).toFixed(2);
+                const miles = (totalMeters / 1609.34).toFixed(2);
+
+                L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(`<strong>Measured Distance:</strong><br>📏 ${km} km (${miles} miles)`)
+                    .openOn(map);
+            }
+        }
+
+        // --- 360° STREET VIEW PANORAMIC SIMULATOR ---
+        let panoHeadingAngle = 78;
+        let isDraggingPano = false;
+        let startX = 0;
+
+        function launchStreetView(name, lat, lng) {
+            const modal = document.getElementById('streetViewModal');
+            modal.style.display = 'flex';
+
+            document.getElementById('panoStreetName').innerText = name || "Western Express Highway (WEH), Mumbai";
+            renderStreetViewPanorama();
+        }
+
+        function closeStreetView() {
+            document.getElementById('streetViewModal').style.display = 'none';
+        }
+
+        function rotatePano(delta) {
+            panoHeadingAngle = (panoHeadingAngle + delta + 360) % 360;
+            document.getElementById('panoHeading').innerText = `${Math.round(panoHeadingAngle)}°`;
+            renderStreetViewPanorama();
+        }
+
+        function renderStreetViewPanorama() {
+            const canvas = document.getElementById('streetViewCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Sky gradient
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+            skyGrad.addColorStop(0, '#1e3a8a');
+            skyGrad.addColorStop(0.5, '#60a5fa');
+            skyGrad.addColorStop(1, '#e0f2fe');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, w, h * 0.55);
+
+            // Distant skyline & buildings
+            ctx.fillStyle = '#94a3b8';
+            for (let i = 0; i < w; i += 40) {
+                const bHeight = 40 + Math.sin((i + panoHeadingAngle * 4) * 0.05) * 35;
+                ctx.fillRect(i, h * 0.55 - bHeight, 35, bHeight);
+            }
+
+            // Road asphalt
+            const roadGrad = ctx.createLinearGradient(0, h * 0.55, 0, h);
+            roadGrad.addColorStop(0, '#334155');
+            roadGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = roadGrad;
+            ctx.fillRect(0, h * 0.55, w, h * 0.45);
+
+            // Perspective Road Lanes
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.5, h * 0.55);
+            ctx.lineTo(w * 0.5 + Math.sin(panoHeadingAngle * 0.02) * 200, h);
+            ctx.stroke();
+
+            // Street View Compass Crosshair
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(w * 0.5, h * 0.5, 40, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // Overlay instructions
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '14px Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('360° Photorealistic Road Corridor Panoramic View', w * 0.5, 50);
+        }
+
+        // Setup Panorama drag rotation
+        const pCanvas = document.getElementById('streetViewCanvas');
+        pCanvas.addEventListener('mousedown', (e) => {
+            isDraggingPano = true;
+            startX = e.clientX;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDraggingPano = false;
+        });
+
+        pCanvas.addEventListener('mousemove', (e) => {
+            if (!isDraggingPano) return;
+            const diff = e.clientX - startX;
+            startX = e.clientX;
+            rotatePano(diff * 0.3);
+        });
+
+        // --- REAL-TIME TELEMETRICS HUD SPEEDOMETER TICK ---
+        setInterval(() => {
+            const hud = document.getElementById('hudSpeed');
+            if (hud) {
+                const current = parseInt(hud.innerText, 10);
+                const variance = Math.floor(Math.random() * 5) - 2;
+                const nextSpeed = Math.max(38, Math.min(68, current + variance));
+                hud.innerText = nextSpeed;
+
+                const limit = parseInt(document.getElementById('hudSpeedLimit').innerText, 10);
+                if (nextSpeed > limit) {
+                    hud.style.color = '#d93025';
+                } else {
+                    hud.style.color = 'var(--gm-text)';
+                }
+            }
+        }, 2200);
+
+        // =============================================================
+        // REAL-TIME DATASET & LIVE TELEMETRY STREAM ENGINE
+        // =============================================================
+        let currentCity = 'delhi';
+        let realtimeTimer = null;
+        const liveVehicleMarkers = new Map();
+        const liveSignalMarkers = new Map();
+        let lastRealtimeEvents = [];
+
+        function handleCitySelectChange(cityKey) {
+            currentCity = cityKey;
+            panToCity(cityKey);
+            pollRealtimeTelemetry();
+        }
+
+        async function pollRealtimeTelemetry() {
+            try {
+                const res = await fetch(`/api/realtime/telemetry-snapshot?city=${encodeURIComponent(currentCity)}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                if (!data.success) return;
+
+                // 1. Update Real-World Weather Telemetry (Open-Meteo)
+                if (data.weather) {
+                    const tempEl = document.getElementById('weatherTemp');
+                    const condEl = document.getElementById('weatherCond');
+                    const gripEl = document.getElementById('roadGripText');
+                    if (tempEl) tempEl.innerText = `${data.weather.temperature_c}°C`;
+                    if (condEl) condEl.innerText = data.weather.condition_text;
+                    if (gripEl) gripEl.innerText = `Grip: ${data.weather.grip_coefficient} ${data.weather.road_surface}`;
+                }
+
+                // 2. Update Indian Standard Time (IST) & Peak Congestion
+                if (data.ist) {
+                    const istEl = document.getElementById('istClock');
+                    const peakEl = document.getElementById('peakLabel');
+                    if (istEl) istEl.innerText = data.ist.timeString;
+                    if (peakEl) peakEl.innerText = `${data.ist.peakLabel} (${data.ist.congestionIndex}% Congestion)`;
+                }
+
+                // 3. Update Real-Time Event Stream Ticker
+                if (data.events && data.events.length > 0) {
+                    lastRealtimeEvents = data.events;
+                    updateRealtimeTicker(data.events);
+                }
+
+                // 4. Update Moving Vehicle Fleet Markers
+                if (data.fleet && emergencyLayerGroup) {
+                    updateFleetMarkers(data.fleet);
+                }
+
+                // 5. Update Dynamic Smart Signals with Live Countdown
+                if (data.signals && trafficLayerGroup) {
+                    updateSignalMarkers(data.signals);
+                }
+
+                // 6. Update Real-Time Dynamic Toll and Parking metrics if activePlace is open
+                if (activePlace && data.tolls) {
+                    const matchedToll = data.tolls.find(t => activePlace.id.includes(t.id.replace('toll-', '')));
+                    if (matchedToll) {
+                        const openEl = document.getElementById('placeOpenStatus');
+                        if (openEl) {
+                            openEl.innerText = `Live Wait: ${matchedToll.avg_wait_minutes} min • ${matchedToll.active_etc_lanes}/${matchedToll.total_lanes} ETC Lanes Active`;
+                        }
+                    }
+                }
+
+            } catch (err) {
+                console.warn('Realtime polling sync:', err.message);
+            }
+        }
+
+        // --- UPDATE TICKER MARQUEE ---
+        let tickerIndex = 0;
+        function updateRealtimeTicker(events) {
+            const tickerEl = document.getElementById('tickerText');
+            if (!tickerEl || !events.length) return;
+            const ev = events[tickerIndex % events.length];
+            tickerIndex++;
+            const iconMap = {
+                EMERGENCY: '🚑',
+                TOLL: '⛽',
+                WEATHER: '🌦️',
+                SPEED_RADAR: '🚨',
+                SIGNAL: '🚦',
+                EV_CHARGING: '⚡',
+                INCIDENT: '⚠️'
+            };
+            const icon = iconMap[ev.type] || '📡';
+            tickerEl.innerHTML = `<strong>${icon} ${ev.headline}:</strong> ${ev.details} <span style="opacity:0.75; font-size:10.5px;">(${ev.location} • ${ev.time_formatted})</span>`;
+        }
+
+        // --- RENDER LIVE VEHICLE FLEET WITH DIRECTIONAL ROTATION & SPEED BADGES ---
+        function updateFleetMarkers(fleet) {
+            const currentIds = new Set(fleet.map(v => v.id));
+
+            // Remove vehicles no longer in fleet
+            liveVehicleMarkers.forEach((marker, id) => {
+                if (!currentIds.has(id)) {
+                    emergencyLayerGroup.removeLayer(marker);
+                    liveVehicleMarkers.delete(id);
+                }
+            });
+
+            fleet.forEach(v => {
+                let iconClass = 'vehicle-beacon-halo';
+                let iconChar = '🚗';
+                let borderColor = '#1a73e8';
+
+                if (v.type === 'ambulance') {
+                    iconClass += ' ambulance';
+                    iconChar = '🚑';
+                    borderColor = '#d93025';
+                } else if (v.type === 'police') {
+                    iconClass += ' police';
+                    iconChar = '🚓';
+                    borderColor = '#1a73e8';
+                } else if (v.type === 'bus') {
+                    iconChar = '🚌';
+                    borderColor = '#16a34a';
+                } else if (v.type === 'truck') {
+                    iconChar = '🚛';
+                    borderColor = '#ca8a04';
+                }
+
+                const vehicleHtml = `
+                    <div class="fleet-vehicle-marker" onclick="openVehicleTelemetryDrawer('${v.id}')">
+                        <div class="${iconClass}" style="transform: rotate(${v.heading}deg);">
+                            <span style="font-size: 16px; transform: rotate(-${v.heading}deg);">${iconChar}</span>
+                        </div>
+                        <div class="vehicle-speed-tag" style="border-left: 2px solid ${borderColor};">
+                            ${v.speed_kmh} km/h
+                        </div>
+                    </div>
+                `;
+
+                const divIcon = L.divIcon({
+                    html: vehicleHtml,
+                    className: '',
+                    iconSize: [40, 50],
+                    iconAnchor: [20, 25]
+                });
+
+                if (liveVehicleMarkers.has(v.id)) {
+                    const marker = liveVehicleMarkers.get(v.id);
+                    marker.setLatLng([v.lat, v.lng]);
+                    marker.setIcon(divIcon);
+                } else {
+                    const marker = L.marker([v.lat, v.lng], { icon: divIcon }).addTo(emergencyLayerGroup);
+                    marker.on('click', () => openVehicleTelemetryDrawer(v.id));
+                    liveVehicleMarkers.set(v.id, marker);
+                }
+            });
+        }
+
+        // --- OPEN LIVE VEHICLE TELEMETRY IN GOOGLE MAPS DRAWER ---
+        function openVehicleTelemetryDrawer(vehicleId) {
+            fetch(`/api/telematics/vehicles?city=all`)
+                .then(r => r.json())
+                .then(data => {
+                    const v = (data.vehicles || []).find(x => x.id === vehicleId);
+                    if (!v) return;
+
+                    activePlace = {
+                        id: v.id,
+                        title: v.label || v.reg_number,
+                        category: 'vehicle_telematics',
+                        lat: v.lat,
+                        lng: v.lng,
+                        city: v.city,
+                        rating: '5.0',
+                        reviews: 'Verified Sensor',
+                        address: `${v.corridor} • Heading ${v.heading}° Bearing`,
+                        plusCode: `GPS: ${v.lat.toFixed(4)}, ${v.lng.toFixed(4)}`,
+                        phone: `Status: ${v.status} • Speed: ${v.speed_kmh} km/h • Battery: ${v.battery_fuel_pct}%`,
+                        openStatus: `LIVE TELEMETRY STREAM • Refreshed 1s ago`,
+                        color: v.type === 'ambulance' ? '#d93025' : '#1a73e8',
+                        icon: v.type === 'ambulance' ? '🚑' : '🚗',
+                        imgBg: v.type === 'ambulance' ? 'linear-gradient(135deg, #b91c1c, #450a0a)' : 'linear-gradient(135deg, #1e3a8a, #0369a1)'
+                    };
+
+                    openPlaceDetails(v.id);
+                    map.flyTo([v.lat, v.lng], 15, { duration: 1 });
+                });
+        }
+
+        // --- UPDATE DYNAMIC SMART SIGNALS WITH TICKING COUNTDOWNS ---
+        function updateSignalMarkers(signals) {
+            signals.forEach(sig => {
+                const phaseClass = sig.current_phase === 'green' ? 'signal-green' : sig.current_phase === 'amber' ? 'signal-amber' : 'signal-red';
+                const phaseIcon = sig.current_phase === 'green' ? '🟢' : sig.current_phase === 'amber' ? '🟡' : '🔴';
+
+                const signalHtml = `
+                    <div class="signal-node-marker" onclick="openSignalInspector('${sig.id}')">
+                        <div class="signal-light-pill ${phaseClass}">
+                            <span>${phaseIcon}</span>
+                            <span>${sig.seconds_remaining}s</span>
+                        </div>
+                        <div style="background: rgba(0,0,0,0.75); color: #fff; font-size: 8.5px; font-weight: 700; padding: 1px 4px; border-radius: 4px; margin-top: 2px;">
+                            Q: ${sig.queue_length} cars
+                        </div>
+                    </div>
+                `;
+
+                const divIcon = L.divIcon({
+                    html: signalHtml,
+                    className: '',
+                    iconSize: [50, 42],
+                    iconAnchor: [25, 21]
+                });
+
+                if (liveSignalMarkers.has(sig.id)) {
+                    const marker = liveSignalMarkers.get(sig.id);
+                    marker.setIcon(divIcon);
+                } else {
+                    const marker = L.marker([sig.lat, sig.lng], { icon: divIcon }).addTo(trafficLayerGroup);
+                    marker.on('click', () => openSignalInspector(sig.id));
+                    liveSignalMarkers.set(sig.id, marker);
+                }
+            });
+        }
+
+        // --- SMART SIGNAL INSPECTOR & PREEMPTION TRIGGER ---
+        function openSignalInspector(signalId) {
+            fetch(`/api/realtime/telemetry-snapshot?city=all`)
+                .then(r => r.json())
+                .then(data => {
+                    const sig = (data.signals || []).find(s => s.id === signalId);
+                    if (!sig) return;
+
+                    const approaches = (sig.approach_roads || []).join(', ');
+
+                    alert(
+                        `🚦 SMART TRAFFIC SIGNAL TELEMETRY:\n\n` +
+                        `Junction: ${sig.name}\n` +
+                        `Current Phase: ${sig.current_phase.toUpperCase()} (${sig.seconds_remaining}s remaining)\n` +
+                        `Queue Density: ${sig.queue_length} vehicles\n` +
+                        `Cycle Total: ${sig.cycle_total} seconds\n` +
+                        `Approaches: ${approaches}\n` +
+                        `Emergency Preemption: ${sig.priority_green_wave ? 'ACTIVE (Trauma Wave)' : 'Standby'}\n\n` +
+                        `Click 'Preempt Green Wave' at the top to clear this corridor for emergency vehicles.`
+                    );
+                });
+        }
+
+        // --- TEST EMERGENCY GREEN WAVE PREEMPTION ---
+        function triggerEmergencyGreenWaveDemo() {
+            fetch('/api/signals/preempt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ route: 'AIIMS Trauma Emergency Wave', duration: 60 })
+            })
+            .then(r => r.json())
+            .then(res => {
+                alert(`🚑 PRIORITY GREEN WAVE PREEMPTED!\n\n${res.message}\nDuration: 60 seconds\nStatus: All conflicting signals held Red. Trauma ambulance given free trajectory.`);
+                pollRealtimeTelemetry();
+            })
+            .catch(err => {
+                alert('Preempted emergency green wave triggered.');
+            });
+        }
+
+        // --- VOICE GUIDANCE & EXIT HANDLERS ---
+        let gmapsVoiceEnabled = true;
+        function toggleGmapsVoice() {
+            gmapsVoiceEnabled = !gmapsVoiceEnabled;
+            const btn = document.getElementById('gmapsVoiceBtn');
+            if (btn) {
+                btn.innerHTML = gmapsVoiceEnabled ? '🔊' : '🔇';
+                btn.title = gmapsVoiceEnabled ? 'Voice Guidance: Active (Click to Mute)' : 'Voice Guidance: Muted (Click to Unmute)';
+                if (gmapsVoiceEnabled) {
+                    btn.style.color = '';
+                    btn.style.background = '';
+                } else {
+                    btn.style.color = '#f87171';
+                    btn.style.background = 'rgba(239, 68, 68, 0.2)';
+                }
+            }
+            if (!gmapsVoiceEnabled && window.speechSynthesis) {
+                try { window.speechSynthesis.cancel(); } catch(e) {}
+            }
+            if (gmapsVoiceEnabled && window.speechSynthesis) {
+                try {
+                    const utter = new SpeechSynthesisUtterance('Voice guidance unmuted.');
+                    window.speechSynthesis.speak(utter);
+                } catch(e) {}
+            }
+        }
+
+        function exitPublicMap() {
+            if (window.speechSynthesis) {
+                try { window.speechSynthesis.cancel(); } catch(e) {}
+            }
+            window.location.href = '/';
+        }
+
+        // --- WINDOW ONLOAD INITIALIZE ---
+        window.onload = () => {
+            initGoogleMap();
+        };
+    </script>
+
+</body>
+</html>

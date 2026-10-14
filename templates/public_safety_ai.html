@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Citizen Road Safety & Traffic Rules Assistant - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 16px 28px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #38bdf8;
+        }
+
+        .back-btn {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .chat-container {
+            max-width: 900px;
+            width: 100%;
+            margin: 24px auto 40px;
+            padding: 0 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .assistant-card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+            height: 75vh;
+        }
+
+        .card-header {
+            padding: 16px 24px;
+            background: #14202d;
+            border-bottom: 1px solid #1f3347;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg {
+            max-width: 82%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .msg.assistant {
+            align-self: flex-start;
+            background: #162433;
+            border: 1px solid #233a52;
+            color: #f1f5f9;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: #0284c7;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chips-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 20px;
+            background: #0d151e;
+            border-top: 1px solid #1a2838;
+        }
+
+        .chip {
+            background: #162230;
+            border: 1px solid #25394e;
+            color: #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            background: #23384f;
+            color: #38bdf8;
+            border-color: #38bdf8;
+        }
+
+        .input-bar {
+            padding: 16px 20px;
+            background: #14202d;
+            border-top: 1px solid #1f3347;
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-bar input {
+            flex: 1;
+            background: #0b1118;
+            border: 1px solid #22374c;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-bar input:focus {
+            border-color: #38bdf8;
+        }
+
+        .btn-send {
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-send:hover {
+            background: #38bdf8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>🤖</span>
+            AI Citizen Road Safety & Traffic Rules Guide
+        </h2>
+        <a href="/public-portal" class="back-btn">← Public Services Portal</a>
+    </header>
+
+    <div class="chat-container">
+
+        <div class="assistant-card">
+            
+            <div class="card-header">
+                <div class="header-title">
+                    <span>🛡️</span>
+                    Smart Roads Citizen Advisory AI
+                </div>
+                <div style="font-size: 12px; color: #38bdf8; font-family: 'JetBrains Mono', monospace;">
+                    ● Gemini 3.8 Intelligence
+                </div>
+            </div>
+
+            <div class="messages-area" id="messages">
+                <div class="msg assistant">
+                    👋 <strong>Hello citizen!</strong> I am your AI Road Safety and Motor Vehicles Regulations Guide.<br><br>
+                    You can ask me questions about:
+                    <ul>
+                        <li>Current traffic fines under the Motor Vehicles (Amendment) Act.</li>
+                        <li>How to settle or dispute a camera-issued e-Challan.</li>
+                        <li>Helmet and seatbelt regulations, child safety, and speed limits.</li>
+                        <li>Procedures for reporting dangerous road conditions or accidents.</li>
+                    </ul>
+                    What traffic rule or service can I explain for you today?
+                </div>
+            </div>
+
+            <div class="chips-bar">
+                <div class="chip" onclick="useChip('What is the fine for driving without a certified helmet?')">🪖 Helmet violation fine?</div>
+                <div class="chip" onclick="useChip('What is the penalty for jumping a red traffic light?')">🚦 Red light fine?</div>
+                <div class="chip" onclick="useChip('How can I contest an incorrect e-Challan in this portal?')">⚖️ Contest e-Challan</div>
+                <div class="chip" onclick="useChip('What should motorists do when an ambulance requests green corridor priority?')">🚑 Ambulance green wave rules</div>
+            </div>
+
+            <form class="input-bar" id="chat-form" onsubmit="sendPublicMessage(event)">
+                <input type="text" id="citizen-input" placeholder="Ask about fines, traffic laws, or driving rules in plain words..." autocomplete="off" required>
+                <button type="submit" class="btn-send" id="send-btn">Ask AI</button>
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+        function useChip(text) {
+            document.getElementById('citizen-input').value = text;
+            sendPublicMessage(new Event('submit'));
+        }
+
+        async function sendPublicMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('citizen-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const messagesArea = document.getElementById('messages');
+
+            // User message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'msg user';
+            userMsg.textContent = text;
+            messagesArea.appendChild(userMsg);
+
+            input.value = '';
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            // Assistant placeholder
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'msg assistant';
+            assistantMsg.innerHTML = '<em>Consulting traffic safety statutes & regulations...</em>';
+            messagesArea.appendChild(assistantMsg);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/public-ai-safety-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: text })
+                });
+                const data = await res.json();
+                assistantMsg.innerHTML = data.reply || 'Thank you for asking. Please obey all road safety rules.';
+            } catch (err) {
+                assistantMsg.innerHTML = '⚠️ Service temporarily offline. Please verify with local transport authority.';
+            } finally {
+                sendBtn.disabled = false;
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

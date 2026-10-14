@@ -1,0 +1,53 @@
+[
+  {
+    "id": "TRIP-98214",
+    "timestamp": "2026-09-17T05:30:00Z",
+    "route_name": "Connaught Place ➔ IGI Airport T3",
+    "city": "Delhi-NCR",
+    "vehicle_type": "car",
+    "vehicle_reg": "DL 01 CA 4820",
+    "distance_km": 19.4,
+    "duration_minutes": 24,
+    "avg_speed_kmh": 48.5,
+    "max_speed_kmh": 78.2,
+    "safety_score": 94,
+    "harsh_brakes": 1,
+    "fuel_used_l": 1.45,
+    "co2_saved_kg": 0.82,
+    "status": "COMPLETED"
+  },
+  {
+    "id": "TRIP-98215",
+    "timestamp": "2026-09-16T18:45:00Z",
+    "route_name": "BKC Diamond Bourse ➔ CSMIA Terminal 2",
+    "city": "Mumbai",
+    "vehicle_type": "ev",
+    "vehicle_reg": "MH 02 EV 9901",
+    "distance_km": 8.7,
+    "duration_minutes": 18,
+    "avg_speed_kmh": 29.0,
+    "max_speed_kmh": 62.0,
+    "safety_score": 98,
+    "harsh_brakes": 0,
+    "battery_consumed_pct": 6.8,
+    "co2_saved_kg": 1.94,
+    "status": "COMPLETED"
+  },
+  {
+    "id": "TRIP-98216",
+    "timestamp": "2026-09-16T14:10:00Z",
+    "route_name": "Apollo Trauma Center ➔ AIIMS Corridor",
+    "city": "Delhi-NCR",
+    "vehicle_type": "ambulance",
+    "vehicle_reg": "DL 01 AM 1080",
+    "distance_km": 11.2,
+    "duration_minutes": 9,
+    "avg_speed_kmh": 74.6,
+    "max_speed_kmh": 92.4,
+    "safety_score": 100,
+    "harsh_brakes": 2,
+    "green_corridor_active": true,
+    "signals_preempted": 7,
+    "status": "COMPLETED"
+  }
+]

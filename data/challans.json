@@ -82,5 +82,44 @@
     "fine": 1000,
     "status": "Unpaid",
     "detection_source": "Bengaluru Smart City AI Traffic Camera #22"
+  },
+  {
+    "id": "CH-2026-MH01-8929",
+    "vehicle_number": "MH01AB9876",
+    "violation": "Unauthorized Parking in No-Parking Zone",
+    "section": "Section 122/177 MVA",
+    "date": "02-Sep-2026",
+    "time": "11:20 AM",
+    "location": "Commercial High Street",
+    "fine": 500,
+    "status": "Unpaid",
+    "detection_source": "AI Automated Sentinel Camera Network",
+    "image_url": "/static/images/traffic.jpg"
+  },
+  {
+    "id": "CH-2026-DL04-5204",
+    "vehicle_number": "DL04AA1234",
+    "violation": "Riding Without Protective Helmet / Seatbelt",
+    "section": "Section 129/194D MVA",
+    "date": "02-Sep-2026",
+    "time": "11:20 AM",
+    "location": "City Central Roadway",
+    "fine": 1000,
+    "status": "Unpaid",
+    "detection_source": "AI Automated Sentinel Camera Network",
+    "image_url": "/static/images/traffic.jpg"
+  },
+  {
+    "id": "CH-2026-KL49-7199",
+    "vehicle_number": "KL49R5542",
+    "violation": "AI Speed Sentinel - Exceeding Corridor Limit (78 km/h in 60 km/h zone)",
+    "section": "Section 112/183 Motor Vehicles Act",
+    "date": "12 Oct 2026",
+    "time": "03:42 PM",
+    "location": "KL49 Highway Corridor / AI Camera Pole #07",
+    "fine": 1000,
+    "status": "Unpaid",
+    "detection_source": "Safe Highway AI Surveillance Camera Network",
+    "image_url": "/static/images/traffic.jpg"
   }
 ]

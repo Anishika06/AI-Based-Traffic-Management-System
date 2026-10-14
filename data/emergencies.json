@@ -1,0 +1,38 @@
+[
+  {
+    "id": "EMG-2026-881",
+    "name": "Dr. Sameer Kapoor (AIIMS New Delhi)",
+    "vehicle_number": "DL01AM9110",
+    "emergency_type": "Ambulance Passage",
+    "location": "Ring Road - Dhaula Kuan to AIIMS Trauma Centre, New Delhi",
+    "description": "Critical cardiac transfer patient requiring immediate green corridor clearance.",
+    "reported_at": "09-Sep-2026 09:30 AM",
+    "status": "Green Corridor Active",
+    "priority": "CRITICAL",
+    "assigned_unit": "Delhi Traffic Police Central Dispatch 1"
+  },
+  {
+    "id": "EMG-2026-724",
+    "name": "Arjun Deshmukh",
+    "vehicle_number": "MH02BX3322",
+    "emergency_type": "Severe Accident",
+    "location": "Western Express Highway, Goregaon Flyover, Mumbai",
+    "description": "Two passenger cars collision in lane 2, urgent traffic diversion and ambulance response needed.",
+    "reported_at": "08-Sep-2026 06:15 PM",
+    "status": "Resolved",
+    "priority": "HIGH",
+    "assigned_unit": "Mumbai Traffic Police Rapid Patrol Unit 4"
+  },
+  {
+    "id": "EMG-2026-553",
+    "name": "Kiran Hegde (Manipal Hospital)",
+    "vehicle_number": "KA01EM4411",
+    "emergency_type": "Ambulance Passage",
+    "location": "Old Airport Road to HAL Junction, Bengaluru",
+    "description": "Pediatric emergency transfer requiring signal green wave.",
+    "reported_at": "09-Sep-2026 11:20 AM",
+    "status": "Ambulance Dispatched",
+    "priority": "CRITICAL",
+    "assigned_unit": "Bengaluru Smart City Traffic Control Dispatch 2"
+  }
+]

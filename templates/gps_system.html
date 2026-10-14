@@ -1,0 +1,1874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Google Maps GPS Navigation - SMART ROADS Live Navigator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        :root {
+            --gm-green: #0f9d58;
+            --gm-green-dark: #0b8043;
+            --gm-green-header: #137333;
+            --gm-blue: #1a73e8;
+            --gm-blue-dark: #1557b0;
+            --gm-red: #ea4335;
+            --gm-amber: #f9ab00;
+            --gm-surface-light: #ffffff;
+            --gm-surface-dark: #202124;
+            --gm-card-dark: #292a2d;
+            --gm-text-primary: #e8eaed;
+            --gm-text-secondary: #9aa0a6;
+            --gm-border: rgba(255, 255, 255, 0.12);
+            --font-family: 'Google Sans', 'Roboto', -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: #121212;
+            color: var(--gm-text-primary);
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Google Maps App Bar */
+        .gmaps-top-bar {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            right: 14px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .gmaps-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            width: 100%;
+        }
+
+        /* Floating Google Maps Search Pill */
+        .gmaps-search-box {
+            pointer-events: auto;
+            flex: 1;
+            max-width: 480px;
+            height: 48px;
+            background: #202124;
+            border-radius: 24px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .gmaps-search-box:focus-within {
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65);
+            border-color: var(--gm-blue);
+            background: #292a2d;
+        }
+
+        .gmaps-search-icon {
+            font-size: 18px;
+            color: var(--gm-blue);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .gmaps-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 14.5px;
+            font-family: var(--font-family);
+            outline: none;
+        }
+
+        .gmaps-search-input::placeholder {
+            color: #9aa0a6;
+        }
+
+        .gmaps-search-btn-go {
+            background: var(--gm-blue);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            padding: 6px 14px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.15s;
+        }
+
+        .gmaps-search-btn-go:hover {
+            background: var(--gm-blue-dark);
+        }
+
+        /* Search Autocomplete Suggestions Dropdown */
+        .gmaps-suggestions {
+            position: absolute;
+            top: 54px;
+            left: 0;
+            right: 0;
+            background: #202124;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            display: none;
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 1200;
+        }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.15s;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover {
+            background: #2e3034;
+        }
+
+        .suggestion-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #303134;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .suggestion-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .suggestion-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .suggestion-sub {
+            font-size: 11.5px;
+            color: #9aa0a6;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+        }
+
+        /* Top Action Buttons (Profile, AI Buddy, Layer) */
+        .top-action-pill {
+            pointer-events: auto;
+            height: 48px;
+            padding: 0 14px;
+            background: #202124;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            text-decoration: none;
+        }
+
+        .top-action-pill:hover {
+            background: #2d2f34;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .top-action-pill.active {
+            border-color: var(--gm-green);
+            background: rgba(15, 157, 88, 0.2);
+            color: #34d399;
+        }
+
+        /* Quick Category Filter Chips (Petrol, EV, Dhabas, Hospitals) */
+        .gmaps-chips-scroll {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .gmaps-chips-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .gmaps-chip {
+            height: 34px;
+            padding: 0 14px;
+            background: #202124;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 17px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #e8eaed;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+            transition: all 0.15s ease;
+        }
+
+        .gmaps-chip:hover {
+            background: #2b2c30;
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .gmaps-chip.active {
+            background: #1a73e8;
+            color: #fff;
+            border-color: #1a73e8;
+            box-shadow: 0 0 12px rgba(26, 115, 232, 0.4);
+        }
+
+        /* Main Leaflet Map View */
+        #map-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: #090e17;
+        }
+
+        #leaflet-map {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* GOOGLE MAPS NAVIGATION TURN BANNER (TOP GREEN CARD) */
+        .gmaps-nav-banner {
+            position: absolute;
+            top: 80px;
+            left: 16px;
+            right: 16px;
+            max-width: 440px;
+            margin: 0 auto;
+            background: var(--gm-green-header);
+            border-radius: 18px;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.15);
+            z-index: 1100;
+            color: #fff;
+            display: none;
+            overflow: hidden;
+            animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .gmaps-banner-main {
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .gmaps-maneuver-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .gmaps-maneuver-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .gmaps-dist-text {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .gmaps-dist-unit {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .gmaps-road-text {
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+        }
+
+        .gmaps-sub-instruction {
+            font-size: 11.5px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .gmaps-speed-sign {
+            width: 44px;
+            height: 44px;
+            background: #ffffff;
+            border: 4px solid #ea4335;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            font-weight: 900;
+            font-size: 15px;
+            font-family: var(--font-mono);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            flex-shrink: 0;
+        }
+
+        /* Lane guidance strip inside top banner */
+        .gmaps-lane-strip {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 6px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lane-arrows {
+            display: flex;
+            gap: 6px;
+        }
+
+        .lane-arrow-box {
+            width: 22px;
+            height: 22px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #cbd5e1;
+        }
+
+        .lane-arrow-box.highlight {
+            background: #fff;
+            color: #0b8043;
+            font-weight: 900;
+        }
+
+        /* GOOGLE MAPS BOTTOM TRIP BAR (ETA, DISTANCE, REMAINING) */
+        .gmaps-bottom-bar {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            max-width: 520px;
+            margin: 0 auto;
+            background: #202124;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 1100;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .gmaps-trip-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .gmaps-eta-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .gmaps-eta-mins {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--gm-green);
+            line-height: 1;
+        }
+
+        .gmaps-trip-dist {
+            font-size: 14px;
+            color: #9aa0a6;
+            font-weight: 600;
+        }
+
+        .gmaps-clock-arrival {
+            font-size: 14px;
+            color: #e8eaed;
+            font-weight: 700;
+        }
+
+        .gmaps-trip-sub {
+            font-size: 11.5px;
+            color: #8ab4f8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .gmaps-bottom-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gmaps-action-btn-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #303134;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .gmaps-action-btn-circle:hover {
+            background: #3c4043;
+            transform: scale(1.05);
+        }
+
+        .gmaps-btn-stop-trip {
+            background: #ea4335 !important;
+            color: #fff !important;
+            border: none !important;
+            box-shadow: 0 4px 14px rgba(234, 67, 53, 0.4);
+        }
+
+        .gmaps-btn-stop-trip:hover {
+            background: #d93025 !important;
+        }
+
+        /* GOOGLE MAPS DESTINATION SLIDE-UP SHEET */
+        .gmaps-place-sheet {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            right: 16px;
+            max-width: 480px;
+            margin: 0 auto;
+            background: #202124;
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.12);
+            z-index: 1200;
+            padding: 18px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            animation: slideUpSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUpSheet {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .place-sheet-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .place-sheet-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .place-sheet-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12.5px;
+            color: #fbbc04;
+            margin-top: 4px;
+        }
+
+        .place-sheet-info {
+            font-size: 13px;
+            color: #9aa0a6;
+            line-height: 1.4;
+        }
+
+        .place-sheet-route-stats {
+            background: #292a2d;
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .place-sheet-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-gmaps-start {
+            flex: 1;
+            height: 44px;
+            background: var(--gm-blue);
+            color: #fff;
+            border: none;
+            border-radius: 22px;
+            font-size: 14.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.4);
+            transition: background 0.15s;
+        }
+
+        .btn-gmaps-start:hover {
+            background: var(--gm-blue-dark);
+        }
+
+        .btn-gmaps-secondary {
+            height: 44px;
+            padding: 0 16px;
+            background: #303134;
+            color: #e8eaed;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 22px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-gmaps-secondary:hover {
+            background: #3c4043;
+        }
+
+        /* Floating Controls Right (Map Type, Re-center, Tilt) */
+        .gmaps-fab-group {
+            position: absolute;
+            right: 16px;
+            bottom: 110px;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gmaps-fab {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #202124;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+            color: #e8eaed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .gmaps-fab:hover {
+            background: #2e3034;
+            transform: scale(1.06);
+        }
+
+        /* Speedometer Widget Floating Left */
+        .gmaps-speed-widget {
+            position: absolute;
+            left: 16px;
+            bottom: 110px;
+            z-index: 999;
+            background: #202124;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+            user-select: none;
+        }
+
+        .speed-number {
+            font-family: var(--font-mono);
+            font-size: 26px;
+            font-weight: 800;
+            color: #38bdf8;
+            line-height: 1;
+        }
+
+        .speed-unit-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            color: #9aa0a6;
+            margin-top: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Custom Vehicle Navigation Arrow Marker (Google Maps Style) */
+        .gmaps-puck-wrapper {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gmaps-puck-pulse {
+            position: absolute;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(26, 115, 232, 0.25);
+            animation: gmapsPulse 2s infinite ease-out;
+        }
+
+        @keyframes gmapsPulse {
+            0% { transform: scale(0.6); opacity: 0.9; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+
+        .gmaps-puck-chevron {
+            position: relative;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1a73e8;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 16px;
+            transition: transform 0.2s linear;
+        }
+
+        .puck-heading-arrow {
+            position: absolute;
+            top: -7px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 8px solid #ffffff;
+        }
+
+        /* Modals & Dialogs (AI Buddy, Keys, Presets) */
+        .gmaps-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .gmaps-modal {
+            background: #202124;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            width: 100%;
+            max-width: 580px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 22px;
+            color: #e8eaed;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 16.5px;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-close-btn {
+            background: #303134;
+            border: none;
+            color: #9aa0a6;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close-btn:hover {
+            color: #fff;
+            background: #3c4043;
+        }
+
+        /* Toast Notifications */
+        .gmaps-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #303134;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 13.5px;
+            font-weight: 500;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, 10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP GOOGLE MAPS APP BAR -->
+    <div class="gmaps-top-bar">
+        <div class="gmaps-top-row">
+            <!-- Search Box with Live Autocomplete -->
+            <div class="gmaps-search-box">
+                <span class="gmaps-search-icon" onclick="searchAndRouteToDestination()" title="Search">🔍</span>
+                <input type="text" class="gmaps-search-input" id="destinationSearchInput" 
+                    placeholder="Search Google Maps or enter destination..." 
+                    autocomplete="off"
+                    oninput="handleSearchInput(this.value)"
+                    onkeydown="if(event.key==='Enter') searchAndRouteToDestination()">
+                <button class="gmaps-search-btn-go" onclick="searchAndRouteToDestination()">
+                    <span>Directions</span> ➔
+                </button>
+
+                <!-- Search Suggestions Dropdown -->
+                <div class="gmaps-suggestions" id="destSuggestions"></div>
+            </div>
+
+            <!-- Top Action Buttons -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <!-- AI Driving Buddy -->
+                <button class="top-action-pill" id="btnAIBuddy" onclick="openAIBuddyModal()" title="AI Navigation Buddy powered by Google Maps & AI">
+                    <span style="font-size: 16px;">🤖</span>
+                    <span>AI Buddy</span>
+                </button>
+
+                <!-- Layer Switcher -->
+                <button class="top-action-pill" onclick="toggleMapLayerStyle()" id="btnLayerToggle" title="Toggle Google Maps Satellite / Street Style">
+                    <span>🗺️</span>
+                    <span id="layerName">Street</span>
+                </button>
+
+                <!-- Corridor Preset Selector -->
+                <select id="routePresetSelect" onchange="switchPresetRoute(this.value)" 
+                    class="top-action-pill" style="outline: none; cursor: pointer; padding-right: 28px;">
+                    <option value="delhi_airport">✈️ Delhi: CP ➔ IGI Airport T3</option>
+                    <option value="mumbai_sealink">🌊 Mumbai: BKC ➔ Sea Link ➔ Nariman Pt</option>
+                    <option value="bengaluru_tech">💻 Bengaluru: MG Rd ➔ BETL E-City</option>
+                    <option value="hyderabad_orr">🛣️ Hyderabad: Hitec City ➔ ORR ➔ RGIA</option>
+                    <option value="chennai_omr">💼 Chennai: Madhya Kailash ➔ OMR IT</option>
+                    <option value="emergency_corridor">🚑 Emergency Green Wave Corridor</option>
+                </select>
+
+                <!-- Exit to Authority Dashboard -->
+                <a href="/authority-dashboard" class="top-action-pill" style="color: #f87171;" title="Authority Command Center">
+                    <span>🛡️ Portal</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Category Chips -->
+        <div class="gmaps-chips-scroll">
+            <button class="gmaps-chip" onclick="quickSearchCategory('petrol pump fuel station')">⛽ Petrol & CNG</button>
+            <button class="gmaps-chip" onclick="quickSearchCategory('EV charging station fast charger')">⚡ EV Charging</button>
+            <button class="gmaps-chip" onclick="quickSearchCategory('highway restaurant dhaba food')">☕ Dhabas & Food</button>
+            <button class="gmaps-chip" onclick="quickSearchCategory('emergency trauma care hospital')">🏥 Hospitals</button>
+            <button class="gmaps-chip" onclick="quickSearchCategory('car mechanic tyre puncture repair')">🔧 Tyre / Mechanic</button>
+            <button class="gmaps-chip" onclick="quickSearchCategory('FASTag toll plaza')">🛣️ Toll Plazas</button>
+            <button class="gmaps-chip" onclick="toggleTrafficLayer()" id="chipTraffic">🚦 Live Traffic</button>
+        </div>
+    </div>
+
+    <!-- MAIN LEAFLET MAP CANVAS -->
+    <div id="map-container">
+        <div id="leaflet-map"></div>
+
+        <!-- GOOGLE MAPS TOP TURN-BY-TURN GUIDANCE BANNER -->
+        <div class="gmaps-nav-banner" id="gmapsNavBanner">
+            <div class="gmaps-banner-main">
+                <div class="gmaps-maneuver-icon" id="bannerManeuverIcon">↱</div>
+                <div class="gmaps-maneuver-details">
+                    <div class="gmaps-dist-text">
+                        <span id="bannerDistNum">350</span> <span class="gmaps-dist-unit" id="bannerDistUnit">m</span>
+                    </div>
+                    <div class="gmaps-road-text" id="bannerRoadText">Turn right onto Outer Ring Road</div>
+                    <div class="gmaps-sub-instruction" id="bannerSubInstruction">Then keep right toward Airport Corridor</div>
+                </div>
+                <div class="gmaps-speed-sign" id="bannerSpeedLimit">80</div>
+            </div>
+            <!-- Lane guidance indicator -->
+            <div class="gmaps-lane-strip" id="bannerLaneStrip">
+                <div style="font-size: 11px; opacity: 0.85;">Lane Guidance</div>
+                <div class="lane-arrows">
+                    <div class="lane-arrow-box">↑</div>
+                    <div class="lane-arrow-box highlight">↑</div>
+                    <div class="lane-arrow-box highlight">↑</div>
+                    <div class="lane-arrow-box">↑</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GOOGLE MAPS BOTTOM TRIP STATUS BAR -->
+        <div class="gmaps-bottom-bar" id="gmapsBottomBar" style="display: none;">
+            <div class="gmaps-trip-metrics">
+                <div class="gmaps-eta-row">
+                    <div class="gmaps-eta-mins" id="bottomEtaMins">26 min</div>
+                    <div class="gmaps-trip-dist" id="bottomTripDist">19.8 km</div>
+                    <div class="gmaps-clock-arrival" id="bottomClockArrival">7:42 PM</div>
+                </div>
+                <div class="gmaps-trip-sub">
+                    <span>⚡ Fastest route via Real Road Navigation (OSRM)</span>
+                </div>
+            </div>
+            <div class="gmaps-bottom-actions">
+                <!-- Voice Guidance Toggle -->
+                <button class="gmaps-action-btn-circle" id="btnVoiceMute" onclick="toggleVoiceGuidance()" title="Mute/Unmute voice guidance">
+                    🔊
+                </button>
+                <!-- Simulation Speed Toggle -->
+                <button class="gmaps-action-btn-circle" id="btnSimSpeed" onclick="cycleSimSpeed()" title="Speed multiplier (1x, 2x, 4x)">
+                    1x
+                </button>
+                <!-- End / Exit Navigation -->
+                <button class="gmaps-action-btn-circle gmaps-btn-stop-trip" onclick="stopNavigationTrip()" title="End Navigation">
+                    ✕
+                </button>
+            </div>
+        </div>
+
+        <!-- GOOGLE MAPS DESTINATION PREVIEW SHEET -->
+        <div class="gmaps-place-sheet" id="gmapsPlaceSheet">
+            <div class="place-sheet-header">
+                <div>
+                    <div class="place-sheet-title" id="sheetPlaceTitle">Connaught Place</div>
+                    <div class="place-sheet-rating">
+                        <span>⭐ 4.7</span>
+                        <span style="color:#9aa0a6;">(12,450 Google Maps reviews)</span>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closePlaceSheet()">✕</button>
+            </div>
+            <div class="place-sheet-info" id="sheetPlaceInfo">
+                Central Commercial Hub • Inner & Outer Circle Highway Link • New Delhi
+            </div>
+            <div class="place-sheet-route-stats" id="sheetRouteStats">
+                <div>
+                    <span style="font-weight: 800; color: #34d399; font-size: 15px;" id="sheetEstMins">26 mins</span>
+                    <span style="color: #9aa0a6; margin-left: 6px;" id="sheetEstKm">19.8 km</span>
+                </div>
+                <div style="color: #8ab4f8; font-size: 12px; font-weight: 600;">
+                    🟢 Fastest road route
+                </div>
+            </div>
+            <div class="place-sheet-actions">
+                <button class="btn-gmaps-start" onclick="startDriveNavigation()">
+                    <span>▶ Start Navigation</span>
+                </button>
+                <button class="btn-gmaps-secondary" onclick="openAIBuddyForPlace()">
+                    <span>🤖 Ask Buddy</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FLOATING CONTROLS RIGHT -->
+        <div class="gmaps-fab-group">
+            <!-- Re-center on vehicle -->
+            <button class="gmaps-fab" onclick="recenterMapOnVehicle()" title="Re-center on vehicle">
+                🎯
+            </button>
+            <!-- 3D Heading Tilt / Follow Mode -->
+            <button class="gmaps-fab" id="btnFollowHeading" onclick="toggleHeadingFollow()" title="Follow vehicle heading">
+                🧭
+            </button>
+            <!-- Real Hardware GPS Sensor -->
+            <button class="gmaps-fab" id="btnDeviceGPS" onclick="toggleDeviceGPS()" title="Connect real hardware GPS from your device">
+                📡
+            </button>
+        </div>
+
+        <!-- SPEEDOMETER WIDGET FLOATING LEFT -->
+        <div class="gmaps-speed-widget" id="speedWidget">
+            <div class="speed-number" id="liveSpeedNum">0</div>
+            <div class="speed-unit-lbl">KM/H</div>
+        </div>
+    </div>
+
+    <!-- MODAL: AI DRIVING BUDDY (GOOGLE MAPS GROUNDING & MULTI-MODEL) -->
+    <div class="gmaps-modal-overlay" id="aiModalOverlay">
+        <div class="gmaps-modal">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span style="font-size: 20px;">🤖</span>
+                    <div>
+                        <div style="font-weight: 800; color: #fff; font-size: 15.5px; display: flex; align-items: center; gap: 8px;">
+                            <span>AI Driving Buddy</span>
+                            <span style="font-size: 10px; background: rgba(15, 157, 88, 0.2); color: #34d399; border: 1px solid rgba(15, 157, 88, 0.4); padding: 2px 7px; border-radius: 999px;">Google Maps Grounded</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--gm-text-secondary); margin-top: 2px;">
+                            Real-time location intelligence, live road places & route guidance
+                        </div>
+                    </div>
+                </div>
+                <button class="modal-close-btn" onclick="closeModals()">✕</button>
+            </div>
+
+            <!-- API Key Status / Configuration Strip -->
+            <div style="background: #292a2d; border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                    <span style="color: #34d399; font-size: 14px;">🔑</span>
+                    <div style="font-size: 12px; color: #9aa0a6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        Active AI: <span id="currentKeyDisplay" style="color: #38bdf8; font-family: var(--font-mono); font-weight: 700;">System Navigator</span>
+                        <span id="keyTypeBadge" style="margin-left: 6px; font-size: 10px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 4px;">Active</span>
+                    </div>
+                </div>
+                <button onclick="toggleKeyEdit()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #e8eaed; border-radius: 6px; padding: 4px 10px; font-size: 11px; cursor: pointer;">
+                    API Key Setup
+                </button>
+            </div>
+
+            <!-- Optional Key Edit Field -->
+            <div id="keyEditSection" style="display: none; margin-bottom: 14px; background: #2f3034; padding: 12px; border-radius: 12px; border: 1px dashed var(--gm-blue);">
+                <div style="font-size: 11.5px; color: #9aa0a6; margin-bottom: 6px;">Optional: Custom API Key (OpenAI "sk-..." or Gemini key):</div>
+                <div style="display: flex; gap: 6px;">
+                    <input type="password" id="customApiKeyInput" placeholder="Paste custom OpenAI or Gemini key..." style="flex: 1; background: #202124; border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-family: var(--font-mono); outline: none;">
+                    <button onclick="saveCustomApiKey()" style="background: var(--gm-blue); color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;">Save</button>
+                </div>
+            </div>
+
+            <!-- Quick Query Prompt Chips -->
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;">
+                <button class="gmaps-chip" style="height: 30px; font-size: 11px;" onclick="quickAIQuery('Find nearest petrol pump and fuel station nearby')">⛽ Nearest Fuel</button>
+                <button class="gmaps-chip" style="height: 30px; font-size: 11px;" onclick="quickAIQuery('Find high-speed fast EV charging stations nearby')">⚡ EV Fast Charger</button>
+                <button class="gmaps-chip" style="height: 30px; font-size: 11px;" onclick="quickAIQuery('Best highway family dhabas and food restaurants nearby')">☕ Highway Dhaba</button>
+                <button class="gmaps-chip" style="height: 30px; font-size: 11px;" onclick="quickAIQuery('Nearest 24x7 emergency hospital and trauma center')">🏥 Emergency Hospital</button>
+                <button class="gmaps-chip" style="height: 30px; font-size: 11px;" onclick="quickAIQuery('FASTag toll lane queue and tariff advisory ahead')">🛣️ Toll & FASTag</button>
+            </div>
+
+            <!-- Query Input -->
+            <div style="display: flex; gap: 8px; margin-bottom: 14px;">
+                <input type="text" id="aiQueryInput" placeholder="Ask Buddy for navigation guidance or nearby places..." 
+                    onkeydown="if(event.key==='Enter') askAIBuddy()"
+                    style="flex: 1; background: #292a2d; border: 1px solid rgba(255,255,255,0.12); color: #fff; padding: 10px 14px; border-radius: 12px; font-size: 13.5px; outline: none;">
+                <button onclick="askAIBuddy()" style="background: var(--gm-green); color: #fff; border: none; padding: 0 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                    Ask
+                </button>
+            </div>
+
+            <!-- AI Response Box -->
+            <div id="aiResponseBox" style="background: #292a2d; border-radius: 12px; padding: 14px; font-size: 13.5px; line-height: 1.5; color: #e8eaed; min-height: 80px;">
+                🤖 <strong>AI Navigation Copilot ready.</strong> Ask any location or highway question above, or tap a quick chip.
+            </div>
+
+            <!-- Grounded Google Maps Place Cards Container -->
+            <div id="buddyMapsCardsContainer" style="display: none; margin-top: 14px;">
+                <div style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-bottom: 8px;">
+                    📍 Google Maps Grounded Locations:
+                </div>
+                <div id="buddyMapsCardsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div class="gmaps-toast" id="gmapsToast">
+        <span id="toastIcon">ℹ️</span>
+        <span id="toastMsg">Notification message</span>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION & API KEYS
+        // User-configurable API key stored in localStorage
+        let userApiKey = localStorage.getItem('smart_roads_api_key') || '';
+
+        function getEffectiveApiKey() {
+            return userApiKey;
+        }
+
+        function showToast(msg, icon = 'ℹ️') {
+            const toast = document.getElementById('gmapsToast');
+            document.getElementById('toastIcon').innerText = icon;
+            document.getElementById('toastMsg').innerText = msg;
+            toast.style.display = 'flex';
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3200);
+        }
+
+        // Speech synthesis voice guidance
+        let voiceGuidanceEnabled = true;
+        let lastAnnouncedText = '';
+        function speakVoice(text) {
+            if (!voiceGuidanceEnabled || !window.speechSynthesis) return;
+            if (text === lastAnnouncedText) return;
+            lastAnnouncedText = text;
+            window.speechSynthesis.cancel();
+            const cleanText = text.replace(/<[^>]*>?/gm, '').replace(/[*#]/g, '');
+            const utter = new SpeechSynthesisUtterance(cleanText);
+            utter.rate = 1.05;
+            utter.pitch = 1.0;
+            window.speechSynthesis.speak(utter);
+        }
+
+        function toggleVoiceGuidance() {
+            voiceGuidanceEnabled = !voiceGuidanceEnabled;
+            const btn = document.getElementById('btnVoiceMute');
+            if (btn) btn.innerText = voiceGuidanceEnabled ? '🔊' : '🔇';
+            showToast(voiceGuidanceEnabled ? 'Voice Guidance Unmuted' : 'Voice Guidance Muted', voiceGuidanceEnabled ? '🔊' : '🔇');
+        }
+
+        // ==========================================
+        // MAP INITIALIZATION (LEAFLET)
+        // ==========================================
+        const map = L.map('leaflet-map', {
+            zoomControl: false,
+            attributionControl: false
+        }).setView([28.6139, 77.2090], 13);
+
+        // Tile Layers: Street Clean vs Satellite vs Dark
+        const streetTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            subdomains: 'abcd'
+        });
+
+        const satelliteTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19
+        });
+
+        const darkTiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            subdomains: 'abcd'
+        });
+
+        let currentTileLayer = streetTiles;
+        currentTileLayer.addTo(map);
+
+        function toggleMapLayerStyle() {
+            map.removeLayer(currentTileLayer);
+            if (currentTileLayer === streetTiles) {
+                currentTileLayer = satelliteTiles;
+                document.getElementById('layerName').innerText = 'Satellite';
+                document.getElementById('btnLayerToggle').classList.add('active');
+                showToast('Switched to Satellite View', '🛰️');
+            } else if (currentTileLayer === satelliteTiles) {
+                currentTileLayer = darkTiles;
+                document.getElementById('layerName').innerText = 'Dark Mode';
+                document.getElementById('btnLayerToggle').classList.add('active');
+                showToast('Switched to Dark Mode Navigation', '🌙');
+            } else {
+                currentTileLayer = streetTiles;
+                document.getElementById('layerName').innerText = 'Street';
+                document.getElementById('btnLayerToggle').classList.remove('active');
+                showToast('Switched to Google Maps Street View', '🗺️');
+            }
+            currentTileLayer.addTo(map);
+        }
+
+        // Traffic Layer Polyline simulation
+        let trafficLayerActive = false;
+        let trafficPolylines = [];
+        function toggleTrafficLayer() {
+            trafficLayerActive = !trafficLayerActive;
+            const chip = document.getElementById('chipTraffic');
+            if (chip) chip.classList.toggle('active', trafficLayerActive);
+
+            trafficPolylines.forEach(p => map.removeLayer(p));
+            trafficPolylines = [];
+
+            if (trafficLayerActive && currentRouteData && currentRouteData.waypoints) {
+                const w = currentRouteData.waypoints;
+                // Draw green, orange, red traffic flow segments
+                const mid = Math.floor(w.length / 2);
+                const p1 = L.polyline(w.slice(0, Math.floor(mid * 0.7)), { color: '#0f9d58', weight: 8, opacity: 0.85 }).addTo(map);
+                const p2 = L.polyline(w.slice(Math.floor(mid * 0.7), mid), { color: '#f9ab00', weight: 8, opacity: 0.85 }).addTo(map);
+                const p3 = L.polyline(w.slice(mid), { color: '#0f9d58', weight: 8, opacity: 0.85 }).addTo(map);
+                trafficPolylines.push(p1, p2, p3);
+                showToast('Live Traffic Layer: Fast flow (Green), Moderate (Amber)', '🚦');
+            } else if (!trafficLayerActive) {
+                showToast('Traffic Layer Disabled', '⚪');
+            }
+        }
+
+        // Map Layers and Marker references
+        let routePolyline = null;
+        let breadcrumbPolyline = null;
+        let breadcrumbs = [];
+        let vehicleMarker = null;
+        let destMarker = null;
+        let poiMarkers = [];
+        let speedRadarMarkers = [];
+
+        // Active State
+        let currentRouteData = null;
+        let activeVehicleProfile = 'car';
+        let simIndex = 0;
+        let subStep = 0;
+        let simInterval = null;
+        let simPlaying = false;
+        let simSpeedMultiplier = 1;
+        let followVehicleHeading = true;
+        let realDeviceGPSActive = false;
+        let watchId = null;
+
+        // Telematics state
+        let currentSpeed = 0;
+        let currentSpeedLimit = 80;
+        let totalTripDistanceKm = 0;
+        let elapsedSeconds = 0;
+        let pendingTargetPlace = null;
+
+        // Custom Vehicle Navigation Puck (Google Maps Blue Chevron)
+        function createVehiclePuck(latlng) {
+            const puckHtml = `
+                <div class="gmaps-puck-wrapper">
+                    <div class="gmaps-puck-pulse"></div>
+                    <div class="gmaps-puck-chevron" id="vehiclePuckRotator">
+                        <div class="puck-heading-arrow"></div>
+                        🚗
+                    </div>
+                </div>
+            `;
+            const icon = L.divIcon({
+                className: 'gmaps-puck-container',
+                html: puckHtml,
+                iconSize: [44, 44],
+                iconAnchor: [22, 22]
+            });
+            return L.marker(latlng, { icon, zIndexOffset: 1000 }).addTo(map);
+        }
+
+        // ==========================================
+        // REAL ROAD ROUTE RENDERING & OSRM ENGINE
+        // ==========================================
+        function renderRoute(route) {
+            if (routePolyline) map.removeLayer(routePolyline);
+            if (breadcrumbPolyline) map.removeLayer(breadcrumbPolyline);
+            speedRadarMarkers.forEach(m => map.removeLayer(m));
+            speedRadarMarkers = [];
+            breadcrumbs = [];
+
+            // Draw Google Maps Style Vibrant Polyline
+            routePolyline = L.polyline(route.waypoints, {
+                color: '#1a73e8',
+                weight: 8,
+                opacity: 0.95,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+
+            breadcrumbPolyline = L.polyline([], {
+                color: '#0f9d58',
+                weight: 5,
+                opacity: 0.8
+            }).addTo(map);
+
+            // Fit map bounds comfortable view
+            map.fitBounds(routePolyline.getBounds(), { padding: [90, 90] });
+
+            // Place Vehicle Puck at origin
+            const startCoord = route.waypoints[0];
+            if (!vehicleMarker) {
+                vehicleMarker = createVehiclePuck(startCoord);
+            } else {
+                vehicleMarker.setLatLng(startCoord);
+            }
+
+            // Place Destination 🏁 Marker at end
+            const destCoord = route.waypoints[route.waypoints.length - 1];
+            if (destMarker) map.removeLayer(destMarker);
+            const flagIcon = L.divIcon({
+                className: 'dest-flag-icon',
+                html: `<div style="background:#ea4335; color:#fff; width:36px; height:36px; border-radius:50%; border:3px solid #fff; display:flex; align-items:center; justify-content:center; font-size:18px; box-shadow:0 6px 18px rgba(234,67,53,0.6);">🏁</div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+            destMarker = L.marker(destCoord, { icon: flagIcon })
+                .bindPopup(`<strong>🏁 ${route.name}</strong><br>Distance: ${route.distance_km} km<br>Est. Time: ${route.duration_minutes} mins`)
+                .addTo(map);
+
+            // Speed radars along road
+            if (route.speed_radars) {
+                route.speed_radars.forEach(radar => {
+                    const radarIcon = L.divIcon({
+                        className: 'radar-marker',
+                        html: `<div style="background:#ea4335; color:#fff; width:28px; height:28px; border-radius:50%; border:2px solid #fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:900; box-shadow:0 0 10px rgba(234,67,53,0.8);">📸</div>`,
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 14]
+                    });
+                    const m = L.marker([radar.lat, radar.lng], { icon: radarIcon })
+                        .bindPopup(`<strong>📸 ${radar.name}</strong><br>Speed Limit: ${radar.speed_limit} km/h`)
+                        .addTo(map);
+                    speedRadarMarkers.push(m);
+                });
+            }
+
+            // Update HUD values
+            resetTelematics(route);
+            updateNavBanner(0);
+        }
+
+        function resetTelematics(route) {
+            totalTripDistanceKm = route.distance_km;
+            elapsedSeconds = 0;
+            currentSpeed = 0;
+            currentSpeedLimit = route.speed_limit_kmh || 80;
+
+            const now = new Date();
+            now.setMinutes(now.getMinutes() + route.duration_minutes);
+            const arrivalStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            document.getElementById('bottomEtaMins').innerText = `${route.duration_minutes} min`;
+            document.getElementById('bottomTripDist').innerText = `${route.distance_km} km`;
+            document.getElementById('bottomClockArrival').innerText = arrivalStr;
+            document.getElementById('bannerSpeedLimit').innerText = currentSpeedLimit;
+        }
+
+        // ==========================================
+        // GOOGLE MAPS TURN-BY-TURN HUD & GUIDANCE
+        // ==========================================
+        function updateNavBanner(stepIdx) {
+            if (!currentRouteData || !currentRouteData.steps || currentRouteData.steps.length === 0) return;
+            const steps = currentRouteData.steps;
+            const currentStep = steps[stepIdx] || steps[steps.length - 1];
+            const nextStep = steps[stepIdx + 1];
+
+            // Distance
+            document.getElementById('bannerDistNum').innerText = currentStep.dist_m > 1000 ? (currentStep.dist_m / 1000).toFixed(1) : currentStep.dist_m;
+            document.getElementById('bannerDistUnit').innerText = currentStep.dist_m > 1000 ? 'km' : 'm';
+            document.getElementById('bannerRoadText').innerText = currentStep.text;
+            
+            if (nextStep) {
+                document.getElementById('bannerSubInstruction').innerText = `Then, ${nextStep.text}`;
+            } else {
+                document.getElementById('bannerSubInstruction').innerText = `Arriving at destination`;
+            }
+
+            // Maneuver Icon
+            let icon = '⬆';
+            const m = currentStep.maneuver;
+            if (m === 'turn-left') icon = '↰';
+            if (m === 'turn-right') icon = '↱';
+            if (m === 'slight-left') icon = '↖';
+            if (m === 'slight-right') icon = '↗';
+            if (m === 'merge') icon = '⑂';
+            if (m === 'roundabout') icon = '🔄';
+            if (m === 'arrive') icon = '🏁';
+            document.getElementById('bannerManeuverIcon').innerText = icon;
+
+            // Voice announcement
+            speakVoice(currentStep.text);
+        }
+
+        // ==========================================
+        // SIMULATION NAVIGATION LOOP
+        // ==========================================
+        function startDriveNavigation() {
+            closePlaceSheet();
+            document.getElementById('gmapsNavBanner').style.display = 'block';
+            document.getElementById('gmapsBottomBar').style.display = 'flex';
+            simPlaying = true;
+            simIndex = 0;
+            subStep = 0;
+
+            showToast('Navigation Started: Follow route guidance', '🚀');
+            speakVoice(`Starting navigation to ${currentRouteData.name}. In 300 meters, ${currentRouteData.steps[0]?.text || 'head toward destination'}.`);
+
+            if (simInterval) clearInterval(simInterval);
+            simInterval = setInterval(runNavTick, 1000);
+        }
+
+        function stopNavigationTrip() {
+            simPlaying = false;
+            if (simInterval) clearInterval(simInterval);
+            document.getElementById('gmapsNavBanner').style.display = 'none';
+            document.getElementById('gmapsBottomBar').style.display = 'none';
+            showToast('Navigation Ended', '⏹️');
+            speakVoice('Navigation ended.');
+        }
+
+        function cycleSimSpeed() {
+            if (simSpeedMultiplier === 1) simSpeedMultiplier = 2;
+            else if (simSpeedMultiplier === 2) simSpeedMultiplier = 4;
+            else simSpeedMultiplier = 1;
+            const btn = document.getElementById('btnSimSpeed');
+            if (btn) btn.innerText = `${simSpeedMultiplier}x`;
+            showToast(`Speed multiplier: ${simSpeedMultiplier}x`, '⚡');
+        }
+
+        function recenterMapOnVehicle() {
+            if (vehicleMarker) {
+                map.setView(vehicleMarker.getLatLng(), 16, { animate: true });
+                showToast('Re-centered on vehicle', '🎯');
+            }
+        }
+
+        function toggleHeadingFollow() {
+            followVehicleHeading = !followVehicleHeading;
+            const btn = document.getElementById('btnFollowHeading');
+            if (btn) btn.style.background = followVehicleHeading ? '#1a73e8' : '#202124';
+            showToast(followVehicleHeading ? 'Heading Follow Mode: ON' : 'Heading Follow Mode: OFF', '🧭');
+        }
+
+        function runNavTick() {
+            if (!simPlaying || !currentRouteData || realDeviceGPSActive) return;
+            const waypoints = currentRouteData.waypoints;
+
+            if (simIndex >= waypoints.length - 1) {
+                // Trip completed
+                stopNavigationTrip();
+                showToast('🏁 You have arrived at your destination!', '🏁');
+                speakVoice('You have arrived at your destination. Trip completed.');
+                return;
+            }
+
+            const p1 = waypoints[simIndex];
+            const p2 = waypoints[simIndex + 1];
+
+            // Distance in meters between p1 and p2
+            const segDistM = map.distance(L.latLng(p1[0], p1[1]), L.latLng(p2[0], p2[1]));
+            const dynamicSubSteps = Math.max(1, Math.min(8, Math.round(segDistM / 15)));
+
+            subStep++;
+            const t = Math.min(1, subStep / dynamicSubSteps);
+            const curLat = p1[0] + (p2[0] - p1[0]) * t;
+            const curLng = p1[1] + (p2[1] - p1[1]) * t;
+
+            // Bearing calculation
+            const dLng = p2[1] - p1[1];
+            const dLat = p2[0] - p1[0];
+            const bearing = (Math.atan2(dLng, dLat) * 180 / Math.PI + 360) % 360;
+
+            // Update Vehicle Marker & Puck
+            vehicleMarker.setLatLng([curLat, curLng]);
+            const puck = document.getElementById('vehiclePuckRotator');
+            if (puck) puck.style.transform = `rotate(${bearing}deg)`;
+
+            // Breadcrumbs trail
+            breadcrumbs.push([curLat, curLng]);
+            if (breadcrumbPolyline) breadcrumbPolyline.setLatLngs(breadcrumbs);
+
+            // Camera follow
+            if (followVehicleHeading) {
+                map.panTo([curLat, curLng], { animate: true, duration: 0.3 });
+            }
+
+            // Live speed calculation
+            let targetSpeed = currentSpeedLimit - 4 + (Math.sin(subStep * 0.5) * 8);
+            if (targetSpeed < 20) targetSpeed = 25;
+            currentSpeed = Math.round(targetSpeed);
+            document.getElementById('liveSpeedNum').innerText = currentSpeed;
+
+            // Distance countdown update
+            const kmTraveled = (currentSpeed / 3600) * (1 * simSpeedMultiplier);
+            totalTripDistanceKm = Math.max(0, totalTripDistanceKm - kmTraveled);
+            document.getElementById('bottomTripDist').innerText = `${totalTripDistanceKm.toFixed(1)} km`;
+
+            // ETA countdown update
+            const minsRem = Math.max(1, Math.round((totalTripDistanceKm / currentSpeed) * 60));
+            document.getElementById('bottomEtaMins').innerText = `${minsRem} min`;
+
+            // Step progression along road
+            if (subStep >= dynamicSubSteps) {
+                subStep = 0;
+                simIndex++;
+                // Progress maneuver step roughly matching waypoint ratio
+                const stepIdx = Math.min(
+                    currentRouteData.steps.length - 1, 
+                    Math.floor((simIndex / waypoints.length) * currentRouteData.steps.length)
+                );
+                updateNavBanner(stepIdx);
+            }
+        }
+
+        // ==========================================
+        // DESTINATION SEARCH & GEOCODING (OSRM ROUTE)
+        // ==========================================
+        let searchDebounce = null;
+        async function handleSearchInput(query) {
+            clearTimeout(searchDebounce);
+            const dropdown = document.getElementById('destSuggestions');
+            const q = query.trim();
+
+            if (!q || q.length < 2) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            searchDebounce = setTimeout(async () => {
+                try {
+                    const res = await fetch(`/api/gps/geocode?q=${encodeURIComponent(q)}`);
+                    const data = await res.json();
+                    if (data.success && data.results && data.results.length > 0) {
+                        dropdown.innerHTML = data.results.map(r => `
+                            <div class="suggestion-item" onclick="selectSuggestionDestination('${escapeAttr(r.name)}', ${r.lat}, ${r.lng})">
+                                <div class="suggestion-icon">📍</div>
+                                <div class="suggestion-text">
+                                    <div class="suggestion-title">${escapeHtml(r.name)}</div>
+                                    <div class="suggestion-sub">${escapeHtml(r.displayName)}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                        dropdown.style.display = 'block';
+                    } else {
+                        dropdown.style.display = 'none';
+                    }
+                } catch(e) {
+                    dropdown.style.display = 'none';
+                }
+            }, 250);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+        }
+
+        function escapeAttr(text) {
+            if (!text) return '';
+            return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+
+        function selectSuggestionDestination(name, lat, lng) {
+            document.getElementById('destSuggestions').style.display = 'none';
+            document.getElementById('destinationSearchInput').value = name;
+            previewAndCalculateRoute(lat, lng, name, true);
+        }
+
+        async function searchAndRouteToDestination(autoStart = true) {
+            document.getElementById('destSuggestions').style.display = 'none';
+            const input = document.getElementById('destinationSearchInput');
+            const query = (input ? input.value : '').trim();
+            if (!query) {
+                showToast('Please type a destination or tap anywhere on the map', '⚠️');
+                return;
+            }
+
+            showToast(`Searching Google Maps for "${query}"...`, '🔍');
+
+            try {
+                const res = await fetch(`/api/gps/geocode?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if (data.success && data.results && data.results.length > 0) {
+                    const top = data.results[0];
+                    previewAndCalculateRoute(top.lat, top.lng, top.name, autoStart);
+                } else {
+                    // Fallback offset from current vehicle
+                    const cur = vehicleMarker ? vehicleMarker.getLatLng() : { lat: 28.6139, lng: 77.2090 };
+                    previewAndCalculateRoute(cur.lat + 0.05, cur.lng + 0.05, query.toUpperCase(), autoStart);
+                }
+            } catch(e) {
+                const cur = vehicleMarker ? vehicleMarker.getLatLng() : { lat: 28.6139, lng: 77.2090 };
+                previewAndCalculateRoute(cur.lat + 0.05, cur.lng + 0.05, query.toUpperCase(), autoStart);
+            }
+        }
+
+        function quickSearchCategory(catQuery) {
+            document.getElementById('destinationSearchInput').value = catQuery;
+            searchAndRouteToDestination(true);
+        }
+
+        // Calculate Real Road OSRM Route & Start Drive Navigation
+        async function previewAndCalculateRoute(destLat, destLng, destName, autoStart = false) {
+            const origin = vehicleMarker ? vehicleMarker.getLatLng() : { lat: 28.6139, lng: 77.2090 };
+            showToast(`Calculating fastest road route to ${destName}...`, '🛰️');
+
+            try {
+                const res = await fetch('/api/gps/ai-route', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        originLat: origin.lat,
+                        originLng: origin.lng,
+                        destLat,
+                        destLng,
+                        destName,
+                        vehicle: activeVehicleProfile,
+                        customApiKey: getEffectiveApiKey()
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success && data.route) {
+                    currentRouteData = data.route;
+                    renderRoute(currentRouteData);
+
+                    // Populate Google Maps Destination Sheet
+                    document.getElementById('sheetPlaceTitle').innerText = destName;
+                    document.getElementById('sheetPlaceInfo').innerText = `Via ${currentRouteData.via} • ${currentRouteData.aiSummary || 'Real-time road path locked.'}`;
+                    document.getElementById('sheetEstMins').innerText = `${currentRouteData.duration_minutes} mins`;
+                    document.getElementById('sheetEstKm').innerText = `${currentRouteData.distance_km} km`;
+                    
+                    if (autoStart) {
+                        startDriveNavigation();
+                        showToast(`Navigation Active: ${currentRouteData.distance_km} km (${currentRouteData.duration_minutes} min)`, '🚀');
+                    } else {
+                        document.getElementById('gmapsPlaceSheet').style.display = 'flex';
+                        showToast(`Route Ready: ${currentRouteData.distance_km} km (${currentRouteData.duration_minutes} min)`, '✅');
+                    }
+                }
+            } catch(err) {
+                showToast('Failed to calculate road route: ' + err.message, '❌');
+            }
+        }
+
+        function closePlaceSheet() {
+            document.getElementById('gmapsPlaceSheet').style.display = 'none';
+        }
+
+        // Map Click to Drop Pin & Immediately Navigate
+        map.on('click', (e) => {
+            const { lat, lng } = e.latlng;
+            previewAndCalculateRoute(lat, lng, `Selected Waypoint [${lat.toFixed(3)}, ${lng.toFixed(3)}]`, true);
+        });
+
+        // Preset Corridor Routes
+        async function loadPresetRoute(routeId = 'delhi_airport') {
+            try {
+                const res = await fetch(`/api/gps/routes?route=${routeId}`);
+                const data = await res.json();
+                if (data.success && data.route) {
+                    currentRouteData = data.route;
+                    renderRoute(currentRouteData);
+                    showToast(`Loaded Corridor: ${currentRouteData.name}`, '🗺️');
+                }
+            } catch(e) {
+                console.error('Failed to load preset route:', e);
+            }
+        }
+
+        function switchPresetRoute(routeId) {
+            loadPresetRoute(routeId);
+        }
+
+        // ==========================================
+        // AI COPILOT & CUSTOM API KEY MODAL
+        // ==========================================
+        function openAIBuddyModal() {
+            document.getElementById('aiModalOverlay').style.display = 'flex';
+            updateKeyDisplay();
+        }
+
+        function updateKeyDisplay() {
+            const disp = document.getElementById('currentKeyDisplay');
+            const badge = document.getElementById('keyTypeBadge');
+            const k = getEffectiveApiKey();
+            if (disp) {
+                if (k) {
+                    disp.innerText = k.substring(0, 6) + '...' + k.substring(Math.max(0, k.length - 4));
+                } else {
+                    disp.innerText = 'Smart Road AI Engine';
+                }
+            }
+            if (badge) {
+                if (k) {
+                    badge.innerText = k.startsWith('sk-') ? 'OpenAI Custom' : 'Gemini Custom';
+                    badge.style.color = k.startsWith('sk-') ? '#38bdf8' : '#34d399';
+                } else {
+                    badge.innerText = 'Default Active';
+                    badge.style.color = '#38bdf8';
+                }
+            }
+        }
+
+        function toggleKeyEdit() {
+            const sec = document.getElementById('keyEditSection');
+            if (sec) {
+                sec.style.display = sec.style.display === 'none' ? 'block' : 'none';
+                if (sec.style.display === 'block') {
+                    const inp = document.getElementById('customApiKeyInput');
+                    if (inp) inp.value = userApiKey;
+                }
+            }
+        }
+
+        function saveCustomApiKey() {
+            const inp = document.getElementById('customApiKeyInput');
+            const val = (inp ? inp.value : '').trim();
+            if (val) {
+                userApiKey = val;
+                localStorage.setItem('smart_roads_api_key', val);
+                updateKeyDisplay();
+                toggleKeyEdit();
+                showToast(val.startsWith('sk-') ? 'OpenAI API Key Saved & Active' : 'Gemini API Key Saved & Active', '🔑');
+            }
+        }
+
+        function quickAIQuery(text) {
+            document.getElementById('aiQueryInput').value = text;
+            askAIBuddy();
+        }
+
+        async function askAIBuddy() {
+            const input = document.getElementById('aiQueryInput');
+            const box = document.getElementById('aiResponseBox');
+            const cardsContainer = document.getElementById('buddyMapsCardsContainer');
+            const cardsList = document.getElementById('buddyMapsCardsList');
+            const q = input.value.trim();
+            if (!q) return;
+
+            const pos = vehicleMarker ? vehicleMarker.getLatLng() : { lat: 28.6139, lng: 77.2090 };
+            box.innerHTML = `🤖 <span style="color: #34d399; font-weight: 600;">Searching Google Maps & AI near [${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}]...</span>`;
+            if (cardsContainer) cardsContainer.style.display = 'none';
+
+            try {
+                const res = await fetch('/api/gps/buddy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: q,
+                        route: currentRouteData ? currentRouteData.name : 'Highway Corridor',
+                        speed: currentSpeed,
+                        vehicle: activeVehicleProfile,
+                        lat: pos.lat,
+                        lng: pos.lng,
+                        api_key: getEffectiveApiKey()
+                    })
+                });
+
+                const data = await res.json();
+                box.innerHTML = data.reply;
+
+                if (data.places && Array.isArray(data.places) && data.places.length > 0) {
+                    if (cardsContainer && cardsList) {
+                        cardsList.innerHTML = data.places.map(p => `
+                            <div style="background: #202124; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                                    <div style="font-weight: 700; color: #fff; font-size: 13px;">📍 ${escapeHtml(p.title)}</div>
+                                    <span style="font-size: 10px; background: rgba(26,115,232,0.2); color: #8ab4f8; padding: 2px 6px; border-radius: 4px;">Google Maps</span>
+                                </div>
+                                ${p.reviewSnippets && p.reviewSnippets.length > 0 ? `
+                                    <div style="font-size: 11.5px; color: #9aa0a6; font-style: italic; border-left: 2px solid #1a73e8; padding-left: 8px;">"${escapeHtml(p.reviewSnippets[0])}"</div>
+                                ` : ''}
+                                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                                    ${p.uri ? `
+                                        <a href="${escapeHtml(p.uri)}" target="_blank" rel="noopener noreferrer" 
+                                           style="flex: 1; text-align: center; background: #1a73e8; color: #fff; text-decoration: none; font-size: 11px; font-weight: 700; padding: 5px 8px; border-radius: 6px;">
+                                           View on Google Maps ↗
+                                        </a>
+                                    ` : ''}
+                                    <button onclick="navigateDirectToPlace('${escapeAttr(p.title)}')" 
+                                        style="background: rgba(15,157,88,0.2); border: 1px solid #0f9d58; color: #34d399; font-size: 11px; font-weight: 700; padding: 5px 10px; border-radius: 6px; cursor: pointer;">
+                                        🧭 Navigate Here
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+                        cardsContainer.style.display = 'block';
+                    }
+                }
+                speakVoice("Buddy found live Google Maps information for your query.");
+            } catch(e) {
+                box.innerHTML = `🛰️ Cruising optimal on corridor. Speed recommended under ${currentSpeedLimit} km/h.`;
+            }
+        }
+
+        function navigateDirectToPlace(placeTitle) {
+            closeModals();
+            document.getElementById('destinationSearchInput').value = placeTitle;
+            searchAndRouteToDestination();
+        }
+
+        function openAIBuddyForPlace() {
+            closePlaceSheet();
+            openAIBuddyModal();
+            const title = document.getElementById('sheetPlaceTitle').innerText;
+            document.getElementById('aiQueryInput').value = `Tell me about amenities, parking, and traffic near ${title}`;
+            askAIBuddy();
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.gmaps-modal-overlay').forEach(m => m.style.display = 'none');
+        }
+
+        // Hardware Device GPS (Geolocation API)
+        function toggleDeviceGPS() {
+            realDeviceGPSActive = !realDeviceGPSActive;
+            const btn = document.getElementById('btnDeviceGPS');
+            if (realDeviceGPSActive) {
+                if ('geolocation' in navigator) {
+                    btn.style.background = '#1a73e8';
+                    showToast('Acquiring Hardware GPS Satellite Lock...', '📡');
+                    watchId = navigator.geolocation.watchPosition(
+                        (pos) => {
+                            const { latitude, longitude, speed } = pos.coords;
+                            if (vehicleMarker) vehicleMarker.setLatLng([latitude, longitude]);
+                            map.setView([latitude, longitude], 16);
+                            if (speed != null) {
+                                currentSpeed = Math.round(speed * 3.6);
+                                document.getElementById('liveSpeedNum').innerText = currentSpeed;
+                            }
+                            showToast(`GPS Locked: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`, '🟢');
+                        },
+                        (err) => {
+                            showToast('GPS Error: ' + err.message, '⚠️');
+                            realDeviceGPSActive = false;
+                            btn.style.background = '#202124';
+                        },
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 1000 }
+                    );
+                } else {
+                    showToast('Geolocation not supported on this browser', '⚠️');
+                    realDeviceGPSActive = false;
+                }
+            } else {
+                if (watchId) navigator.geolocation.clearWatch(watchId);
+                btn.style.background = '#202124';
+                showToast('Hardware GPS Disconnected. Returned to Pilot Simulation', '⚪');
+            }
+        }
+
+        // ==========================================
+        // INIT ON LOAD
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            let initialRoute = urlParams.get('route') || 'delhi_airport';
+            if (urlParams.get('mode') === 'ambulance') initialRoute = 'emergency_corridor';
+
+            const sel = document.getElementById('routePresetSelect');
+            if (sel && sel.querySelector(`option[value="${initialRoute}"]`)) {
+                sel.value = initialRoute;
+            }
+
+            loadPresetRoute(initialRoute);
+            updateKeyDisplay();
+
+            // Close suggestions on outside click
+            document.addEventListener('click', (e) => {
+                const box = document.querySelector('.gmaps-search-box');
+                if (box && !box.contains(e.target)) {
+                    document.getElementById('destSuggestions').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

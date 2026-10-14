@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Junction Emergency Green Corridor Simulator - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 18px 32px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #22c55e;
+        }
+
+        .back-btn {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 9px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 36px 20px 80px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .hero-banner h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 10px;
+            color: #ffffff;
+        }
+
+        .card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        /* Corridor Visualization Map */
+        .corridor-track {
+            position: relative;
+            background: #0a1017;
+            border: 2px solid #1f3347;
+            border-radius: 16px;
+            padding: 40px 24px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .roadway-line {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            right: 5%;
+            height: 6px;
+            background: #1e2f42;
+            transform: translateY(-50%);
+            border-radius: 3px;
+        }
+
+        .roadway-progress {
+            position: absolute;
+            top: 50%;
+            left: 5%;
+            width: 0%;
+            height: 6px;
+            background: #22c55e;
+            transform: translateY(-50%);
+            box-shadow: 0 0 12px #22c55e;
+            transition: width 0.5s linear;
+        }
+
+        .junctions-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            z-index: 2;
+        }
+
+        .junction-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 140px;
+        }
+
+        .signal-mast {
+            width: 32px;
+            background: #0f1721;
+            border: 2px solid #334155;
+            border-radius: 16px;
+            padding: 6px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .lamp {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #1e293b;
+            opacity: 0.3;
+        }
+
+        .lamp.red.active {
+            background: #ef4444;
+            opacity: 1;
+            box-shadow: 0 0 10px #ef4444;
+        }
+
+        .lamp.green.active {
+            background: #22c55e;
+            opacity: 1;
+            box-shadow: 0 0 12px #22c55e;
+        }
+
+        .junction-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2px;
+        }
+
+        .junction-status {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .ambulance-marker {
+            position: absolute;
+            top: 25px;
+            left: 5%;
+            font-size: 32px;
+            transition: left 0.8s ease-in-out;
+            z-index: 10;
+            filter: drop-shadow(0 0 10px #22c55e);
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-launch {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+            transition: all 0.2s;
+        }
+
+        .btn-launch:hover {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            transform: translateY(-1px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .stat-box {
+            background: #142232;
+            border: 1px solid #1f374e;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 26px;
+            font-weight: 800;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-lbl {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>🚑</span>
+            Multi-Junction Emergency Green Corridor Simulator
+        </h2>
+        <a href="/authority-dashboard{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="back-btn">← Authority Dashboard</a>
+    </header>
+
+    <div class="container">
+
+        <div class="hero-banner">
+            <div class="badge-pill">
+                <span>●</span> AI Preemption Orchestrator
+            </div>
+            <h1>Autonomous Dynamic Green Wave Preemption</h1>
+            <p>
+                Simulates real-time multi-junction preemption. Rather than manual officer overrides, the AI synchronizes consecutive signal masts along the emergency vehicle's GPS trajectory, ensuring zero stops between trauma centers.
+            </p>
+        </div>
+
+        <div class="card">
+            
+            <div class="controls-row">
+                <div>
+                    <h3 style="margin: 0 0 4px; font-size: 18px; color: #ffffff;">Hospital Trauma Expressway (Corridor Alpha)</h3>
+                    <div style="font-size: 13px; color: #94a3b8;">Vehicle: ICU Ambulance AMB-8092 // Speed: 65 km/h // Destination: Apollo Trauma Center</div>
+                </div>
+
+                <button class="btn-launch" id="btn-start" onclick="startCorridorSimulation()">
+                    <span>🚀</span>
+                    Activate Autonomous Green Corridor
+                </button>
+            </div>
+
+            <!-- Corridor Track Visualizer -->
+            <div class="corridor-track">
+                <div class="ambulance-marker" id="amb-icon">🚑</div>
+                <div class="roadway-line"></div>
+                <div class="roadway-progress" id="road-prog"></div>
+
+                <div class="junctions-wrapper">
+                    <!-- Junction 1 -->
+                    <div class="junction-node">
+                        <div class="signal-mast">
+                            <div class="lamp red" id="j1-red"></div>
+                            <div class="lamp green active" id="j1-green"></div>
+                        </div>
+                        <div class="junction-name">Junction 1</div>
+                        <div class="junction-status" id="j1-status" style="color: #22c55e;">GREEN PREEMPTION</div>
+                    </div>
+
+                    <!-- Junction 2 -->
+                    <div class="junction-node">
+                        <div class="signal-mast">
+                            <div class="lamp red active" id="j2-red"></div>
+                            <div class="lamp green" id="j2-green"></div>
+                        </div>
+                        <div class="junction-name">Junction 2</div>
+                        <div class="junction-status" id="j2-status" style="color: #ef4444;">HOLDING CROSS TRAFFIC</div>
+                    </div>
+
+                    <!-- Junction 3 -->
+                    <div class="junction-node">
+                        <div class="signal-mast">
+                            <div class="lamp red active" id="j3-red"></div>
+                            <div class="lamp green" id="j3-green"></div>
+                        </div>
+                        <div class="junction-name">Junction 3</div>
+                        <div class="junction-status" id="j3-status" style="color: #ef4444;">RED CYCLE</div>
+                    </div>
+
+                    <!-- Junction 4 (Destination) -->
+                    <div class="junction-node">
+                        <div class="signal-mast">
+                            <div class="lamp red active" id="j4-red"></div>
+                            <div class="lamp green" id="j4-green"></div>
+                        </div>
+                        <div class="junction-name">Hospital Gate</div>
+                        <div class="junction-status" id="j4-status" style="color: #ef4444;">RED CYCLE</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-time">0m 00s</div>
+                    <div class="stat-lbl">Transit Time Elapsed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" style="color: #22c55e;" id="stat-saved">4m 30s</div>
+                    <div class="stat-lbl">Time Saved vs Standard Cycle</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" id="stat-stops">0</div>
+                    <div class="stat-lbl">Zero Signal Stoppages</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num" style="color: #38bdf8;">100%</div>
+                    <div class="stat-lbl">AI Preemption Success</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let isSimulating = false;
+
+        function startCorridorSimulation() {
+            if (isSimulating) return;
+            isSimulating = true;
+            const btn = document.getElementById('btn-start');
+            btn.disabled = true;
+            btn.textContent = '⚡ Corridor Active - Cleared In Sequence...';
+            btn.style.background = '#0284c7';
+
+            const amb = document.getElementById('amb-icon');
+            const prog = document.getElementById('road-prog');
+
+            // Step 1: Start at Junction 1 (Green)
+            amb.style.left = '5%';
+            prog.style.width = '0%';
+
+            // Step 2: Move to Junction 2 at 2.5s
+            setTimeout(() => {
+                amb.style.left = '33%';
+                prog.style.width = '33%';
+
+                // Clear Junction 2 to green right before arrival
+                setGreen(2);
+            }, 2500);
+
+            // Step 3: Move to Junction 3 at 5s
+            setTimeout(() => {
+                amb.style.left = '64%';
+                prog.style.width = '64%';
+
+                // Clear Junction 3
+                setGreen(3);
+                // Restore Junction 1 to normal
+                setRed(1);
+            }, 5000);
+
+            // Step 4: Arrive at Hospital Gate at 7.5s
+            setTimeout(() => {
+                amb.style.left = '90%';
+                prog.style.width = '90%';
+
+                setGreen(4);
+                setRed(2);
+            }, 7500);
+
+            // Completion
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = '✅ Mission Completed - Re-run Simulation';
+                btn.style.background = '#16a34a';
+                isSimulating = false;
+                alert('🚑 Success! Patient vehicle reached Apollo Trauma Center with ZERO stoppages.');
+            }, 9500);
+        }
+
+        function setGreen(jNum) {
+            document.getElementById('j' + jNum + '-red').classList.remove('active');
+            document.getElementById('j' + jNum + '-green').classList.add('active');
+            const status = document.getElementById('j' + jNum + '-status');
+            status.textContent = 'GREEN PREEMPTION';
+            status.style.color = '#22c55e';
+        }
+
+        function setRed(jNum) {
+            document.getElementById('j' + jNum + '-green').classList.remove('active');
+            document.getElementById('j' + jNum + '-red').classList.add('active');
+            const status = document.getElementById('j' + jNum + '-status');
+            status.textContent = 'RESTORED REGULAR CYCLE';
+            status.style.color = '#94a3b8';
+        }
+    </script>
+
+</body>
+
+</html>

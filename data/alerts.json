@@ -1,0 +1,46 @@
+[
+  {
+    "id": "ALT-101",
+    "title": "🚨 Emergency Green Wave Active - Mumbai Trauma Corridor",
+    "type": "Emergency Clearance",
+    "location": "Bandra-Worli Sea Link to KEM & Lilavati Hospital Corridor, Mumbai",
+    "severity": "HIGH",
+    "message": "Critical organ transplant transit in progress. Motorists are requested to yield lane 1 immediately along Western Express Corridor.",
+    "issued_at": "10:15 AM Today",
+    "valid_till": "12:30 PM Today",
+    "active": true
+  },
+  {
+    "id": "ALT-102",
+    "title": "🚧 Delhi Ring Road Metro Expansion & Lane Diversion",
+    "type": "Diversion",
+    "location": "Mahatma Gandhi Ring Road near AIIMS Flyover, New Delhi",
+    "severity": "MEDIUM",
+    "message": "Southbound lane restricted for metro pier installation. Commercial heavy carriers diverted via Barapullah Elevated Expressway.",
+    "issued_at": "06:00 AM Today",
+    "valid_till": "11:00 PM Today",
+    "active": true
+  },
+  {
+    "id": "ALT-103",
+    "title": "🌧️ Monsoon Heavy Rainfall & Waterlogging Alert - Bengaluru",
+    "type": "Warning",
+    "location": "Outer Ring Road (Bellandur to Marathahalli), Bengaluru",
+    "severity": "MEDIUM",
+    "message": "Slow vehicle movement reported due to water accumulation. Commuters advised to utilize HAL Old Airport Road alternate route.",
+    "issued_at": "08:00 AM Today",
+    "valid_till": "08:00 PM Today",
+    "active": true
+  },
+  {
+    "id": "ALT-104",
+    "title": "⚡ Cyber Towers Flyover Maintenance - Hyderabad",
+    "type": "Road Work",
+    "location": "HITEC City - Madhapur Junction, Hyderabad",
+    "severity": "LOW",
+    "message": "Routine expansion joint re-sealing in progress. Speed limit restricted to 30 km/h with directional traffic marshals deployed.",
+    "issued_at": "09:30 AM Today",
+    "valid_till": "05:00 PM Today",
+    "active": true
+  }
+]

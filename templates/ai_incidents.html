@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Incident & Road Anomaly Detection - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 18px 32px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #f59e0b;
+        }
+
+        .back-btn {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 9px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 36px 20px 80px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #fbbf24;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .hero-banner h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 10px;
+            color: #ffffff;
+        }
+
+        .incidents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .incident-card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 14px;
+            padding: 22px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .incident-card.critical {
+            border-left-color: #f43f5e;
+        }
+
+        .incident-card.resolved {
+            border-left-color: #22c55e;
+            opacity: 0.85;
+        }
+
+        .incident-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .incident-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .severity-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .severity-badge.critical {
+            background: rgba(244, 63, 94, 0.2);
+            color: #fb7185;
+        }
+
+        .severity-badge.moderate {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .incident-meta {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .incident-meta strong {
+            color: #f1f5f9;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #1c2b3d;
+            padding-top: 14px;
+        }
+
+        .btn-dispatch {
+            flex: 1;
+            background: #e11d48;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-dispatch:hover {
+            background: #f43f5e;
+        }
+
+        .btn-ack {
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 9px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>🚨</span>
+            AI Road Incident & Anomaly Sentinel
+        </h2>
+        <a href="/authority-dashboard{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="back-btn">← Authority Dashboard</a>
+    </header>
+
+    <div class="container">
+
+        <div class="hero-banner">
+            <div class="badge-pill">
+                <span>●</span> AI Anomaly & Collision Radar Active
+            </div>
+            <h1>Automated Collision, Stalled Vehicle & Hazard Triage</h1>
+            <p>
+                Optical velocity delta algorithms and bounding trajectory tracking automatically detect sudden vehicle stops on expressways, overturned vehicles, and road obstructions to alert emergency teams instantly.
+            </p>
+        </div>
+
+        <div class="incidents-grid">
+
+            <!-- Incident 1 -->
+            <div class="incident-card critical" id="inc-1">
+                <div class="incident-top">
+                    <div>
+                        <div class="incident-title">Multi-Vehicle Collision Alert</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Cam ID: EXP-KM22-N // 4 mins ago</div>
+                    </div>
+                    <span class="severity-badge critical">CRITICAL // L3</span>
+                </div>
+                <div class="incident-meta">
+                    <strong>Location:</strong> Expressway Kilometer 22 (Outbound Fast Lane)<br>
+                    <strong>AI Detection:</strong> Sudden deceleration from 80 km/h to 0 km/h within 1.2s. 2 sedans + 1 light truck involved.<br>
+                    <strong>Recommended Action:</strong> Immediate dispatch of EMS Unit #12 and Highway Patrol #04. Close lanes 1 & 2.
+                </div>
+                <div class="action-row">
+                    <button class="btn-dispatch" onclick="dispatchUnit('inc-1', 'EMS Unit #12 & Highway Patrol')">🚑 Dispatch SOS Responders</button>
+                    <button class="btn-ack" onclick="resolveIncident('inc-1')">Acknowledge</button>
+                </div>
+            </div>
+
+            <!-- Incident 2 -->
+            <div class="incident-card" id="inc-2">
+                <div class="incident-top">
+                    <div>
+                        <div class="incident-title">Stalled Commercial Heavy Vehicle</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Cam ID: FLY-WEST-02 // 11 mins ago</div>
+                    </div>
+                    <span class="severity-badge moderate">MODERATE // L2</span>
+                </div>
+                <div class="incident-meta">
+                    <strong>Location:</strong> Western Flyover Ascent (Ascending Incline)<br>
+                    <strong>AI Detection:</strong> Stationary 16-wheel carrier in active middle lane with hazard lights activated. Tailback: 350 meters.<br>
+                    <strong>Recommended Action:</strong> Dispatch Heavy Tow Truck Crane and update upstream digital signboards.
+                </div>
+                <div class="action-row">
+                    <button class="btn-dispatch" onclick="dispatchUnit('inc-2', 'Heavy Tow Crane #03')">🚜 Dispatch Heavy Tow Unit</button>
+                    <button class="btn-ack" onclick="resolveIncident('inc-2')">Acknowledge</button>
+                </div>
+            </div>
+
+            <!-- Incident 3 -->
+            <div class="incident-card" id="inc-3">
+                <div class="incident-top">
+                    <div>
+                        <div class="incident-title">Debris / Cargo Spill on Roadway</div>
+                        <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Cam ID: ARTERIAL-RD-09 // 19 mins ago</div>
+                    </div>
+                    <span class="severity-badge moderate">MODERATE // L1</span>
+                </div>
+                <div class="incident-meta">
+                    <strong>Location:</strong> Ring Road Underpass #04 (Lane 3)<br>
+                    <strong>AI Detection:</strong> Unsecured pallet debris detected causing vehicles to perform emergency lane changes.<br>
+                    <strong>Recommended Action:</strong> Deploy Highway Maintenance Team for clearing and caution warning.
+                </div>
+                <div class="action-row">
+                    <button class="btn-dispatch" onclick="dispatchUnit('inc-3', 'Road Clearing Rapid Response')">🧹 Dispatch Maintenance Unit</button>
+                    <button class="btn-ack" onclick="resolveIncident('inc-3')">Acknowledge</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        function dispatchUnit(cardId, unitName) {
+            alert('🚨 Automated Dispatch Confirmed: ' + unitName + ' has been routed via emergency green corridor priority.');
+            const card = document.getElementById(cardId);
+            card.classList.remove('critical');
+            card.classList.add('resolved');
+            card.querySelector('.btn-dispatch').textContent = '✅ Dispatched & En Route';
+            card.querySelector('.btn-dispatch').disabled = true;
+            card.querySelector('.btn-dispatch').style.background = '#15803d';
+        }
+
+        function resolveIncident(cardId) {
+            const card = document.getElementById(cardId);
+            card.style.opacity = '0.5';
+            alert('Incident marked as reviewed by Authority Officer.');
+        }
+    </script>
+
+</body>
+
+</html>

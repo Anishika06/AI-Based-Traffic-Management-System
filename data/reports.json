@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Rajesh Kumar Sharma",
+    "location": "Barakhamba Road Crossing, Connaught Place, New Delhi",
+    "issue_type": "Traffic Light Failure",
+    "description": "Pedestrian crossing timer malfunctioning, traffic stacking up across 3 lanes.",
+    "date_time": "03-09-2026 01:47 PM",
+    "status": "Pending",
+    "assigned_officer": "Inspector V. K. Malhotra (Delhi Traffic Police)"
+  },
+  {
+    "id": 2,
+    "name": "Pooja Deshmukh",
+    "location": "S.V. Road, Andheri West Metro Approach, Mumbai",
+    "issue_type": "Road Hazard / Pothole",
+    "description": "Deep asphalt pothole near bus shelter slowing traffic flow.",
+    "date_time": "04-09-2026 10:15 AM",
+    "status": "Resolved",
+    "assigned_officer": "BMC Road Engineering Maintenance Team Alpha",
+    "resolution_notes": "Cold-mix asphalt patch restoration completed overnight."
+  },
+  {
+    "id": 3,
+    "name": "Anand S. Rao",
+    "location": "Marathahalli Bridge, Outer Ring Road, Bengaluru",
+    "issue_type": "Severe Congestion",
+    "description": "Stalled cargo truck partially obstructing westbound flyover lane.",
+    "date_time": "05-09-2026 04:30 PM",
+    "status": "In Progress",
+    "assigned_officer": "BTP Highway Towing Unit 8"
+  },
+  {
+    "id": 4,
+    "name": "Karthik Subramanian",
+    "location": "Anna Salai Metro Station Gate 2, Chennai",
+    "issue_type": "Illegal Parking",
+    "description": "Commercial delivery tempos parked in designated auto-rickshaw bay.",
+    "date_time": "06-09-2026 09:10 AM",
+    "status": "Resolved",
+    "assigned_officer": "Greater Chennai Traffic Police Tow Patrol 3",
+    "resolution_notes": "Enforcement drive conducted, e-challans issued to violating vehicle numbers."
+  }
+]

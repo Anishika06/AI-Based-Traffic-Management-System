@@ -6,6 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Public Portal - SMART ROADS</title>
+    <meta name="google-site-verification" content="feMj9Ep4zhtn33sLZNTIWIfvsojS1qK1hQaCz_OlJ58" />
+    <meta name="description" content="Citizen Services Portal for Smart Roads AI Traffic System: lookup vehicle challan details, request emergency assistance, and report road safety issues.">
+    <meta name="robots" content="index, follow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 
     <style>
 
@@ -15,135 +21,180 @@
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            color: white;
-
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #f1f5f9;
             min-height: 100vh;
-
             background:
                 linear-gradient(
-                    rgba(0, 0, 0, 0.65),
-                    rgba(0, 0, 0, 0.65)
+                    rgba(11, 19, 27, 0.88),
+                    rgba(11, 19, 27, 0.94)
                 ),
                 url("/static/images/background.jpg");
-
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
 
         header {
-            background: rgba(10, 20, 30, 0.92);
-
-            padding: 20px 30px;
-
+            background: rgba(17, 27, 39, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 16px 36px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         header h1 {
             margin: 0;
-            font-size: 26px;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .portal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
         }
 
         .home-btn {
-            color: white;
+            color: #cbd5e1;
             text-decoration: none;
-
-            background: rgba(255,255,255,0.15);
-
-            padding: 10px 18px;
-
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
             border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .home-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1060px;
+            margin: 36px auto;
+            padding: 0 24px;
+        }
 
-            margin: 50px auto;
-
-            padding: 20px;
-
+        .hero-banner {
             text-align: center;
+            margin-bottom: 36px;
         }
 
         .container h2 {
-            font-size: 32px;
-
-            margin-bottom: 10px;
+            font-size: 30px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin: 0 0 10px;
+            color: #ffffff;
         }
 
         .description {
-            color: #dddddd;
-
-            margin-bottom: 40px;
+            color: #94a3b8;
+            margin: 0 auto;
+            max-width: 600px;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .services {
             display: grid;
-
-            grid-template-columns:
-                repeat(auto-fit, minmax(240px, 1fr));
-
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 22px;
         }
 
         .service-card {
-            background:
-                rgba(20, 35, 45, 0.92);
-
-            padding: 35px 25px;
-
-            border-radius: 18px;
-
+            background: rgba(20, 32, 45, 0.92);
+            backdrop-filter: blur(8px);
+            padding: 30px 24px;
+            border-radius: 16px;
             text-decoration: none;
-
             color: white;
-
-            transition: 0.3s;
-
-            box-shadow:
-                0 10px 25px rgba(0,0,0,0.4);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .service-card:hover {
-            transform: translateY(-7px);
-
-            background:
-                rgba(35, 55, 68, 0.95);
+            transform: translateY(-5px);
+            background: rgba(26, 42, 59, 0.96);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
         }
 
         .service-icon {
-            font-size: 45px;
-
-            margin-bottom: 15px;
+            font-size: 40px;
+            margin-bottom: 16px;
+            display: inline-block;
         }
 
         .service-card h3 {
-            margin: 10px 0;
-
-            font-size: 20px;
+            margin: 0 0 8px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
         }
 
         .service-card p {
-            color: #cccccc;
-
+            color: #94a3b8;
             line-height: 1.5;
-
-            font-size: 14px;
+            font-size: 13.5px;
+            margin: 0 0 16px;
+            flex-grow: 1;
         }
 
-        @media (max-width: 700px) {
+        .card-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #cbd5e1;
+            transition: color 0.2s;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
 
-            header h1 {
-                font-size: 20px;
+        .service-card:hover .card-action {
+            color: #38bdf8;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                padding: 14px 18px;
             }
-
-            .container h2 {
-                font-size: 26px;
+            .container {
+                margin: 24px auto;
+                padding: 0 16px;
             }
-
+            .services {
+                grid-template-columns: 1fr;
+            }
         }
 
     </style>
@@ -158,9 +209,10 @@
 
     <header>
 
-        <h1>
-            👥 SMART ROADS - Public Portal
-        </h1>
+        <div class="brand-box">
+            <h1>🚦 SMART ROADS</h1>
+            <span class="portal-badge">👥 Public Portal</span>
+        </div>
 
         <a
             href="/"
@@ -176,88 +228,167 @@
 
     <div class="container">
 
-        <h2>
-            Public Services
-        </h2>
-
-        <p class="description">
-            Access SMART ROADS services for vehicles,
-            emergencies and road-related issues.
-        </p>
+        <div class="hero-banner">
+            <h2>Public Services & Road Safety</h2>
+            <p class="description">
+                Citizen access to national vehicle registrations, instant challan verification, emergency medical corridors, and road hazard reporting.
+            </p>
+        </div>
 
 
         <div class="services">
 
+            <!-- GPS SYSTEM & HUD NAVIGATOR -->
+            <a
+                href="/gps"
+                class="service-card"
+                style="border-left: 4px solid #38bdf8; background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(14, 116, 144, 0.25));"
+            >
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div class="service-icon" style="margin-bottom: 0;">🛰️</div>
+                        <span style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;">LIVE TELEMATICS</span>
+                    </div>
+                    <h3>Real-Time GPS Turn-by-Turn Telematics Cockpit</h3>
+                    <p>
+                        High-precision device GPS navigation, night windshield HUD mode, digital speedometer with radar alerts, geofence silent zones, live EV/Fuel POIs, and blackbox trip logging across major metro expressways.
+                    </p>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;">
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">📡 Real-Time GPS</span>
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">🔊 Turn Voice</span>
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">⚡ EV Superchargers</span>
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">🚨 Geofence Radar</span>
+                    </div>
+                </div>
+                <span class="card-action" style="color: #38bdf8; font-weight: 700; margin-top: 12px;">Launch GPS Navigation Cockpit →</span>
+            </a>
 
-            <!-- VEHICLE / CHALLAN -->
 
+            <!-- OFFICIAL E-CHALLAN & CITATION GATEWAY -->
             <a
                 href="/challan"
                 class="service-card"
+                style="border-left: 4px solid #38bdf8;"
             >
-
-                <div class="service-icon">
-                    🧾
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                        <div class="service-icon" style="margin-bottom: 0;">🏛️</div>
+                        <span style="background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 12px;">VEHICLE NO. ONLY</span>
+                    </div>
+                    <h3>
+                        Instant e-Challan & Traffic Fines Lookup
+                    </h3>
+                    <p>
+                        Check active police camera violations, pending court citations, and settle fines using <strong>only your vehicle number</strong>. Zero chassis or engine digits needed.
+                    </p>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;">
+                        <span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">⚡ No Chassis Required</span>
+                        <span style="background: rgba(16, 185, 129, 0.15); color: #34d399; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">🌴 Kerala Police Direct</span>
+                        <span style="background: rgba(168, 85, 247, 0.15); color: #c084fc; font-size: 10.5px; padding: 2px 7px; border-radius: 4px; font-weight: 600;">⚖️ Virtual Courts</span>
+                    </div>
                 </div>
-
-                <h3>
-                    Vehicle / Challan Details
-                </h3>
-
-                <p>
-                    Enter your vehicle registration number
-                    to view available violation and challan
-                    information.
-                </p>
-
+                <span class="card-action" style="color: #38bdf8; font-weight: 700; margin-top: 12px;">Check Fines by Vehicle No. →</span>
             </a>
 
+            <!-- AI CHALLAN DISPUTE -->
+            <a
+                href="/dispute-challan"
+                class="service-card"
+                style="border-left: 4px solid #a855f7;"
+            >
+                <div>
+                    <div class="service-icon">
+                        ⚖️
+                    </div>
+                    <h3>
+                        Contest e-Challan / Grievance
+                    </h3>
+                    <p>
+                        Dispute incorrect camera notices (cloned plate, medical transit, sold vehicle) with automated AI OCR verification.
+                    </p>
+                </div>
+                <span class="card-action" style="color: #c084fc;">Submit Grievance →</span>
+            </a>
+
+            <!-- AI CITIZEN ROAD SAFETY GUIDE -->
+            <a
+                href="/safety-ai"
+                class="service-card"
+                style="border-left: 4px solid #10b981;"
+            >
+                <div>
+                    <div class="service-icon">
+                        🤖
+                    </div>
+                    <h3>
+                        AI Road Safety & Legal Assistant
+                    </h3>
+                    <p>
+                        Instant conversational answers on traffic penalties, MVA amendments, driving safety rules, and emergency guidelines.
+                    </p>
+                </div>
+                <span class="card-action" style="color: #34d399;">Ask AI Safety Guide →</span>
+            </a>
 
             <!-- EMERGENCY -->
-
             <a
                 href="/public-emergency"
                 class="service-card"
+                style="border-left: 4px solid #f43f5e;"
             >
-
-                <div class="service-icon">
-                    🚑
+                <div>
+                    <div class="service-icon">
+                        🚑
+                    </div>
+                    <h3>
+                        Emergency Assistance
+                    </h3>
+                    <p>
+                        Request urgent medical, ambulance, or breakdown assistance with rapid GPS dispatch and signal corridor clearance.
+                    </p>
                 </div>
-
-                <h3>
-                    Emergency Assistance
-                </h3>
-
-                <p>
-                    Report an emergency situation and request
-                    assistance when required.
-                </p>
-
+                <span class="card-action" style="color: #fb7185;">Request Emergency Help →</span>
             </a>
 
-
             <!-- REPORT ISSUE -->
-
             <a
                 href="/report-issue"
                 class="service-card"
+                style="border-left: 4px solid #f59e0b;"
             >
-
-                <div class="service-icon">
-                    📢
+                <div>
+                    <div class="service-icon">
+                        📢
+                    </div>
+                    <h3>
+                        Report an Issue (AI Vision)
+                    </h3>
+                    <p>
+                        Report potholes, damaged signals, debris, or roadblocks with AI photo scanning for municipal road maintenance.
+                    </p>
                 </div>
-
-                <h3>
-                    Report an Issue
-                </h3>
-
-                <p>
-                    Report potholes, broken signals,
-                    road obstructions and other road issues.
-                </p>
-
+                <span class="card-action" style="color: #fbbf24;">Submit Incident Report →</span>
             </a>
 
+            <!-- TRAFFIC ALERTS -->
+            <a
+                href="/traffic-alerts"
+                class="service-card"
+                style="border-left: 4px solid #eab308;"
+            >
+                <div>
+                    <div class="service-icon">
+                        ⚠️
+                    </div>
+                    <h3>
+                        Live Traffic Alerts & Notices
+                    </h3>
+                    <p>
+                        Public notifications regarding road closures, severe rain advisories, metro diversions, and green wave corridors.
+                    </p>
+                </div>
+                <span class="card-action" style="color: #fde047;">View Advisory Feed →</span>
+            </a>
 
         </div>
 

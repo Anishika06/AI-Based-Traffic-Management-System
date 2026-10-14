@@ -4,261 +4,1315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Smart Signal Management - ROADVISION AI</title>
+    <title>Smart Signal Management - SMART ROADS</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #101820;
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0b131b;
+            color: #f1f5f9;
+            min-height: 100vh;
         }
 
         header {
-            padding: 20px 40px;
-            background: #182630;
-
+            padding: 16px 32px;
+            background: #13202c;
+            border-bottom: 1px solid #1f3345;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        header h2 {
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-box h2 {
             margin: 0;
+            font-size: 19px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #4ade80;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .back-btn {
-            color: white;
+            color: #f8fafc;
             text-decoration: none;
-            padding: 10px 18px;
-            background: #333;
+            padding: 8px 16px;
+            background: #1e2d3b;
+            border: 1px solid #33485d;
             border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-btn:hover {
+            background: #283e54;
+            border-color: #38bdf8;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1180px;
             margin: auto;
-            padding: 40px 20px;
+            padding: 30px 20px 60px;
+        }
+
+        .page-header {
             text-align: center;
+            margin-bottom: 25px;
         }
 
-        .signal-box {
-            background: #1d2d38;
-            padding: 35px;
-            border-radius: 15px;
-            margin-top: 30px;
+        .page-header h1 {
+            margin: 0 0 8px;
+            font-size: 30px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
         }
 
-        .signals {
+        .subtitle {
+            color: #94a3b8;
+            font-size: 15px;
+            margin: 0 auto;
+            max-width: 720px;
+            line-height: 1.5;
+        }
+
+        /* Handshake incoming alert banner */
+        .incoming-alert-banner {
+            display: none;
+            background: #11281e;
+            border: 1px solid #22c55e;
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: #4ade80;
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .incoming-alert-banner.emergency {
+            background: #3b1111;
+            border-color: #ef4444;
+            color: #fca5a5;
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.35);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Corridor Selector Tabs */
+        .corridor-selector {
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 30px 0;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 24px;
         }
 
-        .signal {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
+        .corridor-tab {
+            background: #14202b;
+            border: 1px solid #22374a;
+            color: #94a3b8;
+            padding: 12px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 220px;
+            justify-content: center;
+        }
 
+        .corridor-tab:hover {
+            background: #1b2c3c;
+            border-color: #38bdf8;
+            color: #f1f5f9;
+        }
+
+        .corridor-tab.active {
+            background: #1e3a53;
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+        }
+
+        .corridor-tab .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #0b131b;
+            color: #38bdf8;
+        }
+
+        /* Main Grid: Left is mast & active controls, Right is 4-way visualizer */
+        .signal-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 920px) {
+            .signal-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card-box {
+            background: #14202c;
+            border: 1px solid #203548;
+            border-radius: 16px;
+            padding: 26px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            margin: 0 0 16px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Traffic Signal Mast */
+        .mast-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0 25px;
+        }
+
+        .signals-housing {
+            background: #0a0f14;
+            border: 3px solid #1b2c3d;
+            display: inline-flex;
+            gap: 20px;
+            padding: 18px 30px;
+            border-radius: 50px;
+            box-shadow: inset 0 4px 15px rgba(0,0,0,0.8), 0 10px 25px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+        }
+
+        .signal-light {
+            width: 82px;
+            height: 82px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-
-            font-weight: bold;
-        }
-
-        .red {
-            background: #e63946;
-        }
-
-        .yellow {
-            background: #f4c430;
-            color: black;
-        }
-
-        .green {
-            background: #28a745;
-        }
-
-        .route {
-            margin: 25px 0;
-        }
-
-        select {
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        button {
-            margin-top: 25px;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 8px;
-            background: #e63946;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.05em;
+            transition: all 0.3s ease;
+            opacity: 0.2;
+            filter: grayscale(60%);
             cursor: pointer;
+            user-select: none;
         }
 
-        button:hover {
-            background: #ff4d5a;
+        .signal-light:hover {
+            opacity: 0.5;
         }
 
-        .status {
-            margin-top: 30px;
-            padding: 20px;
-            background: #15232c;
+        .light-red {
+            background: #ef4444;
+            color: #fee2e2;
+        }
+
+        .light-yellow {
+            background: #eab308;
+            color: #fef08a;
+        }
+
+        .light-green {
+            background: #22c55e;
+            color: #dcfce7;
+        }
+
+        .signal-light.active {
+            opacity: 1;
+            filter: grayscale(0%);
+        }
+
+        .light-red.active {
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .light-yellow.active {
+            box-shadow: 0 0 35px rgba(234, 179, 8, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .light-green.active {
+            box-shadow: 0 0 40px rgba(34, 197, 94, 0.95), inset 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Countdown & Status Block */
+        .phase-meta {
+            text-align: center;
+            width: 100%;
+            background: #0e1721;
+            border: 1px solid #1c2e40;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 22px;
+        }
+
+        .phase-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 4px;
+        }
+
+        .phase-route {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .timer-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: #38bdf8;
+            font-variant-numeric: tabular-nums;
+            margin: 6px 0;
+            letter-spacing: -1px;
+        }
+
+        /* Quick Manual Override Pill Row */
+        .manual-pills {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .pill-btn {
+            background: #192736;
+            border: 1px solid #283e54;
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pill-btn:hover {
+            border-color: #38bdf8;
+            color: #ffffff;
+        }
+
+        /* Parameters Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 580px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 9px;
+            font-size: 14px;
+            background: #0c141d;
+            border: 1px solid #22374c;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="number"]:focus {
+            border-color: #38bdf8;
+        }
+
+        /* Primary Action Buttons */
+        .actions-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-emergency {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
             border-radius: 10px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
         }
 
-        .timer {
-            font-size: 40px;
-            font-weight: bold;
-            margin-top: 20px;
+        .btn-emergency:hover {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            transform: translateY(-1px);
         }
 
+        .btn-adaptive {
+            width: 100%;
+            padding: 13px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-adaptive:hover {
+            background: linear-gradient(135deg, #38bdf8, #0284c7);
+            transform: translateY(-1px);
+        }
+
+        .btn-reset {
+            width: 100%;
+            padding: 11px 20px;
+            border: 1px solid #2d455d;
+            border-radius: 10px;
+            background: #182736;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #23374d;
+            color: white;
+        }
+
+        /* 4-Way Approach Visualizer */
+        .junction-visualizer {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .approach-card {
+            background: #0d1620;
+            border: 1px solid #1c2e40;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .approach-card.active-green {
+            border-color: #22c55e;
+            background: rgba(34, 197, 94, 0.06);
+        }
+
+        .approach-card.active-red {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.04);
+        }
+
+        .approach-card.active-yellow {
+            border-color: #eab308;
+            background: rgba(234, 179, 8, 0.06);
+        }
+
+        .approach-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .approach-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .approach-queue {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .approach-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mini-lamp {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.25;
+        }
+
+        .mini-lamp.mini-red { background: #ef4444; }
+        .mini-lamp.mini-yellow { background: #eab308; }
+        .mini-lamp.mini-green { background: #22c55e; }
+
+        .mini-lamp.lit {
+            opacity: 1;
+            box-shadow: 0 0 12px currentColor;
+        }
+
+        /* Telemetry Stats Grid */
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .tele-card {
+            background: #14202c;
+            border: 1px solid #203548;
+            border-radius: 14px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .tele-icon {
+            font-size: 26px;
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
+            background: #1c2f42;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tele-meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tele-label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .tele-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-top: 2px;
+        }
+
+        /* Event Audit Log */
+        .log-box {
+            background: #14202c;
+            border: 1px solid #203548;
+            border-radius: 16px;
+            padding: 22px;
+        }
+
+        .log-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .log-item {
+            font-size: 13px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            background: #0d1620;
+            border-left: 3px solid #38bdf8;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            color: #cbd5e1;
+        }
+
+        .log-item.emergency {
+            border-left-color: #ef4444;
+            color: #fca5a5;
+            background: #2a1111;
+        }
+
+        .log-item.adaptive {
+            border-left-color: #38bdf8;
+        }
+
+        .log-time {
+            color: #64748b;
+            font-size: 11px;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
-
 </head>
 
 <body>
 
-<header>
+    <header>
+        <div class="brand-box">
+            <h2>
+                <span>🚦</span>
+                <span>SMART ROADS Adaptive Signal Controller</span>
+            </h2>
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                <span>Controller Online</span>
+            </div>
+        </div>
 
-    <h2>🚦 Smart Signal Management</h2>
+        <div class="nav-actions">
+            {% if auth_token %}
+            <a href="/authority-dashboard?auth={{ auth_token }}" class="back-btn">
+                ← Authority Dashboard
+            </a>
+            {% else %}
+            <a href="/public-portal" class="back-btn">
+                ← Public Portal
+            </a>
+            <a href="/authority-login" class="back-btn" style="border-color: #38bdf8; color: #38bdf8;">
+                👮 Authority Login
+            </a>
+            {% endif %}
+        </div>
+    </header>
 
-    <a href="/authority-dashboard" class="back-btn">
-        ← Dashboard
-    </a>
+    <div class="container">
 
-</header>
+        <div class="page-header">
+            <h1>Smart Traffic Signal Control & Management</h1>
+            <p class="subtitle">
+                Autonomous adaptive signal timing optimization, queue clearance balancing, and emergency vehicle Green Corridor preemption across metro arterial junctions.
+            </p>
+        </div>
 
+        <!-- INCOMING HANDSHAKE ALERT (From ambulance detection or camera analysis) -->
+        <div id="incomingAlert" class="incoming-alert-banner"></div>
 
-<div class="container">
+        <!-- CORRIDOR SELECTOR TABS -->
+        <div class="corridor-selector">
+            <button type="button" class="corridor-tab" onclick="switchCorridor('Route A - Main Road', this)">
+                <span>🛣️ Route A (North / South)</span>
+                <span class="badge">Standard 45s</span>
+            </button>
 
-    <h1>Smart Traffic Signal Control</h1>
+            <button type="button" class="corridor-tab active" onclick="switchCorridor('Route B - Hospital Road', this)">
+                <span>🚑 Route B (Hospital Corridor)</span>
+                <span class="badge" style="color: #4ade80;">Priority Ready</span>
+            </button>
 
-    <p>
-        Authority control panel for emergency vehicle traffic priority.
-    </p>
+            <button type="button" class="corridor-tab" onclick="switchCorridor('Route C - Highway Junction', this)">
+                <span>🏎️ Route C (Highway Bypass)</span>
+                <span class="badge">Heavy 60s</span>
+            </button>
 
+            <button type="button" class="corridor-tab" onclick="switchCorridor('Route D - City Centre', this)">
+                <span>🏙️ Route D (City Arterial)</span>
+                <span class="badge">Dense 50s</span>
+            </button>
+        </div>
 
-    <div class="signal-box">
+        <!-- MAIN GRID -->
+        <div class="signal-grid">
 
-        <h2>🚦 Current Signal Status</h2>
+            <!-- LEFT: SIGNAL MAST & CONTROLS -->
+            <div class="card-box">
+                <div class="card-title">
+                    <span>Active Junction Signal Mast</span>
+                    <span id="activeModeBadge" style="font-size: 11px; padding: 3px 8px; border-radius: 4px; background: #1b2e40; color: #38bdf8; text-transform: uppercase;">
+                        Cycle: Adaptive Auto
+                    </span>
+                </div>
 
-        <div class="signals">
+                <div class="mast-stage">
+                    <!-- 3-Light Housing -->
+                    <div class="signals-housing">
+                        <div class="signal-light light-red" id="lightRed" onclick="forceManualPhase('red')" title="Click to force RED">
+                            STOP
+                        </div>
+                        <div class="signal-light light-yellow" id="lightYellow" onclick="forceManualPhase('yellow')" title="Click to force YELLOW">
+                            WAIT
+                        </div>
+                        <div class="signal-light light-green active" id="lightGreen" onclick="forceManualPhase('green')" title="Click to force GREEN">
+                            GO
+                        </div>
+                    </div>
 
-            <div class="signal red">
-                RED
+                    <!-- Countdown & Status -->
+                    <div class="phase-meta">
+                        <div class="phase-name" id="statusTitle">
+                            🚦 Active Phase: GREEN LIGHT
+                        </div>
+                        <div class="phase-route" id="statusDesc">
+                            Route B - Hospital Road (EMS Priority Corridor)
+                        </div>
+                        <div class="timer-display" id="timerDisplay">
+                            45s
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            Discharging active traffic queue — intersecting routes on HOLD
+                        </div>
+                    </div>
+
+                    <!-- Quick manual force pills -->
+                    <div class="manual-pills">
+                        <span style="font-size: 11px; color: #64748b; align-self: center; margin-right: 4px;">Manual:</span>
+                        <button type="button" class="pill-btn" onclick="forceManualPhase('green')">Force Green</button>
+                        <button type="button" class="pill-btn" onclick="forceManualPhase('yellow')">Force Yellow</button>
+                        <button type="button" class="pill-btn" onclick="forceManualPhase('red')">Force Red</button>
+                    </div>
+                </div>
+
+                <!-- Parameters Controls -->
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="routeSelect">📍 Target Approach Corridor</label>
+                        <select id="routeSelect" onchange="handleSelectRoute(this.value)">
+                            <option value="Route A - Main Road">Route A - Main Road (North / South)</option>
+                            <option value="Route B - Hospital Road" selected>Route B - Hospital Road (EMS Priority Corridor)</option>
+                            <option value="Route C - Highway Junction">Route C - Highway Express Bypass</option>
+                            <option value="Route D - City Centre">Route D - City Centre Transit Arterial</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label for="durationInput">⏱️ Green Phase Window (Seconds)</label>
+                        <input type="number" id="durationInput" min="15" max="120" value="45">
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="actions-stack">
+                    <button type="button" class="btn-emergency" id="preemptBtn" onclick="activateEmergencyCorridor()">
+                        <span>🚨</span>
+                        <span>Preempt Emergency Green Corridor</span>
+                    </button>
+
+                    <button type="button" class="btn-adaptive" onclick="activateAdaptiveCycle()">
+                        <span>📊</span>
+                        <span>Apply AI Adaptive Density Timing</span>
+                    </button>
+
+                    <button type="button" class="btn-reset" onclick="resetToStandardCycle()">
+                        <span>🔄</span>
+                        <span>Reset to Standard Round-Robin Cycle</span>
+                    </button>
+                </div>
             </div>
 
-            <div class="signal yellow">
-                YELLOW
-            </div>
+            <!-- RIGHT: 4-WAY JUNCTION MULTI-APPROACH MONITOR -->
+            <div class="card-box">
+                <div class="card-title">
+                    <span>Intersection 4-Way Approach Live Status</span>
+                    <span style="font-size: 12px; color: #94a3b8; font-weight: 500;">Junction #402-Central</span>
+                </div>
 
-            <div class="signal green">
-                GREEN
+                <div class="junction-visualizer">
+
+                    <!-- North Approach (Route A) -->
+                    <div class="approach-card" id="appCardRouteA">
+                        <div class="approach-info">
+                            <span class="approach-name">⬆️ Northbound: Route A (Main Road)</span>
+                            <span class="approach-queue" id="queueRouteA">Queue: 14 vehicles • Delay: 35s</span>
+                        </div>
+                        <div class="approach-indicator">
+                            <span class="mini-lamp mini-red lit" id="lampRedA"></span>
+                            <span class="mini-lamp mini-yellow" id="lampYelA"></span>
+                            <span class="mini-lamp mini-green" id="lampGrnA"></span>
+                        </div>
+                    </div>
+
+                    <!-- East Approach (Route B - Hospital) -->
+                    <div class="approach-card active-green" id="appCardRouteB">
+                        <div class="approach-info">
+                            <span class="approach-name">➡️ Eastbound: Route B (Hospital Corridor)</span>
+                            <span class="approach-queue" id="queueRouteB" style="color: #4ade80;">Active GO • Queue Discharging</span>
+                        </div>
+                        <div class="approach-indicator">
+                            <span class="mini-lamp mini-red" id="lampRedB"></span>
+                            <span class="mini-lamp mini-yellow" id="lampYelB"></span>
+                            <span class="mini-lamp mini-green lit" id="lampGrnB"></span>
+                        </div>
+                    </div>
+
+                    <!-- South Approach (Route C) -->
+                    <div class="approach-card" id="appCardRouteC">
+                        <div class="approach-info">
+                            <span class="approach-name">⬇️ Southbound: Route C (Highway Express)</span>
+                            <span class="approach-queue" id="queueRouteC">Queue: 9 vehicles • Delay: 28s</span>
+                        </div>
+                        <div class="approach-indicator">
+                            <span class="mini-lamp mini-red lit" id="lampRedC"></span>
+                            <span class="mini-lamp mini-yellow" id="lampYelC"></span>
+                            <span class="mini-lamp mini-green" id="lampGrnC"></span>
+                        </div>
+                    </div>
+
+                    <!-- West Approach (Route D) -->
+                    <div class="approach-card" id="appCardRouteD">
+                        <div class="approach-info">
+                            <span class="approach-name">⬅️ Westbound: Route D (City Arterial)</span>
+                            <span class="approach-queue" id="queueRouteD">Queue: 18 vehicles • Delay: 42s</span>
+                        </div>
+                        <div class="approach-indicator">
+                            <span class="mini-lamp mini-red lit" id="lampRedD"></span>
+                            <span class="mini-lamp mini-yellow" id="lampYelD"></span>
+                            <span class="mini-lamp mini-green" id="lampGrnD"></span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Signal Cycle Progress Bar -->
+                <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid #1c2e40;">
+                    <div style="display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 6px;">
+                        <span>Current Cycle Elapsed</span>
+                        <span id="cyclePercentText" style="color: #38bdf8; font-weight: 700;">65%</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #0c141d; border-radius: 999px; overflow: hidden;">
+                        <div id="cycleProgressFill" style="width: 65%; height: 100%; background: linear-gradient(90deg, #38bdf8, #22c55e); border-radius: 999px; transition: width 0.8s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Quick links back to tools -->
+                <div style="margin-top: 22px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="/traffic-analysis{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="pill-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>📊</span>
+                        <span>Re-analyze Traffic Density</span>
+                    </a>
+                    <a href="/ambulance-detection{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="pill-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>🚑</span>
+                        <span>Emergency Vehicle Scanner</span>
+                    </a>
+                </div>
             </div>
 
         </div>
 
+        <!-- TELEMETRY STATS -->
+        <div class="telemetry-grid">
+            <div class="tele-card">
+                <div class="tele-icon" style="color: #38bdf8;">📈</div>
+                <div class="tele-meta">
+                    <span class="tele-label">Cycle Optimization</span>
+                    <span class="tele-value" id="statOpt">94.8%</span>
+                </div>
+            </div>
 
-        <div class="route">
+            <div class="tele-card">
+                <div class="tele-icon" style="color: #4ade80;">⏱️</div>
+                <div class="tele-meta">
+                    <span class="tele-label">Avg Intersection Delay</span>
+                    <span class="tele-value" id="statDelay">24 sec</span>
+                </div>
+            </div>
 
-            <h3>📍 Select Emergency Route</h3>
+            <div class="tele-card">
+                <div class="tele-icon" style="color: #f59e0b;">🚗</div>
+                <div class="tele-meta">
+                    <span class="tele-label">Discharge Capacity</span>
+                    <span class="tele-value" id="statFlow">1,820 veh/hr</span>
+                </div>
+            </div>
 
-            <select id="route">
-
-                <option>Route A - Main Road</option>
-                <option>Route B - Hospital Road</option>
-                <option>Route C - Highway</option>
-                <option>Route D - City Centre</option>
-
-            </select>
-
+            <div class="tele-card">
+                <div class="tele-icon" style="color: #ef4444;">🚨</div>
+                <div class="tele-meta">
+                    <span class="tele-label">Preemptions Handled</span>
+                    <span class="tele-value" id="statPreempt">12 Today</span>
+                </div>
+            </div>
         </div>
 
-
-        <button onclick="activatePriority()">
-            🚑 Activate Emergency Priority
-        </button>
-
-
-        <div class="status" id="status">
-
-            System ready. Emergency priority is currently inactive.
-
-        </div>
-
-
-        <div class="timer" id="timer">
-            --
+        <!-- EVENT AUDIT LOG -->
+        <div class="log-box">
+            <div class="card-title" style="margin-bottom: 12px;">
+                <span>Controller Real-Time Event Audit Log</span>
+                <button type="button" class="pill-btn" onclick="clearEventLog()">Clear</button>
+            </div>
+            <ul class="log-list" id="eventLogList">
+                <li class="log-item">
+                    <span>🟢 Standard adaptive signal phase initialized on Route B (Hospital Road)</span>
+                    <span class="log-time" id="logTimeInit">Just now</span>
+                </li>
+            </ul>
         </div>
 
     </div>
 
-</div>
+    <!-- AUDIO SIREN / NOTIFICATION GENERATOR -->
+    <script>
+        let audioCtx = null;
+        function playPreemptionSiren() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                if (!audioCtx) audioCtx = new AudioContext();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
 
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
 
-<script>
+                osc.type = 'sawtooth';
+                // Frequency warble like emergency horn/siren
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.linearRampToValueAtTime(950, now + 0.35);
+                osc.frequency.linearRampToValueAtTime(650, now + 0.7);
 
-function activatePriority() {
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
 
-    const route =
-        document.getElementById("route").value;
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
 
-    const status =
-        document.getElementById("status");
+                osc.start(now);
+                osc.stop(now + 0.9);
+            } catch (e) {
+                console.warn('Audio Context not available or permitted', e);
+            }
+        }
+    </script>
 
-    const timer =
-        document.getElementById("timer");
+    <!-- CORE SIGNAL CONTROLLER STATE ENGINE -->
+    <script>
+        let countdownTimer = null;
+        let totalCycleSeconds = 45;
+        let remainingSeconds = 45;
+        let activePhase = 'green';
+        let activeRoute = 'Route B - Hospital Road';
 
+        function logEvent(text, type = 'normal') {
+            const list = document.getElementById('eventLogList');
+            const item = document.createElement('li');
+            item.className = 'log-item ' + (type === 'emergency' ? 'emergency' : (type === 'adaptive' ? 'adaptive' : ''));
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            item.innerHTML = `<span>${text}</span><span class="log-time">${timeStr}</span>`;
+            list.insertBefore(item, list.firstChild);
 
-    status.innerHTML =
-        "🚑 <strong>Emergency Priority Activated</strong><br><br>" +
-        "Selected Route: " + route +
-        "<br>🚦 Green signal priority enabled.";
+            if (list.children.length > 20) {
+                list.removeChild(list.lastChild);
+            }
+        }
 
-    let seconds = 30;
+        function clearEventLog() {
+            document.getElementById('eventLogList').innerHTML = '';
+        }
 
-    timer.innerHTML = seconds + " seconds";
+        function setLights(phase) {
+            activePhase = phase;
+            document.getElementById('lightRed').classList.remove('active');
+            document.getElementById('lightYellow').classList.remove('active');
+            document.getElementById('lightGreen').classList.remove('active');
 
-
-    const countdown =
-        setInterval(function() {
-
-            seconds--;
-
-            timer.innerHTML =
-                seconds + " seconds";
-
-            if (seconds <= 0) {
-
-                clearInterval(countdown);
-
-                timer.innerHTML = "Completed";
-
-                status.innerHTML =
-                    "✅ Emergency priority completed.<br>" +
-                    "Normal traffic signal operation resumed.";
-
+            if (phase === 'red') {
+                document.getElementById('lightRed').classList.add('active');
+            } else if (phase === 'yellow') {
+                document.getElementById('lightYellow').classList.add('active');
+            } else if (phase === 'green') {
+                document.getElementById('lightGreen').classList.add('active');
             }
 
-        }, 1000);
+            update4WayApproaches(activeRoute, phase);
+        }
 
-}
+        function update4WayApproaches(targetRoute, phase) {
+            const cards = {
+                'Route A - Main Road': { card: 'appCardRouteA', red: 'lampRedA', yel: 'lampYelA', grn: 'lampGrnA', queue: 'queueRouteA' },
+                'Route B - Hospital Road': { card: 'appCardRouteB', red: 'lampRedB', yel: 'lampYelB', grn: 'lampGrnB', queue: 'queueRouteB' },
+                'Route C - Highway Junction': { card: 'appCardRouteC', red: 'lampRedC', yel: 'lampYelC', grn: 'lampGrnC', queue: 'queueRouteC' },
+                'Route D - City Centre': { card: 'appCardRouteD', red: 'lampRedD', yel: 'lampYelD', grn: 'lampGrnD', queue: 'queueRouteD' }
+            };
 
-</script>
+            for (const [routeName, cfg] of Object.entries(cards)) {
+                const cardEl = document.getElementById(cfg.card);
+                const redEl = document.getElementById(cfg.red);
+                const yelEl = document.getElementById(cfg.yel);
+                const grnEl = document.getElementById(cfg.grn);
+
+                if (!cardEl || !redEl || !yelEl || !grnEl) continue;
+
+                cardEl.classList.remove('active-green', 'active-red', 'active-yellow');
+                redEl.classList.remove('lit');
+                yelEl.classList.remove('lit');
+                grnEl.classList.remove('lit');
+
+                if (routeName === targetRoute) {
+                    if (phase === 'green') {
+                        cardEl.classList.add('active-green');
+                        grnEl.classList.add('lit');
+                    } else if (phase === 'yellow') {
+                        cardEl.classList.add('active-yellow');
+                        yelEl.classList.add('lit');
+                    } else {
+                        cardEl.classList.add('active-red');
+                        redEl.classList.add('lit');
+                    }
+                } else {
+                    // Conflicting routes hold RED
+                    cardEl.classList.add('active-red');
+                    redEl.classList.add('lit');
+                }
+            }
+        }
+
+        function updateProgress() {
+            const fill = document.getElementById('cycleProgressFill');
+            const txt = document.getElementById('cyclePercentText');
+            if (totalCycleSeconds > 0) {
+                const pct = Math.min(100, Math.max(0, Math.round(((totalCycleSeconds - remainingSeconds) / totalCycleSeconds) * 100)));
+                fill.style.width = pct + '%';
+                txt.innerText = pct + '%';
+            }
+        }
+
+        function activateEmergencyCorridor() {
+            if (countdownTimer) clearInterval(countdownTimer);
+
+            playPreemptionSiren();
+
+            const route = document.getElementById('routeSelect').value;
+            activeRoute = route;
+            const duration = parseInt(document.getElementById('durationInput').value, 10) || 45;
+            totalCycleSeconds = duration;
+            remainingSeconds = duration;
+
+            setLights('green');
+
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const modeBadge = document.getElementById('activeModeBadge');
+
+            modeBadge.style.background = '#3b1111';
+            modeBadge.style.color = '#ef4444';
+            modeBadge.innerHTML = '🚨 PREEMPTION: GREEN CORRIDOR ENGAGED';
+
+            statusTitle.style.color = '#ef4444';
+            statusTitle.innerHTML = '🚨 EMERGENCY PREEMPTION ENGAGED — GREEN CORRIDOR ACTIVE';
+            statusDesc.innerHTML = 'All intersecting approaches locked RED. Priority safe transit on: <strong>' + route + '</strong>.';
+
+            timerDisplay.style.color = '#4ade80';
+            timerDisplay.innerHTML = remainingSeconds + 's';
+
+            logEvent(`🚨 Emergency Green Corridor preempted on ${route} (${duration}s lock)`, 'emergency');
+
+            updateProgress();
+
+            countdownTimer = setInterval(() => {
+                remainingSeconds--;
+                timerDisplay.innerHTML = remainingSeconds + 's';
+                updateProgress();
+
+                if (remainingSeconds === 5) {
+                    setLights('yellow');
+                    statusTitle.style.color = '#facc15';
+                    statusTitle.innerHTML = '⚠️ EMERGENCY CORRIDOR EXPIRING — CLEARING INTERSECTION';
+                }
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    setLights('red');
+                    timerDisplay.innerHTML = '0s';
+                    statusTitle.style.color = '#38bdf8';
+                    statusTitle.innerHTML = '✅ Emergency Passage Completed';
+                    statusDesc.innerHTML = 'Corridor safely cleared. Restoring standard balanced junction cycles.';
+                    logEvent(`✅ Emergency preemption concluded on ${route}. Restoring cycles.`, 'normal');
+
+                    setTimeout(() => {
+                        resetToStandardCycle();
+                    }, 4000);
+                }
+            }, 1000);
+        }
+
+        function activateAdaptiveCycle() {
+            if (countdownTimer) clearInterval(countdownTimer);
+
+            const route = document.getElementById('routeSelect').value;
+            activeRoute = route;
+            const duration = parseInt(document.getElementById('durationInput').value, 10) || 45;
+            totalCycleSeconds = duration;
+            remainingSeconds = duration;
+
+            setLights('green');
+
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const modeBadge = document.getElementById('activeModeBadge');
+
+            modeBadge.style.background = '#1e3a53';
+            modeBadge.style.color = '#38bdf8';
+            modeBadge.innerHTML = '📊 AI ADAPTIVE DENSITY TIMING';
+
+            statusTitle.style.color = '#38bdf8';
+            statusTitle.innerHTML = '📊 AI ADAPTIVE TIMING CYCLE ACTIVE';
+            statusDesc.innerHTML = 'Discharging calculated queue volume based on camera density analysis for: <strong>' + route + '</strong>.';
+
+            timerDisplay.style.color = '#38bdf8';
+            timerDisplay.innerHTML = remainingSeconds + 's';
+
+            logEvent(`📊 Applied AI Adaptive Timing: ${duration}s on ${route}`, 'adaptive');
+            updateProgress();
+
+            countdownTimer = setInterval(() => {
+                remainingSeconds--;
+                timerDisplay.innerHTML = remainingSeconds + 's';
+                updateProgress();
+
+                if (remainingSeconds === 4) {
+                    setLights('yellow');
+                    statusTitle.innerHTML = '⚠️ Phase Transitioning';
+                }
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    setLights('red');
+                    timerDisplay.innerHTML = '0s';
+                    statusTitle.innerHTML = '🔄 Intersecting Flow Active';
+                    statusDesc.innerHTML = 'Phase successfully discharged. Switching to next approach.';
+                    logEvent(`🔄 Adaptive phase concluded for ${route}. Switching next approach.`, 'normal');
+
+                    setTimeout(() => {
+                        resetToStandardCycle();
+                    }, 3000);
+                }
+            }, 1000);
+        }
+
+        function forceManualPhase(phase) {
+            if (countdownTimer) clearInterval(countdownTimer);
+            setLights(phase);
+
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const modeBadge = document.getElementById('activeModeBadge');
+
+            modeBadge.style.background = '#283548';
+            modeBadge.style.color = '#cbd5e1';
+            modeBadge.innerHTML = '⚙️ MANUAL OVERRIDE';
+
+            if (phase === 'green') {
+                statusTitle.style.color = '#4ade80';
+                statusTitle.innerHTML = '🟢 Manual Force: GREEN';
+                timerDisplay.style.color = '#4ade80';
+                remainingSeconds = 40;
+            } else if (phase === 'yellow') {
+                statusTitle.style.color = '#facc15';
+                statusTitle.innerHTML = '🟡 Manual Force: YELLOW (CAUTION)';
+                timerDisplay.style.color = '#facc15';
+                remainingSeconds = 5;
+            } else {
+                statusTitle.style.color = '#ef4444';
+                statusTitle.innerHTML = '🔴 Manual Force: RED (ALL STOP)';
+                timerDisplay.style.color = '#ef4444';
+                remainingSeconds = 30;
+            }
+
+            statusDesc.innerHTML = 'Signal mast manually forced to ' + phase.toUpperCase() + ' on ' + activeRoute;
+            timerDisplay.innerHTML = remainingSeconds + 's';
+            logEvent(`⚙️ Manual override forced ${phase.toUpperCase()} on ${activeRoute}`, 'normal');
+        }
+
+        function resetToStandardCycle() {
+            if (countdownTimer) clearInterval(countdownTimer);
+            totalCycleSeconds = 35;
+            remainingSeconds = 35;
+            setLights('green');
+
+            const modeBadge = document.getElementById('activeModeBadge');
+            modeBadge.style.background = '#142a38';
+            modeBadge.style.color = '#38bdf8';
+            modeBadge.innerHTML = 'Cycle: Standard Auto';
+
+            document.getElementById('statusTitle').style.color = '#4ade80';
+            document.getElementById('statusTitle').innerHTML = '🚦 Standard Round-Robin Cycle Active';
+            document.getElementById('statusDesc').innerHTML = 'Operating automated balanced corridor timing on ' + activeRoute;
+            document.getElementById('timerDisplay').style.color = '#38bdf8';
+            document.getElementById('timerDisplay').innerHTML = '35s';
+
+            logEvent(`🔄 Reset to Standard Auto Round-Robin schedule`, 'normal');
+            updateProgress();
+
+            countdownTimer = setInterval(() => {
+                remainingSeconds--;
+                document.getElementById('timerDisplay').innerHTML = remainingSeconds + 's';
+                updateProgress();
+
+                if (remainingSeconds === 4) {
+                    setLights('yellow');
+                }
+                if (remainingSeconds <= 0) {
+                    remainingSeconds = 35;
+                    setLights('green');
+                }
+            }, 1000);
+        }
+
+        function switchCorridor(routeName, tabEl) {
+            document.querySelectorAll('.corridor-tab').forEach(t => t.classList.remove('active'));
+            if (tabEl) tabEl.classList.add('active');
+
+            activeRoute = routeName;
+            document.getElementById('routeSelect').value = routeName;
+            document.getElementById('statusDesc').innerHTML = routeName;
+
+            logEvent(`📍 Target corridor switched to ${routeName}`, 'normal');
+            setLights(activePhase);
+        }
+
+        function handleSelectRoute(val) {
+            activeRoute = val;
+            const tabs = document.querySelectorAll('.corridor-tab');
+            tabs.forEach(t => {
+                if (t.innerText.includes(val.split(' - ')[0])) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            document.getElementById('statusDesc').innerHTML = val;
+            setLights(activePhase);
+        }
+
+        // Initialize URL parameters (from Ambulance Detection or Traffic Analysis)
+        window.addEventListener('load', () => {
+            document.getElementById('logTimeInit').innerText = new Date().toLocaleTimeString();
+
+            const params = new URLSearchParams(window.location.search);
+            const routeParam = params.get('route');
+            const priorityParam = params.get('priority');
+            const timingParam = params.get('timing');
+            const alertBox = document.getElementById('incomingAlert');
+
+            if (routeParam) {
+                const select = document.getElementById('routeSelect');
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value.includes(routeParam) || routeParam.includes(select.options[i].value)) {
+                        select.selectedIndex = i;
+                        handleSelectRoute(select.options[i].value);
+                        break;
+                    }
+                }
+            }
+
+            if (timingParam) {
+                document.getElementById('durationInput').value = timingParam;
+            }
+
+            if (priorityParam === 'emergency') {
+                alertBox.style.display = 'block';
+                alertBox.className = 'incoming-alert-banner emergency';
+                alertBox.innerHTML = '🚨 <strong>Emergency Vehicle Dispatch Received:</strong> Preemptive Green Corridor automatically triggered for emergency ambulance passage!';
+                activateEmergencyCorridor();
+            } else if (timingParam) {
+                alertBox.style.display = 'block';
+                alertBox.className = 'incoming-alert-banner';
+                alertBox.innerHTML = '📊 <strong>AI Camera Analysis Handshake:</strong> Recommended timing of ' + timingParam + ' seconds applied based on measured roadway queue saturation!';
+                activateAdaptiveCycle();
+            } else {
+                resetToStandardCycle();
+            }
+        });
+    </script>
 
 </body>
 

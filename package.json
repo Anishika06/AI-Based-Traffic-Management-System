@@ -4,11 +4,12 @@
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
-    "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js",
-    "start": "node dist/server.js",
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --packages=external --sourcemap --outfile=dist/server.js && cp -r templates dist/ && cp -r templates/static dist/ && cp templates/index.html dist/index.html && cp templates/index.html index.html",
+    "start": "node server.ts",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@google/genai": "^2.22.0",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "multer": "^2.3.0",

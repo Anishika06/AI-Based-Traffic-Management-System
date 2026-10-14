@@ -209,8 +209,8 @@
     <header>
         <h1>🚔 SMART ROADS - Enforcement & Vehicle Database</h1>
         <div class="nav-links">
+            <a href="/gps-system" class="nav-btn" style="background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8; font-weight: 600;">🛰️ Live GPS Cockpit</a>
             <a href="/authority-dashboard" class="nav-btn">← Authority Dashboard</a>
-            <a href="/challan" class="nav-btn">🔍 Public RC Lookup</a>
         </div>
     </header>
 
@@ -226,9 +226,11 @@
 
             <!-- REGISTERED VEHICLES IN DATABASE -->
             <div class="card">
-                <h2>🗄️ Vehicles Stored in RTO Database ({{ vehicles.length }})</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <h2 style="margin-bottom: 0;">🗄️ Vehicles Stored in RTO Database ({{ vehicles.length }})</h2>
+                </div>
                 <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">
-                    All vehicles registered across states. Click any vehicle to inspect its full digital RC and e-challan violations.
+                    Simulated fleet and patrol vehicles registered in the traffic enforcement database.
                 </p>
 
                 <div class="table-responsive">
@@ -253,7 +255,11 @@
                                 <td><span class="badge badge-paid">{{ v.rc_status }}</span></td>
                                 <td>
                                     <a href="/challan?v={{ v.registration_number }}" style="color: #38bdf8; text-decoration: none; font-weight: 500;">
-                                        View RC &rarr;
+                                        Check on Parivahan &rarr;
+                                    </a>
+                                    <span style="color: #475569; margin: 0 4px;">|</span>
+                                    <a href="/gps-system?vehicle=car&route=delhi_airport" style="color: #34d399; text-decoration: none; font-size: 11.5px; font-weight: 600;">
+                                        🛰️ Track
                                     </a>
                                 </td>
                             </tr>
@@ -267,7 +273,7 @@
             <div class="card">
                 <h2>🚨 Issue Official E-Challan</h2>
                 <p style="color: #94a3b8; font-size: 13px; margin-bottom: 16px;">
-                    Enforce a new violation record. The violation will immediately appear on the vehicle owner's search page.
+                    Enforce a new violation record. The violation will be logged in the local system database records below.
                 </p>
 
                 <form method="POST" action="/issue-challan">

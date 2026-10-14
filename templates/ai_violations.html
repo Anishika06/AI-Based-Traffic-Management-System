@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traffic Violation & ANPR Sentinel - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 18px 32px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #f43f5e;
+            letter-spacing: -0.3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 9px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 36px 20px 80px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: #fb7185;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .badge-pill .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #f43f5e;
+            box-shadow: 0 0 10px #f43f5e;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .hero-banner h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 10px;
+            color: #ffffff;
+            letter-spacing: -0.6px;
+        }
+
+        .hero-banner p {
+            margin: 0 auto;
+            max-width: 760px;
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* Preset Feed Selector */
+        .feed-presets {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 28px;
+        }
+
+        .presets-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #38bdf8;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .presets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+        }
+
+        .preset-card {
+            background: #162230;
+            border: 1px solid #24384d;
+            border-radius: 10px;
+            padding: 12px 14px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #f1f5f9;
+        }
+
+        .preset-card:hover {
+            background: #1c2b3d;
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
+
+        .preset-card.active {
+            border-color: #f43f5e;
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .preset-icon {
+            font-size: 24px;
+            width: 42px;
+            height: 42px;
+            background: #0f1721;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .preset-meta h4 {
+            margin: 0 0 2px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .preset-meta p {
+            margin: 0;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Upload & Inspection Panel */
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 960px) {
+            .workspace-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 14px;
+            padding: 24px;
+        }
+
+        .card h3 {
+            margin: 0 0 16px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-dropzone {
+            border: 2px dashed #283d54;
+            border-radius: 12px;
+            padding: 36px 20px;
+            text-align: center;
+            background: #0d151e;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-dropzone:hover {
+            border-color: #f43f5e;
+            background: rgba(244, 63, 94, 0.04);
+        }
+
+        .upload-icon {
+            font-size: 38px;
+            margin-bottom: 12px;
+            color: #f43f5e;
+        }
+
+        .preview-img-box {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 16px;
+            background: #000;
+            border: 1px solid #223547;
+            max-height: 380px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-img-box img {
+            width: 100%;
+            height: auto;
+            max-height: 380px;
+            object-fit: contain;
+            display: block;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            border: 1px dashed rgba(244, 63, 94, 0.4);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hud-scan-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #f43f5e, #38bdf8, transparent);
+            box-shadow: 0 0 8px #f43f5e;
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(320px); }
+            100% { transform: translateY(0); }
+        }
+
+        .btn-run-ai {
+            width: 100%;
+            margin-top: 20px;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #e11d48, #be123c);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35);
+            transition: all 0.2s;
+        }
+
+        .btn-run-ai:hover {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            transform: translateY(-1px);
+        }
+
+        .btn-run-ai:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results Display */
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ai-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #162433;
+            border: 1px solid #23384f;
+            font-size: 13px;
+        }
+
+        .ai-indicator-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+
+        .ai-indicator-model {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: #0d151e;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #94a3b8;
+        }
+
+        .violation-card {
+            background: #162230;
+            border: 1px solid #25394e;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 4px solid #f43f5e;
+        }
+
+        .violation-card.clean {
+            border-left-color: #22c55e;
+        }
+
+        .violation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .violation-type {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .violation-penalty {
+            background: rgba(244, 63, 94, 0.15);
+            color: #fb7185;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .anpr-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #0a0f16;
+            border: 1px solid #38bdf8;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            margin: 8px 0;
+        }
+
+        .violation-meta {
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .auto-challan-box {
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px dashed rgba(34, 197, 94, 0.35);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .auto-challan-info {
+            font-size: 13px;
+            color: #86efac;
+        }
+
+        .auto-challan-btn {
+            background: #15803d;
+            color: white;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .auto-challan-btn:hover {
+            background: #16a34a;
+        }
+
+        .detected-items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .detection-item {
+            background: #0f1721;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #1e2e3f;
+            font-size: 12px;
+        }
+
+        .detection-item-name {
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .detection-item-conf {
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>🚨</span>
+            AI Traffic Violation & ANPR Sentinel
+        </h2>
+        <div class="header-actions">
+            <a href="/authority-dashboard{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="back-btn">← Authority Dashboard</a>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="hero-banner">
+            <div class="badge-pill">
+                <span class="pulse-dot"></span>
+                AI Vision Model: Gemini 3.8 Flash Sentinel
+            </div>
+            <h1>Automated Traffic Violation & License Plate (ANPR) Detection</h1>
+            <p>
+                Real-time optical computer vision inspection for helmetless two-wheeler riders, triple-riding, red-light/stop-line breaches, and automatic high-speed vehicle license plate recognition (ANPR) with instant e-Challan generation.
+            </p>
+        </div>
+
+        <!-- Sample Feeds -->
+        <div class="feed-presets">
+            <div class="presets-label">
+                <span>⚡ Quick Test With Live Intersection Feeds:</span>
+            </div>
+            <div class="presets-grid">
+                <div class="preset-card active" onclick="selectPreset('traffic.jpg', 'Intersection Cam #04: Mixed Highway', 'Helmetless Bike + Red Light')">
+                    <div class="preset-icon">🏍️</div>
+                    <div class="preset-meta">
+                        <h4>Camera #04: Ring Road</h4>
+                        <p>Helmet & Signal Compliance Check</p>
+                    </div>
+                </div>
+
+                <div class="preset-card" onclick="selectPreset('image1.jpg', 'Camera #01: City Central Junction', 'Stop-Line & Lane Discipline')">
+                    <div class="preset-icon">🚦</div>
+                    <div class="preset-meta">
+                        <h4>Camera #01: City Center</h4>
+                        <p>Red Light Crossing & Zebra Infringement</p>
+                    </div>
+                </div>
+
+                <div class="preset-card" onclick="selectPreset('image2.jpg', 'Camera #02: Expressway Toll Approach', 'Speed & ANPR OCR')">
+                    <div class="preset-icon">📸</div>
+                    <div class="preset-meta">
+                        <h4>Camera #02: Expressway</h4>
+                        <p>High-Speed Number Plate OCR</p>
+                    </div>
+                </div>
+
+                <div class="preset-card" onclick="selectPreset('image3.jpg', 'Camera #03: Commercial Arterial', 'Triple Riding & Seatbelt')">
+                    <div class="preset-icon">🛑</div>
+                    <div class="preset-meta">
+                        <h4>Camera #03: Arterial Way</h4>
+                        <p>Rider Safety & Helmet Audit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="violation-form" method="POST" action="/ai-violation-detection{% if auth_token %}?auth={{ auth_token }}{% endif %}" enctype="multipart/form-data">
+            <input type="hidden" name="preset_image" id="preset_image" value="{{ result.analyzed_image or 'traffic.jpg' }}">
+            <input type="hidden" name="location_name" id="location_name" value="Intersection Cam #04: Ring Road">
+
+            <div class="workspace-grid">
+                
+                <!-- Left: Feed Viewer & Input -->
+                <div class="card">
+                    <h3><span>📹</span> Live Video / Camera Feed Input</h3>
+
+                    <div class="upload-dropzone" onclick="document.getElementById('file-input').click()">
+                        <div class="upload-icon">📁</div>
+                        <div style="font-weight: 600; margin-bottom: 6px;">Click or Drag CCTV Snapshot Here</div>
+                        <div style="font-size: 12px; color: #94a3b8;">Supports JPG, PNG, WebP up to 15MB</div>
+                        <input type="file" id="file-input" name="image" accept="image/*" style="display: none;" onchange="handleFileSelect(this)">
+                    </div>
+
+                    <div class="preview-img-box" id="preview-box">
+                        <img id="preview-img" src="/static/images/{{ result.analyzed_image or 'traffic.jpg' }}" alt="CCTV Feed Snapshot">
+                        <div class="hud-overlay">
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #f43f5e; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px; display: inline-block;">
+                                SENTINEL AI // ANPR CAM 04 // LIVE
+                            </div>
+                            <div class="hud-scan-line"></div>
+                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #38bdf8; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px; align-self: flex-end;">
+                                FPS: 30.0 // RES: 1080P
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-run-ai" id="submit-btn">
+                        <span>⚡</span>
+                        Execute AI Violation & ANPR Scan
+                    </button>
+                </div>
+
+                <!-- Right: AI Violation Assessment -->
+                <div class="card">
+                    <h3><span>🤖</span> AI Sentinel Violation Audit</h3>
+
+                    <div class="results-panel">
+                        <div class="ai-indicator">
+                            <div class="ai-indicator-status">
+                                <span style="color: #22c55e;">●</span>
+                                <span>Vision Neural Engine Active</span>
+                            </div>
+                            <div class="ai-indicator-model">gemini-3.8-flash</div>
+                        </div>
+
+                        {% if result %}
+                            <div class="violation-card {% if not result.violations_detected %}clean{% endif %}">
+                                <div class="violation-header">
+                                    <div>
+                                        <div class="violation-type">
+                                            {% if result.violations_detected %}
+                                                ⚠️ {{ result.primary_violation }}
+                                            {% else %}
+                                                ✅ Zero Violations Detected
+                                            {% endif %}
+                                        </div>
+                                        <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                                            Severity: <strong style="color: {% if result.severity == 'HIGH' %}#f43f5e{% elif result.severity == 'MEDIUM' %}#f59e0b{% else %}#22c55e{% endif %};">{{ result.severity }}</strong> | Confidence: <strong>{{ result.confidence }}%</strong>
+                                        </div>
+                                    </div>
+                                    {% if result.violations_detected and result.penalty_amount %}
+                                        <div class="violation-penalty">₹{{ result.penalty_amount }} Fine</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="violation-meta">
+                                    <p style="margin: 0 0 10px;">{{ result.summary }}</p>
+                                </div>
+
+                                <!-- ANPR Recognition Box -->
+                                {% if result.license_plate %}
+                                    <div style="margin-top: 14px;">
+                                        <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; font-weight: 700;">
+                                            Detected License Plate (ANPR OCR):
+                                        </div>
+                                        <div class="anpr-pill">
+                                            <span>IND</span>
+                                            <span>{{ result.license_plate }}</span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Automatic e-Challan generation alert -->
+                                {% if result.generated_challan_id %}
+                                    <div class="auto-challan-box">
+                                        <div class="auto-challan-info">
+                                            <strong>Auto-Challan Issued:</strong> {{ result.generated_challan_id }} logged into central traffic registry.
+                                        </div>
+                                        <a href="/challan?v={{ result.license_plate or 'TN01AB1234' }}" target="_blank" class="auto-challan-btn">
+                                            View e-Challan →
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Detected Objects Breakdown -->
+                            {% if result.detected_objects and result.detected_objects.length > 0 %}
+                                <div style="margin-top: 6px;">
+                                    <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.8px; margin-bottom: 8px;">
+                                        Object Bounding & Classification:
+                                    </div>
+                                    <div class="detected-items-grid">
+                                        {% for item in result.detected_objects %}
+                                            <div class="detection-item">
+                                                <div class="detection-item-name">{{ item.label }}</div>
+                                                <div class="detection-item-conf">{{ item.status }} ({{ item.confidence }}%)</div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+
+                        {% else %}
+                            <div style="padding: 40px 20px; text-align: center; color: #64748b;">
+                                <div style="font-size: 40px; margin-bottom: 12px;">🛡️</div>
+                                <div style="font-size: 15px; font-weight: 600; color: #94a3b8;">No Feed Scanned Yet</div>
+                                <p style="font-size: 13px; max-width: 320px; margin: 8px auto 0;">
+                                    Select a camera feed above or upload an intersection frame, then click "Execute AI Violation & ANPR Scan".
+                                </p>
+                            </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+
+    <script>
+        function selectPreset(imageName, location, tag) {
+            document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            document.getElementById('preset_image').value = imageName;
+            document.getElementById('location_name').value = location;
+            document.getElementById('preview-img').src = '/static/images/' + imageName;
+        }
+
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('preview-img').src = e.target.result;
+                    document.getElementById('preset_image').value = '';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        document.getElementById('violation-form').addEventListener('submit', function() {
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> Analyzing Feed via Gemini Vision AI...';
+        });
+    </script>
+
+</body>
+
+</html>

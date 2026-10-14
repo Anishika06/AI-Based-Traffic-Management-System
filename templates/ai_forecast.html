@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Predictive Congestion & Traffic Forecasting - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 18px 32px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #38bdf8;
+            letter-spacing: -0.3px;
+        }
+
+        .back-btn {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 9px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 36px 20px 80px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: #38bdf8;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+        }
+
+        .hero-banner h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 10px;
+            color: #ffffff;
+        }
+
+        .hero-banner p {
+            margin: 0 auto;
+            max-width: 760px;
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .corridor-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .corridor-btn {
+            background: #162433;
+            border: 1px solid #233a52;
+            color: #e2e8f0;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .corridor-btn:hover {
+            background: #1d3147;
+            border-color: #38bdf8;
+        }
+
+        .corridor-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 840px) {
+            .forecast-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .forecast-slot {
+            background: #162230;
+            border: 1px solid #23364b;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .forecast-slot.high {
+            border-top: 4px solid #f43f5e;
+        }
+
+        .forecast-slot.medium {
+            border-top: 4px solid #f59e0b;
+        }
+
+        .forecast-slot.low {
+            border-top: 4px solid #22c55e;
+        }
+
+        .time-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .density-pct {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .risk-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 9999px;
+            display: inline-block;
+        }
+
+        .risk-badge.high {
+            background: rgba(244, 63, 94, 0.2);
+            color: #fb7185;
+        }
+
+        .risk-badge.medium {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fcd34d;
+        }
+
+        .risk-badge.low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .ai-recommendation-box {
+            background: #142232;
+            border: 1px solid #223c58;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .ai-rec-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #38bdf8;
+            margin-bottom: 12px;
+        }
+
+        .diversion-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .diversion-steps li {
+            padding: 10px 14px;
+            background: #0e1722;
+            border-radius: 8px;
+            border-left: 3px solid #38bdf8;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>🔮</span>
+            AI Predictive Congestion & Traffic Forecasting
+        </h2>
+        <a href="/authority-dashboard{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="back-btn">← Authority Dashboard</a>
+    </header>
+
+    <div class="container">
+
+        <div class="hero-banner">
+            <div class="badge-pill">
+                <span>●</span> AI Traffic Flow Forecasting Engine
+            </div>
+            <h1>Predictive Corridor Congestion & Proactive Diversion</h1>
+            <p>
+                Using real-time telemetry, historical diurnal flows, weather factors, and machine learning, this module forecasts traffic density 30, 60, 90, and 120 minutes ahead to eliminate bottlenecks before they form.
+            </p>
+        </div>
+
+        <div class="card">
+            <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.8px; margin-bottom: 12px;">
+                Select City Corridor for Deep Predictive Analysis:
+            </div>
+            <div class="corridor-selector">
+                <button class="corridor-btn active" onclick="loadCorridor('North Arterial Ring Road (Km 12 - 28)', 78, 86, 92, 64)">North Arterial Ring Road</button>
+                <button class="corridor-btn" onclick="loadCorridor('Central IT Expressway Flyover', 62, 74, 88, 70)">Central IT Expressway</button>
+                <button class="corridor-btn" onclick="loadCorridor('Hospital & Emergency Corridor', 34, 42, 50, 38)">Hospital Red Corridor</button>
+                <button class="corridor-btn" onclick="loadCorridor('Metro Link Commercial Boulevard', 84, 91, 76, 52)">Metro Link Boulevard</button>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <h3 id="selected-corridor-title" style="margin: 0; font-size: 18px; color: #ffffff;">North Arterial Ring Road (Km 12 - 28)</h3>
+                <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Weather: Clear (31°C) // Fleet Density Baseline: 4,820 vehicles/hr // Model: Gemini Forecasting Kernel</div>
+            </div>
+
+            <!-- 4 Forecast Slots -->
+            <div class="forecast-grid">
+                <div class="forecast-slot medium" id="slot-30">
+                    <div class="time-label">T + 30 Minutes</div>
+                    <div class="density-pct" id="val-30" style="color: #f59e0b;">78%</div>
+                    <span class="risk-badge medium" id="badge-30">Elevated Flow</span>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Speed: ~32 km/h</div>
+                </div>
+
+                <div class="forecast-slot high" id="slot-60">
+                    <div class="time-label">T + 60 Minutes (Peak)</div>
+                    <div class="density-pct" id="val-60" style="color: #f43f5e;">86%</div>
+                    <span class="risk-badge high" id="badge-60">Severe Bottleneck</span>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Speed: ~14 km/h</div>
+                </div>
+
+                <div class="forecast-slot high" id="slot-90">
+                    <div class="time-label">T + 90 Minutes</div>
+                    <div class="density-pct" id="val-90" style="color: #f43f5e;">92%</div>
+                    <span class="risk-badge high" id="badge-90">Critical Gridlock</span>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Speed: ~8 km/h</div>
+                </div>
+
+                <div class="forecast-slot low" id="slot-120">
+                    <div class="time-label">T + 120 Minutes</div>
+                    <div class="density-pct" id="val-120" style="color: #22c55e;">64%</div>
+                    <span class="risk-badge low" id="badge-120">Normalized Flow</span>
+                    <div style="font-size: 12px; color: #94a3b8; margin-top: 8px;">Speed: ~48 km/h</div>
+                </div>
+            </div>
+
+            <div class="ai-recommendation-box">
+                <div class="ai-rec-header">
+                    <span>💡</span>
+                    AI Proactive Diversion & Mitigation Strategy
+                </div>
+                <ul class="diversion-steps" id="diversion-steps">
+                    <li><strong>Proactive Signal Split Adjustment:</strong> Increase green cycle on Crossway Ave by +18 seconds starting at T+20 to drain feeder congestion before peak.</li>
+                    <li><strong>Dynamic Highway VMS Display:</strong> Activate digital message signboards at Exit 4 advising commercial trucks to detour via Bypass Corridor B.</li>
+                    <li><strong>Transit Lane Prioritization:</strong> Shift reversible lane #3 to outgoing city center flow for 90 minutes.</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function loadCorridor(name, c30, c60, c90, c120) {
+            document.querySelectorAll('.corridor-btn').forEach(b => b.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('selected-corridor-title').textContent = name;
+            
+            updateSlot('30', c30);
+            updateSlot('60', c60);
+            updateSlot('90', c90);
+            updateSlot('120', c120);
+        }
+
+        function updateSlot(slotId, val) {
+            const el = document.getElementById('val-' + slotId);
+            const slot = document.getElementById('slot-' + slotId);
+            const badge = document.getElementById('badge-' + slotId);
+
+            el.textContent = val + '%';
+            slot.className = 'forecast-slot';
+
+            if (val >= 80) {
+                slot.classList.add('high');
+                badge.className = 'risk-badge high';
+                badge.textContent = 'Severe Bottleneck';
+                el.style.color = '#f43f5e';
+            } else if (val >= 55) {
+                slot.classList.add('medium');
+                badge.className = 'risk-badge medium';
+                badge.textContent = 'Elevated Flow';
+                el.style.color = '#f59e0b';
+            } else {
+                slot.classList.add('low');
+                badge.className = 'risk-badge low';
+                badge.textContent = 'Normalized Flow';
+                el.style.color = '#22c55e';
+            }
+        }
+    </script>
+
+</body>
+
+</html>

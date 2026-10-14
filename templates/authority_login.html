@@ -2,161 +2,278 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Authority Login - ROADVISION AI</title>
+    <title>Authority Login - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
 
     <style>
-
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
-
-            font-family: Arial, sans-serif;
-
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-
-            color: white;
-
+            color: #f1f5f9;
             background:
-                linear-gradient(
-                    rgba(0, 0, 0, 0.60),
-                    rgba(0, 0, 0, 0.60)
-                ),
+                linear-gradient(rgba(10, 15, 25, 0.82), rgba(10, 15, 25, 0.90)),
                 url("/static/images/background.jpg");
-
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            padding: 20px;
         }
 
         .login-box {
-            width: 380px;
-            padding: 40px;
-
-            background: rgba(10, 20, 30, 0.92);
-
-            border-radius: 20px;
-
+            width: 100%;
+            max-width: 420px;
+            padding: 36px 32px;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 18px;
             text-align: center;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+        }
 
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8);
+        .badge-icon {
+            font-size: 40px;
+            display: inline-block;
+            margin-bottom: 8px;
         }
 
         h1 {
-            margin-bottom: 10px;
+            font-size: 24px;
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
         }
 
         .subtitle {
-            color: #cccccc;
-            margin-bottom: 25px;
+            color: #94a3b8;
+            font-size: 13.5px;
+            margin-bottom: 22px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12.5px;
+            color: #cbd5e1;
+            font-weight: 600;
+            margin-bottom: 6px;
         }
 
         input {
             width: 100%;
-            padding: 13px;
-
-            margin-top: 15px;
-
-            border: none;
-            border-radius: 8px;
-
-            font-size: 15px;
+            padding: 12px 14px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: #f8fafc;
+            font-size: 14.5px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        button {
+        input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-submit {
             width: 100%;
             padding: 13px;
-
-            margin-top: 20px;
-
+            margin-top: 8px;
+            background: #2563eb;
+            color: #ffffff;
             border: none;
-            border-radius: 8px;
-
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
             cursor: pointer;
-
-            font-size: 16px;
-            font-weight: bold;
+            transition: background 0.2s, transform 0.15s;
         }
 
-        button:hover {
-            transform: scale(1.02);
+        .btn-submit:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
         }
 
-        .error {
-            color: #ff7777;
-            margin-top: 15px;
+        .btn-submit:active {
+            transform: translateY(0);
         }
 
-        .back {
-            display: block;
+        .error-card {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+        }
 
-            margin-top: 20px;
+        .logout-card {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #6ee7b7;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
 
-            color: white;
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 22px;
+            color: #94a3b8;
             text-decoration: none;
+            font-size: 13.5px;
+            transition: color 0.2s;
         }
 
+        .back-link:hover {
+            color: #f1f5f9;
+        }
     </style>
-
 </head>
-
 
 <body>
 
     <div class="login-box">
 
-        <h1>👮 Authority Login</h1>
+        <span class="badge-icon">👮</span>
+        <h1>Authority Portal Login</h1>
+        <p class="subtitle">Smart Roads Traffic Enforcement & Incident Control</p>
 
-        <p class="subtitle">
-            Authorized Personnel Only
-        </p>
+        {% if logged_out %}
+            <div class="logout-card">
+                ✅ You have been logged out securely.
+            </div>
+        {% endif %}
 
-        <form method="POST">
+        <form id="login-form" method="POST" action="/authority-login">
 
-            <input
-                type="text"
-                name="authority_id"
-                placeholder="Enter Authority ID"
-                required
-            >
+            <div class="input-group">
+                <label class="input-label" for="authority_id">Authority / Officer ID</label>
+                <input
+                    id="authority_id"
+                    type="text"
+                    name="authority_id"
+                    placeholder="Enter Authority ID"
+                    required
+                    autocomplete="username"
+                >
+            </div>
 
-            <input
-                type="password"
-                name="password"
-                placeholder="Enter Password"
-                required
-            >
+            <div class="input-group">
+                <label class="input-label" for="password">Security Password</label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    placeholder="Enter Password"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
 
-            <button type="submit">
-                LOGIN
+            <button type="submit" id="submit-btn" class="btn-submit">
+                SECURE LOGIN
             </button>
 
         </form>
 
+        <div id="dynamic-error" class="error-card" style="display: none;">
+            <span>⚠️</span>
+            <span id="dynamic-error-text"></span>
+        </div>
 
         {% if error %}
-
-            <p class="error">
-                {{ error }}
-            </p>
-
+            <div class="error-card">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
         {% endif %}
 
-
-        <a href="/" class="back">
-            ← Back to Home
+        <a href="/" class="back-link">
+            ← Return to Citizen Portal
         </a>
 
     </div>
+
+    <script>
+        // Intercept form submit to handle both AJAX and token persistence
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submit-btn');
+            const dynamicError = document.getElementById('dynamic-error');
+            const dynamicErrorText = document.getElementById('dynamic-error-text');
+            
+            dynamicError.style.display = 'none';
+            submitBtn.textContent = 'Verifying Credentials...';
+            submitBtn.disabled = true;
+
+            const authorityId = document.getElementById('authority_id').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/authority-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ authority_id: authorityId, password: password })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.success && data.redirect) {
+                    if (data.token) {
+                        try {
+                            sessionStorage.setItem('smart_roads_auth_token', data.token);
+                            localStorage.setItem('smart_roads_auth_token', data.token);
+                        } catch(e) {}
+                    }
+                    window.location.href = data.redirect;
+                } else {
+                    submitBtn.textContent = 'SECURE LOGIN';
+                    submitBtn.disabled = false;
+                    dynamicErrorText.textContent = data.error || 'Invalid credentials. Please verify Authority ID and Password.';
+                    dynamicError.style.display = 'flex';
+                }
+            } catch (err) {
+                // If fetch fails or returned non-JSON, do standard form post
+                this.submit();
+            }
+        });
+    </script>
 
 </body>
 

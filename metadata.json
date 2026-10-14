@@ -1,7 +1,9 @@
 {
   "name": "Smart Roads AI Traffic System",
-  "description": "Intelligent traffic monitoring and control system with traffic analysis, ambulance emergency detection, smart signals, public emergency reporting, and challan lookup.",
-  "requestFramePermissions": [],
+  "description": "Smart Roads: Intelligent AI traffic orchestration platform across all India with real-time GPS tracking & telematics, authority analytics (ANPR violation detection, corridor forecasting, green waves) and public citizen services (interactive live traffic map & route engine, AI challan dispute portal, safety chatbot, and hazard triage).",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

@@ -2,31 +2,27 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Emergency Ambulance Detection - SMART ROADS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Vehicle & Ambulance Detection - SMART ROADS</title>
 
     <style>
-
         * {
             box-sizing: border-box;
         }
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #101820;
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #0d151c;
+            color: #f1f5f9;
+            min-height: 100vh;
         }
 
         header {
-            padding: 20px 40px;
-            background: #182630;
-
+            padding: 18px 36px;
+            background: #15222e;
+            border-bottom: 1px solid #223749;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -34,415 +30,1072 @@
 
         header h2 {
             margin: 0;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #38bdf8;
         }
 
         .back-btn {
-            color: white;
+            color: #f8fafc;
             text-decoration: none;
-            padding: 10px 18px;
-            background: #333;
+            padding: 9px 18px;
+            background: #1e293b;
+            border: 1px solid #334155;
             border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #334155;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1080px;
             margin: auto;
-            padding: 45px 20px;
-            text-align: center;
+            padding: 35px 20px 60px;
         }
 
-        h1 {
-            margin-bottom: 10px;
+        .page-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0 0 10px;
+            font-size: 32px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
         }
 
         .subtitle {
-            color: #cccccc;
-            margin-bottom: 35px;
+            color: #94a3b8;
+            font-size: 16px;
+            margin: 0;
+            max-width: 650px;
+            margin: auto;
+            line-height: 1.5;
         }
 
-        .detection-box {
-            background: #1d2d38;
-            padding: 35px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        .detection-card {
+            background: #15222e;
+            border: 1px solid #223749;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
         }
 
-        .upload-area {
-            border: 2px dashed #777;
-            padding: 35px 20px;
+        /* Sample Quick Testing Bar */
+        .samples-section {
+            margin-bottom: 28px;
+            padding: 20px;
+            background: #0f1922;
+            border: 1px solid #1f3345;
             border-radius: 12px;
-            margin-bottom: 25px;
+        }
+
+        .samples-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #38bdf8;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .samples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+
+        .sample-btn {
+            background: #172635;
+            border: 1px solid #2a435b;
+            color: #e2e8f0;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .sample-btn:hover {
+            background: #203549;
+            border-color: #38bdf8;
+            transform: translateY(-2px);
+        }
+
+        .sample-btn.active {
+            border-color: #38bdf8;
+            background: #1e3a53;
+        }
+
+        .sample-btn .icon {
+            font-size: 24px;
+        }
+
+        .sample-btn .meta {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sample-btn .name {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .sample-btn .desc {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #2f4860;
+            border-radius: 14px;
+            padding: 35px 20px;
+            text-align: center;
+            background: #0e1720;
+            transition: border-color 0.2s, background 0.2s;
+            cursor: pointer;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #38bdf8;
+            background: #121e2a;
+        }
+
+        .upload-icon {
+            font-size: 44px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .upload-area h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            color: #f8fafc;
+        }
+
+        .upload-area p {
+            margin: 0 0 16px;
+            color: #64748b;
+            font-size: 14px;
         }
 
         input[type="file"] {
-            margin-top: 20px;
-            font-size: 15px;
+            display: none;
+        }
+
+        .browse-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #1e293b;
+            border: 1px solid #3b526d;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #38bdf8;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .browse-btn:hover {
+            background: #27384e;
+        }
+
+        .selected-file-badge {
+            margin-top: 14px;
+            font-size: 14px;
+            color: #38bdf8;
+            font-weight: 500;
+            display: none;
+        }
+
+        .actions-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
         }
 
         .detect-btn {
-            margin-top: 10px;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            background: #e63946;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
+            padding: 15px 36px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
         }
 
         .detect-btn:hover {
-            background: #ff4d5a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+            background: linear-gradient(135deg, #f87171, #ef4444);
         }
 
-        .error {
+        /* Scanning State */
+        .scan-overlay {
+            display: none;
             margin-top: 25px;
-            padding: 18px;
-            border-radius: 10px;
-            background: #4a2020;
-            border: 1px solid #ff5555;
+            padding: 30px;
+            background: #0f1a24;
+            border: 1px solid #1f374e;
+            border-radius: 14px;
+            text-align: center;
         }
 
-        .detected {
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 12px;
-            background: #173d25;
-            border: 2px solid #32cd32;
+        .scan-radar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid rgba(56, 189, 248, 0.2);
+            border-top-color: #38bdf8;
+            border-right-color: #ef4444;
+            margin: 0 auto 16px;
+            animation: spin 1s infinite linear;
         }
 
-        .not-detected {
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 12px;
-            background: #3a3218;
-            border: 2px solid #e0b000;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .confidence {
-            font-size: 19px;
-            margin-top: 15px;
+        .scan-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
         }
 
-        .result-image {
-            max-width: 100%;
-            max-height: 500px;
+        .scan-subtext {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        /* Error */
+        .error-alert {
             margin-top: 25px;
-            border-radius: 12px;
-        }
-
-        .voice-message {
-            margin-top: 20px;
-            padding: 18px;
+            padding: 16px 20px;
+            background: #451a1a;
+            border: 1px solid #ef4444;
             border-radius: 10px;
-            background: #263c4a;
-        }
-
-        .workflow {
-            margin-top: 40px;
-
+            color: #fca5a5;
             display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+        }
 
+        /* Detection Results */
+        .results-section {
+            margin-top: 35px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-card-detected {
+            background: #11281e;
+            border: 2px solid #22c55e;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.18);
+        }
+
+        .alert-card-none {
+            background: #182635;
+            border: 1px solid #334e68;
+            border-radius: 16px;
+            padding: 28px;
+        }
+
+        .result-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .badge-emergency {
+            background: #dc2626;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+            animation: pulseAlert 1.5s infinite;
+        }
+
+        @keyframes pulseAlert {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .badge-clear {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-box {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-box .label {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-box .val {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .features-list {
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 18px 22px;
+            border-radius: 12px;
+        }
+
+        .features-list h4 {
+            margin: 0 0 12px;
+            font-size: 15px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .features-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .feature-tag {
+            background: #1f3347;
+            color: #e2e8f0;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            border: 1px solid #2d4c6a;
+        }
+
+        .action-banner {
+            margin-top: 24px;
+            background: #162c20;
+            border: 1px solid #22c55e;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
             gap: 15px;
         }
 
-        .step {
-            background: #263c4a;
-            padding: 18px;
-            border-radius: 10px;
-            min-width: 150px;
+        .action-banner h4 {
+            margin: 0 0 6px;
+            color: #4ade80;
+            font-size: 16px;
         }
 
+        .action-banner p {
+            margin: 0;
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        .override-btn {
+            background: #22c55e;
+            color: #052e16;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.35);
+        }
+
+        .override-btn:hover {
+            background: #4ade80;
+            transform: translateY(-2px);
+        }
+
+        /* Siren Sound & Voice Bar */
+        .audio-controls {
+            margin-top: 20px;
+            padding: 16px 20px;
+            background: #0f1922;
+            border: 1px solid #223749;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .audio-btn {
+            background: #1e293b;
+            border: 1px solid #38bdf8;
+            color: #38bdf8;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .audio-btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
+        }
+
+        .audio-btn.active {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+        }
+
+        .image-preview-box {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .image-preview-box img {
+            max-width: 100%;
+            max-height: 480px;
+            border-radius: 12px;
+            border: 1px solid #2d455d;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .objects-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .objects-table th, .objects-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid #1f3347;
+        }
+
+        .objects-table th {
+            color: #94a3b8;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .workflow-pills {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 40px;
+        }
+
+        .workflow-pill {
+            background: #15222e;
+            border: 1px solid #223749;
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #cbd5e1;
+        }
+
+        .workflow-pill .pill-num {
+            width: 24px;
+            height: 24px;
+            background: #38bdf8;
+            color: #0f172a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+        }
     </style>
-
 </head>
-
 
 <body>
 
+    <header>
+        <h2>
+            <span>🚨</span>
+            <span>SMART ROADS Emergency Detection Center</span>
+        </h2>
 
-<header>
+        <a href="/authority-dashboard{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="back-btn">
+            ← Authority Dashboard
+        </a>
+    </header>
 
-    <h2>🚑 SMART ROADS - Ambulance Detection</h2>
+    <div class="container">
 
-    <a href="/authority-dashboard"
-       class="back-btn">
-
-        ← Dashboard
-
-    </a>
-
-</header>
-
-
-<div class="container">
-
-
-    <h1>
-        Emergency Vehicle Priority System
-    </h1>
-
-
-    <p class="subtitle">
-
-        Upload a traffic image and let AI detect
-        an ambulance automatically.
-
-    </p>
-
-
-    <div class="detection-box">
-
-
-        <!-- ================================================= -->
-        <!-- UPLOAD FORM -->
-        <!-- ================================================= -->
-
-        <form method="POST"
-              enctype="multipart/form-data">
-
-
-            <div class="upload-area">
-
-                <h2>
-                    📁 Upload Traffic Image
-                </h2>
-
-                <p>
-                    Select an image containing traffic
-                    or an ambulance.
-                </p>
-
-
-                <input
-                    type="file"
-                    name="ambulance_image"
-                    accept="image/*"
-                    required
-                >
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="detect-btn">
-
-                🚑 Detect Emergency Vehicle
-
-            </button>
-
-
-        </form>
-
-
-        <!-- ================================================= -->
-        <!-- ERROR -->
-        <!-- ================================================= -->
-
-        {% if error %}
-
-        <div class="error">
-
-            ⚠️ {{ error }}
-
+        <div class="page-header">
+            <h1>Emergency Vehicle AI Priority Detection</h1>
+            <p class="subtitle">
+                Computer vision models (Gemini Vision AI) identify approaching Ambulances, Fire Engines, and Police Patrol units from CCTV video/photo feeds to trigger preemptive Green Corridors.
+            </p>
         </div>
 
-        {% endif %}
+        <div class="detection-card">
 
+            <!-- QUICK DEMO PRESETS -->
+            <div class="samples-section">
+                <div class="samples-title">
+                    <span>⚡ Quick Test With Demo Feeds:</span>
+                </div>
+                <div class="samples-grid">
+                    <button type="button" class="sample-btn" onclick="selectSample('ambulance_traffic.jpg', this)">
+                        <span class="icon">🚑</span>
+                        <span class="meta">
+                            <span class="name">Ambulance in Corridor</span>
+                            <span class="desc">Active EMS patient vehicle</span>
+                        </span>
+                    </button>
 
-        <!-- ================================================= -->
-        <!-- AMBULANCE DETECTED -->
-        <!-- ================================================= -->
+                    <button type="button" class="sample-btn" onclick="selectSample('traffic.jpg', this)">
+                        <span class="icon">🚗</span>
+                        <span class="meta">
+                            <span class="name">Normal City Traffic</span>
+                            <span class="desc">Passenger cars (No emergency)</span>
+                        </span>
+                    </button>
 
-        {% if result and result.detected %}
-
-        <div class="detected">
-
-            <h2>
-                🚑 Ambulance Detected!
-            </h2>
-
-            <p>
-                The AI system has detected an
-                emergency ambulance in the image.
-            </p>
-
-
-            <div class="confidence">
-
-                AI Detection Confidence:
-
-                <strong>
-                    {{ result.confidence }}%
-                </strong>
-
+                    <button type="button" class="sample-btn" onclick="selectSample('detected_traffic.jpg', this)">
+                        <span class="icon">🚙</span>
+                        <span class="meta">
+                            <span class="name">Multi-Lane Roadway</span>
+                            <span class="desc">High density regular traffic</span>
+                        </span>
+                    </button>
+                </div>
             </div>
 
+            <!-- UPLOAD FORM -->
+            <form id="detectionForm" method="POST" action="/ambulance-detection{% if auth_token %}?auth={{ auth_token }}{% endif %}" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" name="sample_image" id="sampleInput" value="{{ sample_selected or '' }}">
 
-            <div class="voice-message">
+                <div class="upload-area" id="dropZone" onclick="document.getElementById('ambulanceImageInput').click()">
+                    <span class="upload-icon">📷</span>
+                    <h3>Drag & Drop Traffic Photo or Click to Browse</h3>
+                    <p>Supports JPG, PNG, WEBP high-resolution CCTV camera captures</p>
 
-                🔊 <strong>Emergency Voice Alert</strong>
+                    <input type="file" id="ambulanceImageInput" name="ambulance_image" accept="image/*" onchange="handleFileChosen(this)">
 
-                <p>
+                    <button type="button" class="browse-btn" onclick="document.getElementById('ambulanceImageInput').click(); event.stopPropagation();">
+                        Choose Local Image
+                    </button>
 
-                    "Attention! An ambulance has been
-                    detected. Please make way for the
-                    emergency vehicle."
+                    <div id="fileBadge" class="selected-file-badge"></div>
+                </div>
 
-                </p>
+                <div class="actions-row">
+                    <button type="submit" class="detect-btn" id="submitBtn">
+                        <span>🚨</span>
+                        <span>Scan For Emergency Vehicle</span>
+                    </button>
+                </div>
+            </form>
 
+            <!-- SCAN RADAR OVERLAY -->
+            <div id="scanOverlay" class="scan-overlay">
+                <div class="scan-radar"></div>
+                <div class="scan-text" id="scanText">Initializing Gemini Vision Optical Scan...</div>
+                <div class="scan-subtext" id="scanSub">Checking for emergency beacons, red-cross insignias, and sirens</div>
             </div>
 
-
-            {% if image_url %}
-
-            <h3>
-                🔍 AI Detection Result
-            </h3>
-
-            <img
-                src="{{ image_url }}"
-                class="result-image"
-            >
-
+            <!-- ERROR MESSAGE -->
+            {% if error %}
+            <div class="error-alert">
+                <span>⚠️</span>
+                <span>{{ error }}</span>
+            </div>
             {% endif %}
 
+            <!-- RESULTS SECTION -->
+            {% if result %}
+            <div class="results-section">
+
+                {% if result.detected %}
+                <!-- POSITIVE EMERGENCY VEHICLE DETECTED -->
+                <div class="alert-card-detected">
+                    <div class="result-top">
+                        <div>
+                            <span class="status-badge badge-emergency">
+                                <span>🚨 PRIORITY ALERT</span>
+                                <span>•</span>
+                                <span>EMERGENCY VEHICLE IN CORRIDOR</span>
+                            </span>
+                            <h2 style="margin: 12px 0 6px; font-size: 26px; color: #ffffff;">
+                                {{ result.vehicle_type }} Detected
+                            </h2>
+                            <p style="margin: 0; color: #86efac; font-size: 15px;">
+                                📍 {{ result.vehicle_location or "Approaching junction intersection" }}
+                            </p>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <span style="font-size: 13px; color: #86efac; text-transform: uppercase;">Confidence Score</span>
+                            <div style="font-size: 32px; font-weight: 800; color: #4ade80;">
+                                {{ result.confidence }}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="label">Vehicle Class</div>
+                            <div class="val">{{ result.vehicle_type }}</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="label">Beacon / Siren</div>
+                            <div class="val" style="color: #f87171;">
+                                {% if result.siren_active %}🔴 ACTIVE BEACON{% else %}⚪ MOUNTED{% endif %}
+                            </div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="label">Corridor Status</div>
+                            <div class="val" style="color: #4ade80;">PREEMPTION READY</div>
+                        </div>
+                    </div>
+
+                    {% if result.identified_features and result.identified_features.length %}
+                    <div class="features-list">
+                        <h4>🔍 Identified Visual Markers:</h4>
+                        <div class="features-tags">
+                            {% for feat in result.identified_features %}
+                            <span class="feature-tag">✓ {{ feat }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- AUDIO SIREN & VOICE BROADCAST -->
+                    <div class="audio-controls">
+                        <div>
+                            <strong style="color: #ffffff; font-size: 14px;">🔊 Real-Time Emergency Audio Broadcast:</strong>
+                            <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;" id="voiceText">
+                                "{{ result.voice_alert or 'Attention: Emergency vehicle approaching. Clear the lane immediately.' }}"
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="audio-btn" id="sirenBtn" onclick="toggleSiren()">
+                                <span>🚨</span>
+                                <span id="sirenBtnText">Play Siren Audio</span>
+                            </button>
+
+                            <button type="button" class="audio-btn" onclick="speakVoiceAlert()">
+                                <span>📢</span>
+                                <span>Replay Voice Alert</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ACTION OVERRIDE BANNER -->
+                    <div class="action-banner">
+                        <div>
+                            <h4>🚦 Recommended Controller Preemption:</h4>
+                            <p>{{ result.recommended_action or "Trigger immediate green corridor override on Approach 2." }}</p>
+                        </div>
+
+                        <a href="/smart-signal?route=Route+B+-+Hospital+Road&priority=emergency{% if auth_token %}&auth={{ auth_token }}{% endif %}" class="override-btn">
+                            <span>🚦</span>
+                            <span>Activate Green Corridor</span>
+                        </a>
+                    </div>
+
+                    {% if result.objects and result.objects.length %}
+                    <div style="margin-top: 25px;">
+                        <h4 style="margin: 0 0 10px; color: #94a3b8; font-size: 14px;">DETECTED ROADWAY ENTITIES</h4>
+                        <table class="objects-table">
+                            <thead>
+                                <tr>
+                                    <th>Detected Entity</th>
+                                    <th>Confidence</th>
+                                    <th>Position / Context</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in result.objects %}
+                                <tr>
+                                    <td style="font-weight: 600; color: #f8fafc;">{{ obj.name }}</td>
+                                    <td style="color: #38bdf8;">{{ obj.confidence }}%</td>
+                                    <td style="color: #94a3b8;">{{ obj.location or "Corridor" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                {% else %}
+                <!-- NEGATIVE: NO EMERGENCY VEHICLE -->
+                <div class="alert-card-none">
+                    <div class="result-top">
+                        <div>
+                            <span class="status-badge badge-clear">
+                                <span>⚪ CLEAR</span>
+                                <span>•</span>
+                                <span>NO EMERGENCY VEHICLES DETECTED</span>
+                            </span>
+                            <h2 style="margin: 12px 0 6px; font-size: 24px; color: #ffffff;">
+                                Normal Civilian Traffic Flow
+                            </h2>
+                            <p style="margin: 0; color: #94a3b8; font-size: 14px;">
+                                The AI scanned the scene and confirmed no active ambulances, fire rescue trucks, or police pursuit vehicles are present.
+                            </p>
+                        </div>
+
+                        <div style="text-align: right;">
+                            <span style="font-size: 13px; color: #94a3b8; text-transform: uppercase;">Status</span>
+                            <div style="font-size: 22px; font-weight: 700; color: #38bdf8;">
+                                Standard Cycle
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if result.identified_features and result.identified_features.length %}
+                    <div class="features-list">
+                        <h4>🔍 Observations in Optical Frame:</h4>
+                        <div class="features-tags">
+                            {% for feat in result.identified_features %}
+                            <span class="feature-tag">• {{ feat }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if result.objects and result.objects.length %}
+                    <div style="margin-top: 15px;">
+                        <h4 style="margin: 0 0 10px; color: #94a3b8; font-size: 14px;">DETECTED ROADWAY ENTITIES</h4>
+                        <table class="objects-table">
+                            <thead>
+                                <tr>
+                                    <th>Detected Entity</th>
+                                    <th>Confidence</th>
+                                    <th>Position / Context</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in result.objects %}
+                                <tr>
+                                    <td style="font-weight: 600; color: #f8fafc;">{{ obj.name }}</td>
+                                    <td style="color: #38bdf8;">{{ obj.confidence }}%</td>
+                                    <td style="color: #94a3b8;">{{ obj.location or "Roadway" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    <div style="margin-top: 20px; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 10px; color: #cbd5e1; font-size: 14px;">
+                        🤖 <strong>AI System Decision:</strong> {{ result.recommended_action or "Standard signal timings remain optimal. No preemption requested." }}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if image_url %}
+                <div class="image-preview-box">
+                    <h3 style="color: #94a3b8; font-size: 14px; text-transform: uppercase; margin-bottom: 12px;">
+                        📷 Analyzed Camera Snapshot
+                    </h3>
+                    <img src="{{ image_url }}" alt="Analyzed Traffic Capture">
+                </div>
+                {% endif %}
+
+            </div>
+            {% endif %}
 
         </div>
 
+        <!-- WORKFLOW EXPLANATION PILLS -->
+        <div class="workflow-pills">
+            <div class="workflow-pill">
+                <span class="pill-num">1</span>
+                <span>Camera Feed Capture</span>
+            </div>
+            <div class="workflow-pill">
+                <span class="pill-num">2</span>
+                <span>Gemini Vision AI Model</span>
+            </div>
+            <div class="workflow-pill">
+                <span class="pill-num">3</span>
+                <span>Beacon & Emblem Classification</span>
+            </div>
+            <div class="workflow-pill">
+                <span class="pill-num">4</span>
+                <span>Green Corridor Signal Preemption</span>
+            </div>
+        </div>
 
-        <!-- ================================================= -->
-        <!-- VOICE ALERT -->
-        <!-- ================================================= -->
+    </div>
 
-        <script>
+    <!-- AUDIO SYNTHESIZER & SCRIPT LOGIC -->
+    <script>
+        // Sample Preset Selection
+        function selectSample(imageName, btn) {
+            document.querySelectorAll('.sample-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('sampleInput').value = imageName;
 
-            window.onload = function() {
+            const badge = document.getElementById('fileBadge');
+            badge.style.display = 'block';
+            badge.innerHTML = '⚡ Selected Demo Preset: <strong>' + imageName + '</strong>';
 
-                const message =
-                    "Attention! An ambulance has been detected. Please make way for the emergency vehicle.";
+            // Clear file input so sample takes precedence
+            document.getElementById('ambulanceImageInput').value = '';
 
-                if (
-                    "speechSynthesis"
-                    in window
-                ) {
+            // Auto-submit for smooth 1-click test
+            showScanningAnimation();
+            setTimeout(function() {
+                document.getElementById('detectionForm').submit();
+            }, 600);
+        }
 
-                    const speech =
-                        new SpeechSynthesisUtterance(
-                            message
-                        );
+        // File Selection
+        function handleFileChosen(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                document.getElementById('sampleInput').value = '';
+                document.querySelectorAll('.sample-btn').forEach(b => b.classList.remove('active'));
 
-                    speech.rate = 0.9;
+                const badge = document.getElementById('fileBadge');
+                badge.style.display = 'block';
+                badge.innerHTML = '📁 Selected File: <strong>' + file.name + '</strong> (' + Math.round(file.size / 1024) + ' KB)';
+            }
+        }
 
-                    speech.pitch = 1;
+        // Drag and drop handlers
+        const dropZone = document.getElementById('dropZone');
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
 
-                    window.speechSynthesis.speak(
-                        speech
-                    );
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
 
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            if (dt.files && dt.files.length) {
+                const fileInput = document.getElementById('ambulanceImageInput');
+                fileInput.files = dt.files;
+                handleFileChosen(fileInput);
+            }
+        });
+
+        // Form Submit
+        function handleFormSubmit(e) {
+            const sample = document.getElementById('sampleInput').value;
+            const fileInput = document.getElementById('ambulanceImageInput');
+
+            if (!sample && (!fileInput.files || !fileInput.files.length)) {
+                e.preventDefault();
+                alert('Please choose a local traffic image or click one of the quick test presets.');
+                return;
+            }
+
+            showScanningAnimation();
+        }
+
+        function showScanningAnimation() {
+            document.getElementById('scanOverlay').style.display = 'block';
+            document.getElementById('submitBtn').disabled = true;
+
+            const scanText = document.getElementById('scanText');
+            const scanSub = document.getElementById('scanSub');
+
+            setTimeout(() => {
+                scanText.innerText = 'Scanning Vehicle Geometries and Liveries...';
+                scanSub.innerText = 'Inspecting rooftop beacon signatures and emergency chevrons';
+            }, 500);
+
+            setTimeout(() => {
+                scanText.innerText = 'Classifying Emergency Priority Matrix...';
+                scanSub.innerText = 'Preparing signal preemption coordinates';
+            }, 1100);
+        }
+
+        // Web Audio Emergency Siren Synthesizer
+        let audioCtx = null;
+        let sirenOscillator = null;
+        let sirenGain = null;
+        let sirenInterval = null;
+        let isSirenPlaying = false;
+
+        function toggleSiren() {
+            if (isSirenPlaying) {
+                stopSiren();
+            } else {
+                startSiren();
+            }
+        }
+
+        function startSiren() {
+            try {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 }
 
-            };
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
 
-        </script>
+                sirenOscillator = audioCtx.createOscillator();
+                sirenGain = audioCtx.createGain();
 
+                sirenOscillator.type = 'sawtooth';
+                sirenGain.gain.setValueAtTime(0.12, audioCtx.currentTime);
 
-        {% elif result %}
+                sirenOscillator.connect(sirenGain);
+                sirenGain.connect(audioCtx.destination);
 
+                sirenOscillator.start();
+                isSirenPlaying = true;
 
-        <!-- ================================================= -->
-        <!-- NO AMBULANCE -->
-        <!-- ================================================= -->
+                let highTone = false;
+                sirenOscillator.frequency.setValueAtTime(650, audioCtx.currentTime);
 
-        <div class="not-detected">
+                sirenInterval = setInterval(() => {
+                    if (!audioCtx || !sirenOscillator) return;
+                    highTone = !highTone;
+                    const freq = highTone ? 920 : 650;
+                    sirenOscillator.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.15);
+                }, 400);
 
-            <h2>
-                🔍 No Ambulance Detected
-            </h2>
+                const btn = document.getElementById('sirenBtn');
+                if (btn) {
+                    btn.classList.add('active');
+                    document.getElementById('sirenBtnText').innerText = 'Stop Siren Audio';
+                }
+            } catch (err) {
+                console.warn('Audio synthesis warning:', err);
+            }
+        }
 
-            <p>
+        function stopSiren() {
+            if (sirenInterval) {
+                clearInterval(sirenInterval);
+                sirenInterval = null;
+            }
+            if (sirenOscillator) {
+                try {
+                    sirenOscillator.stop();
+                    sirenOscillator.disconnect();
+                } catch (e) {}
+                sirenOscillator = null;
+            }
+            isSirenPlaying = false;
+            const btn = document.getElementById('sirenBtn');
+            if (btn) {
+                btn.classList.remove('active');
+                document.getElementById('sirenBtnText').innerText = 'Play Siren Audio';
+            }
+        }
 
-                No emergency ambulance was
-                identified in the uploaded image.
+        // Web Speech Voice Announcement
+        function speakVoiceAlert() {
+            {% if result and result.detected %}
+            const alertText = "{{ result.voice_alert or 'Priority Alert! Emergency vehicle detected approaching the junction. Please clear the lane immediately.' }}";
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(alertText);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.05;
+                window.speechSynthesis.speak(utterance);
+            }
+            {% endif %}
+        }
 
-            </p>
-
-            <p>
-
-                Try uploading a clearer image
-                containing an ambulance.
-
-            </p>
-
-        </div>
-
-
-        {% endif %}
-
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- WORKFLOW -->
-    <!-- ================================================= -->
-
-    <div class="workflow">
-
-
-        <div class="step">
-
-            📷<br>
-
-            Traffic Image
-
-        </div>
-
-
-        <div class="step">
-
-            🤖<br>
-
-            AI Analysis
-
-        </div>
-
-
-        <div class="step">
-
-            🚑<br>
-
-            Ambulance Detection
-
-        </div>
-
-
-        <div class="step">
-
-            🚦<br>
-
-            Signal Priority
-
-        </div>
-
-
-        <div class="step">
-
-            🔊<br>
-
-            Voice Alert
-
-        </div>
-
-
-    </div>
-
-
-</div>
-
+        // Auto trigger speech on positive detection
+        window.addEventListener('load', () => {
+            {% if result and result.detected %}
+            setTimeout(speakVoiceAlert, 800);
+            {% endif %}
+        });
+    </script>
 
 </body>
 

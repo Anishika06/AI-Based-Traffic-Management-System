@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Traffic Copilot - Operations Assistant - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            padding: 18px 32px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #a855f7;
+        }
+
+        .back-btn {
+            color: #e2e8f0;
+            text-decoration: none;
+            padding: 9px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .chat-container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 20px auto 40px;
+            padding: 0 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .copilot-card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            height: 75vh;
+        }
+
+        .copilot-header {
+            padding: 16px 24px;
+            background: #14202d;
+            border-bottom: 1px solid #1f3347;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .copilot-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .copilot-status {
+            font-size: 12px;
+            color: #a855f7;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .msg.assistant {
+            align-self: flex-start;
+            background: #162433;
+            border: 1px solid #233a52;
+            color: #f1f5f9;
+            border-bottom-left-radius: 4px;
+        }
+
+        .msg.user {
+            align-self: flex-end;
+            background: #9333ea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .prompt-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #0d151e;
+            border-top: 1px solid #1a2838;
+        }
+
+        .chip {
+            background: #162230;
+            border: 1px solid #25394e;
+            color: #cbd5e1;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            background: #23384f;
+            color: #38bdf8;
+            border-color: #38bdf8;
+        }
+
+        .input-bar {
+            padding: 16px 24px;
+            background: #14202d;
+            border-top: 1px solid #1f3347;
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-bar input {
+            flex: 1;
+            background: #0b1118;
+            border: 1px solid #22374c;
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input-bar input:focus {
+            border-color: #a855f7;
+        }
+
+        .btn-send {
+            background: #9333ea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-send:hover {
+            background: #a855f7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>🤖</span>
+            AI Traffic Copilot - Operations Assistant
+        </h2>
+        <a href="/authority-dashboard{% if auth_token %}?auth={{ auth_token }}{% endif %}" class="back-btn">← Authority Dashboard</a>
+    </header>
+
+    <div class="chat-container">
+
+        <div class="copilot-card">
+            
+            <div class="copilot-header">
+                <div class="copilot-title">
+                    <span>🧠</span>
+                    SMART ROADS Autonomous Operations Copilot
+                </div>
+                <div class="copilot-status">
+                    <span>●</span> Gemini 3.8 Flash Connected
+                </div>
+            </div>
+
+            <div class="messages-area" id="messages">
+                <div class="msg assistant">
+                    👋 <strong>Hello, Traffic Control Officer.</strong> I am your AI Operations Copilot for the city's intelligent roadway network.<br><br>
+                    You can ask me to:
+                    <ul>
+                        <li>Audit intersection congestion & recommend signal cycle times.</li>
+                        <li>Check active vehicle violation records, ANPR hits, and unpaid challan statistics.</li>
+                        <li>Simulate detour strategies for road construction, accidents, or VVIP green corridors.</li>
+                        <li>Analyze live citizen hazard reports for rapid dispatch.</li>
+                    </ul>
+                    How can I assist your traffic command center today?
+                </div>
+            </div>
+
+            <div class="prompt-chips">
+                <div class="chip" onclick="useChip('Which intersection has the highest vehicle density right now?')">🚦 Highest congestion right now?</div>
+                <div class="chip" onclick="useChip('What is the procedure if Sector 4 junction closes due to an accident?')">🚧 Sector 4 accident detour plan</div>
+                <div class="chip" onclick="useChip('Summarize all helmetless and red-light violations logged today.')">📋 Summarize today\'s violations</div>
+                <div class="chip" onclick="useChip('How many ambulances requested emergency preemption today?')">🚑 Emergency preemption stats</div>
+            </div>
+
+            <form class="input-bar" id="copilot-form" onsubmit="sendMessage(event)">
+                <input type="text" id="user-input" placeholder="Ask Traffic Copilot in plain language (e.g. 'Recommend green split for Ring Road')..." autocomplete="off" required>
+                <button type="submit" class="btn-send" id="send-btn">Send</button>
+            </form>
+
+        </div>
+
+    </div>
+
+    <script>
+        function useChip(text) {
+            document.getElementById('user-input').value = text;
+            sendMessage(new Event('submit'));
+        }
+
+        async function sendMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const messagesArea = document.getElementById('messages');
+
+            // Add user message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'msg user';
+            userMsg.textContent = text;
+            messagesArea.appendChild(userMsg);
+
+            input.value = '';
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            // Add placeholder assistant message
+            const assistantMsg = document.createElement('div');
+            assistantMsg.className = 'msg assistant';
+            assistantMsg.innerHTML = '<em>Thinking... accessing live traffic telemetry & Gemini AI model...</em>';
+            messagesArea.appendChild(assistantMsg);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+
+            const sendBtn = document.getElementById('send-btn');
+            sendBtn.disabled = true;
+
+            try {
+                const res = await fetch('/api/ai-copilot-chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: text })
+                });
+                const data = await res.json();
+                assistantMsg.innerHTML = data.reply || 'Apologies officer, I could not complete the operation. Please try again.';
+            } catch (err) {
+                assistantMsg.innerHTML = '⚠️ Failed to contact AI Copilot service. Please ensure network connectivity.';
+            } finally {
+                sendBtn.disabled = false;
+                messagesArea.scrollTop = messagesArea.scrollHeight;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

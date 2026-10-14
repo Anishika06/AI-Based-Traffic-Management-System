@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI e-Challan Dispute & Grievance Portal - SMART ROADS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #090e15;
+            color: #f1f5f9;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 16px 28px;
+            background: rgba(17, 27, 39, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 19px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #a855f7;
+        }
+
+        .back-btn {
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .container {
+            max-width: 840px;
+            margin: 36px auto 60px;
+            padding: 0 20px;
+        }
+
+        .hero-banner {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .hero-banner h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0 0 8px;
+            color: #ffffff;
+        }
+
+        .hero-banner p {
+            color: #94a3b8;
+            font-size: 14.5px;
+            margin: 0 auto;
+            max-width: 620px;
+            line-height: 1.6;
+        }
+
+        .dispute-card {
+            background: #111a24;
+            border: 1px solid #1e2f42;
+            border-radius: 14px;
+            padding: 28px;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.4);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 8px;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            background: #090e15;
+            border: 1px solid #22354a;
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #a855f7;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px;
+            width: 100%;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+        }
+
+        .result-box {
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: 12px;
+            background: #142232;
+            border: 1px solid #223f5e;
+            display: none;
+        }
+
+        .result-box.active {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2>
+            <span>⚖️</span>
+            AI e-Challan Dispute & Grievance Portal
+        </h2>
+        <a href="/public-portal" class="back-btn">← Public Services Portal</a>
+    </header>
+
+    <div class="container">
+
+        <div class="hero-banner">
+            <h1>Contest an Incorrect Traffic Notice</h1>
+            <p>
+                If you believe an automated camera fine was issued in error (e.g., mismatched license plate OCR, vehicle sold, or emergency hospital transit), submit your appeal here. Our AI auditor verifies telemetry immediately.
+            </p>
+        </div>
+
+        <div class="dispute-card">
+            
+            <form id="disputeForm" onsubmit="submitDispute(event)">
+                <div class="form-group">
+                    <label for="challanId">Challan / Notice Number</label>
+                    <input type="text" id="challanId" placeholder="e.g. CH-2026-9011 or Notice ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="vehicleReg">Vehicle Registration Number</label>
+                    <input type="text" id="vehicleReg" placeholder="e.g. TN 01 AB 1234" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="reason">Primary Grounds for Contest</label>
+                    <select id="reason" required>
+                        <option value="" disabled selected>Select dispute category</option>
+                        <option value="Cloned / Mismatched License Plate">Cloned / Mismatched OCR License Plate (Not my vehicle)</option>
+                        <option value="Emergency Patient Transfer">Emergency Patient Transit (Medical Priority)</option>
+                        <option value="Vehicle Sold Prior to Offense Date">Vehicle was transferred/sold before infraction timestamp</option>
+                        <option value="Traffic Police Hand Signal Override">Directed by on-duty traffic officer to proceed</option>
+                        <option value="Factual / Location Error">Vehicle was not present in this city corridor</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="details">Supporting Explanation</label>
+                    <textarea id="details" rows="4" placeholder="Explain the factual circumstances (e.g. hospital admission slip details, vehicle color discrepancy, sale deed registration date)..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span>⚡</span> Submit Grievance for AI Audit
+                </button>
+            </form>
+
+            <div class="result-box" id="resultBox">
+                <div class="result-title" id="resultTitle">
+                    <span>✅</span> Grievance Evaluated & Lodged
+                </div>
+                <div id="resultBody" style="font-size: 14px; color: #cbd5e1; line-height: 1.6;"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        async function submitDispute(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ AI Reviewing Camera Telemetry & OCR...';
+
+            const challanId = document.getElementById('challanId').value.trim();
+            const reg = document.getElementById('vehicleReg').value.trim();
+            const reason = document.getElementById('reason').value;
+            const details = document.getElementById('details').value;
+
+            try {
+                const res = await fetch('/api/public-dispute-challan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ challanId, reg, reason, details })
+                });
+                const data = await res.json();
+
+                const box = document.getElementById('resultBox');
+                box.className = 'result-box active';
+                document.getElementById('resultTitle').innerHTML = `<span>📋</span> Grievance Ticket #${data.ticket_id} Generated`;
+                document.getElementById('resultBody').innerHTML = `
+                    <strong>Status:</strong> ${data.status}<br>
+                    <strong>AI Recommendation:</strong> ${data.ai_recommendation}<br>
+                    <strong>Officer Review:</strong> ${data.assigned_review}<br>
+                    <p style="margin-top: 10px; font-size: 13px; color: #94a3b8;">
+                        A confirmation SMS has been dispatched. Late payment penalties are temporarily frozen pending review.
+                    </p>
+                `;
+            } catch (err) {
+                alert('Grievance logged with transport authority registrar.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '⚡ Submit Another Grievance';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
